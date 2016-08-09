@@ -1,7 +1,5 @@
 
-Stratis development tree
-
-Stratis is a PoS-based cryptocurrency.
+Stratis Interim Wallet
 
 Development process
 ===========================
