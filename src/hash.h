@@ -11,19 +11,19 @@
 #include <openssl/sha.h>
 #include <openssl/ripemd.h>
 
-#include "x13hash/sph_blake.h"
-#include "x13hash/sph_bmw.h"
-#include "x13hash/sph_groestl.h"
-#include "x13hash/sph_jh.h"
-#include "x13hash/sph_keccak.h"
-#include "x13hash/sph_skein.h"
-#include "x13hash/sph_luffa.h"
-#include "x13hash/sph_cubehash.h"
-#include "x13hash/sph_shavite.h"
-#include "x13hash/sph_simd.h"
-#include "x13hash/sph_echo.h"
-#include "x13hash/sph_hamsi.h"
-#include "x13hash/sph_fugue.h"
+#include "obj/x13hash/sph_blake.h"
+#include "obj/x13hash/sph_bmw.h"
+#include "obj/x13hash/sph_groestl.h"
+#include "obj/x13hash/sph_jh.h"
+#include "obj/x13hash/sph_keccak.h"
+#include "obj/x13hash/sph_skein.h"
+#include "obj/x13hash/sph_luffa.h"
+#include "obj/x13hash/sph_cubehash.h"
+#include "obj/x13hash/sph_shavite.h"
+#include "obj/x13hash/sph_simd.h"
+#include "obj/x13hash/sph_echo.h"
+#include "obj/x13hash/sph_hamsi.h"
+#include "obj/x13hash/sph_fugue.h"
 
 #ifndef QT_NO_DEBUG
 #include <string>
