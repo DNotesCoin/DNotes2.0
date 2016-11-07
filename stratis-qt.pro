@@ -227,35 +227,35 @@ HEADERS += src/qt/bitcoingui.h \
     src/clientversion.h \
     src/threadsafety.h \
     src/tinyformat.h \
-    src/x13hash/sph_blake.h \
-    src/x13hash/sph_skein.h \
-    src/x13hash/sph_keccak.h \
-    src/x13hash/sph_jh.h \
-    src/x13hash/sph_groestl.h \
-    src/x13hash/sph_bmw.h \
-    src/x13hash/sph_types.h \
-    src/x13hash/sph_luffa.h \
-    src/x13hash/sph_cubehash.h \
-    src/x13hash/sph_echo.h \
-    src/x13hash/sph_shavite.h \
-    src/x13hash/sph_simd.h \
-    src/x13hash/sph_hamsi.h \
-	src/x13hash/sph_fugue.h
+    src/obj/x13hash/sph_blake.h \
+    src/obj/x13hash/sph_skein.h \
+    src/obj/x13hash/sph_keccak.h \
+    src/obj/x13hash/sph_jh.h \
+    src/obj/x13hash/sph_groestl.h \
+    src/obj/x13hash/sph_bmw.h \
+    src/obj/x13hash/sph_types.h \
+    src/obj/x13hash/sph_luffa.h \
+    src/obj/x13hash/sph_cubehash.h \
+    src/obj/x13hash/sph_echo.h \
+    src/obj/x13hash/sph_shavite.h \
+    src/obj/x13hash/sph_simd.h \
+    src/obj/x13hash/sph_hamsi.h \
+    src/obj/x13hash/sph_fugue.h
 
 SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
-    src/x13hash/blake.c \
-    src/x13hash/bmw.c \
-    src/x13hash/groestl.c \
-    src/x13hash/jh.c \
-    src/x13hash/keccak.c \
-    src/x13hash/skein.c \
-    src/x13hash/luffa.c \
-    src/x13hash/cubehash.c \
-    src/x13hash/shavite.c \
-    src/x13hash/echo.c \
-    src/x13hash/simd.c \
-    src/x13hash/hamsi.c \
-	src/x13hash/fugue.c \
+    src/obj/x13hash/blake.c \
+    src/obj/x13hash/bmw.c \
+    src/obj/x13hash/groestl.c \
+    src/obj/x13hash/jh.c \
+    src/obj/x13hash/keccak.c \
+    src/obj/x13hash/skein.c \
+    src/obj/x13hash/luffa.c \
+    src/obj/x13hash/cubehash.c \
+    src/obj/x13hash/shavite.c \
+    src/obj/x13hash/echo.c \
+    src/obj/x13hash/simd.c \
+    src/obj/x13hash/hamsi.c \
+    src/obj/x13hash/fugue.c \
     src/qt/transactiontablemodel.cpp \
     src/qt/addresstablemodel.cpp \
     src/qt/optionsdialog.cpp \
