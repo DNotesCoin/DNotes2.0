@@ -1932,20 +1932,8 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
         return DoS(50, error("CheckBlock() : proof of work failed"));
 
     // Check timestamp
-
-//i added below
-//    map<uint256, CBlockIndex*>::iterator mi = mapBlockIndex.find(hashPrevBlock);
-//    if (mi == mapBlockIndex.end())
-//        return DoS(10, error("AcceptBlock() : prev block not found"));
-//    CBlockIndex* pindexPrev = (*mi).second;
-//    int nHeight = pindexPrev->nHeight+1;
-    if(nTime < 1479012252)
-      if (GetBlockTime() > FutureDriftV2(GetAdjustedTime()))
+    if (GetBlockTime() > FutureDriftV2(GetAdjustedTime()))
         return error("CheckBlock() : block timestamp too far in the future");
-    if(nTime >= 1479012253)
-      if (GetBlockTime() > FutureDriftV3(GetAdjustedTime()))
-        return error("CheckBlock() : block timestamp too far in the future");
-//end me add
 
     // First transaction must be coinbase, the rest must not be
     if (vtx.empty() || !vtx[0].IsCoinBase())
