@@ -109,7 +109,8 @@ public:
         assert(hashGenesisBlock == uint256("0x0000066e91e46e5a264d42c89e1204963b2ee6be230b443e9159020539d972af"));
         assert(genesis.hashMerkleRoot == uint256("0x65a26bc20b0351aebf05829daefa8f7db2f800623439f3c114257c91447f1518"));
 
-        vSeeds.push_back(CDNSSeedData("seed.stratisplatform.com", "seed.cloudstratis.com"));
+        vSeeds.push_back(CDNSSeedData("stratisplatform.com", "seed.stratisplatform.com"));
+        vSeeds.push_back(CDNSSeedData("cloudstratis.com", "seed.cloudstratis.com"));
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 63);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 125);
