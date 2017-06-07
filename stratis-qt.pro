@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET = stratis-qt
-VERSION = 2.0.0.2
+VERSION = 2.0.0.3
 INCLUDEPATH += src src/json src/qt
 QT += network
 DEFINES += ENABLE_WALLET
