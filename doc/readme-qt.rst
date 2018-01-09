@@ -1,4 +1,4 @@
-Stratis-qt: Qt5 GUI for Stratis
+Stratis-qt: Qt5 GUI for Stratis 
 ===============================
 
 Build instructions
