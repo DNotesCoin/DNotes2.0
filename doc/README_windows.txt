@@ -1,5 +1,6 @@
-Stratis 0.4.4 BETA
 
+Copyright (c) 2017-2018 DNotes Developers
+Copyright (c) 2014-2015 Stratis Developers
 Copyright (c) 2013 NovaCoin Developers
 Copyright (c) 2011-2013 PPCoin Developers
 Distributed under the MIT/X11 software license, see the accompanying
@@ -13,6 +14,6 @@ Intro
 -----
 Stratis is a free open source project derived from Bitcoin, with
 the goal of providing a long-term energy-efficient scrypt-based crypto-currency.
-Built on the foundation of Bitcoin, PPCoin and NovaCoin, innovations such as proof-of-stake and scrypt
+Built on the foundation of Bitcoin, PPCoin NovaCoin, and Stratis, innovations such as proof-of-stake and scrypt
 help further advance the field of crypto-currency.
 
