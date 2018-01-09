@@ -1,9 +1,0 @@
-Building Stratis
-
-See doc/readme-qt.rst for instructions on building Stratis QT,
-the intended-for-end-users, nice-graphical-interface, reference
-implementation of Stratis.
-
-See doc/build-*.txt for instructions on building stratisd,
-the intended-for-services, no-graphical-interface, reference
-implementation of Stratis.
