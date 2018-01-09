@@ -1,4 +1,4 @@
-Icon: src/qt/res/icons/clock*.png, src/qt/res/icons/tx*.png,
+Icon: src/qt/res/icons/clock*.png, src/qt/res/icons/tx*.png, 
       src/qt/res/src/*.svg
 Designer: Wladimir van der Laan
 License: MIT
