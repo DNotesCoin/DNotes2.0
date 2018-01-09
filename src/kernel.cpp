@@ -1,6 +1,7 @@
 // Copyright (c) 2012-2013 The PPCoin developers
 // Copyright (c) 2014 The Blackcoin developers
 // Copyright (c) 2016 The Stratis developers
+// Copyright (c) 2018 The DNotes developers
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
