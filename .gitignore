@@ -15,6 +15,7 @@ src/build.h
 *.qm
 Makefile
 stratis-qt
+dnotes-qt
 #resources cpp
 qrc_*.cpp
 #qt creator

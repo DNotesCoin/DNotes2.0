@@ -3,19 +3,20 @@
     <name>AboutDialog</name>
     <message>
         <location filename="../forms/aboutdialog.ui" line="+14"/>
-        <source>About Stratis</source>
-        <translation>Info Stratis&apos;i kohta</translation>
+        <source>About DNotes</source>
+        <translation>Info DNotes&apos;i kohta</translation>
     </message>
     <message>
         <location line="+39"/>
-        <source>&lt;b&gt;Stratis&lt;/b&gt; version</source>
-        <translation>&lt;b&gt;Stratis&lt;/b&gt;&apos;i versioon</translation>
+        <source>&lt;b&gt;DNotes&lt;/b&gt; version</source>
+        <translation>&lt;b&gt;DNotes&lt;/b&gt;&apos;i versioon</translation>
     </message>
     <message>
         <location line="+41"/>
         <source>Copyright © 2009-2014 The Bitcoin developers
-Copyright © 2012-2014 The NovaCoin developers
-Copyright © 2014 The Stratis developers</source>
+        Copyright © 2012-2014 The NovaCoin developers
+        Copyright © 2014-2017 The Stratis developers
+        Copyright © 2017 The DNotes developers</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -58,8 +59,8 @@ This product includes software developed by the OpenSSL Project for use in the O
     </message>
     <message>
         <location line="-43"/>
-        <source>These are your Stratis addresses for receiving payments. You may want to give a different one to each sender so you can keep track of who is paying you.</source>
-        <translation>Need on Sinu Stratis&apos;i aadressid maksete vastuvõtmiseks. Soovi korral saad anda igale saatjale eraldi aadressi, et hõlpsamini omada ülevaadet, et kellelt mündid laekuvad.</translation>
+        <source>These are your DNotes addresses for receiving payments. You may want to give a different one to each sender so you can keep track of who is paying you.</source>
+        <translation>Need on Sinu DNotes&apos;i aadressid maksete vastuvõtmiseks. Soovi korral saad anda igale saatjale eraldi aadressi, et hõlpsamini omada ülevaadet, et kellelt mündid laekuvad.</translation>
     </message>
     <message>
         <location line="+53"/>
@@ -73,8 +74,8 @@ This product includes software developed by the OpenSSL Project for use in the O
     </message>
     <message>
         <location line="+7"/>
-        <source>Sign a message to prove you own a Stratis address</source>
-        <translation>Allkirjasta sõnum Stratis&apos;i aadressi omamise tõestamiseks.</translation>
+        <source>Sign a message to prove you own a DNotes address</source>
+        <translation>Allkirjasta sõnum DNotes&apos;i aadressi omamise tõestamiseks.</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -88,7 +89,7 @@ This product includes software developed by the OpenSSL Project for use in the O
     </message>
     <message>
         <location line="-10"/>
-        <source>Verify a message to ensure it was signed with a specified Stratis address</source>
+        <source>Verify a message to ensure it was signed with a specified DNotes address</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -256,7 +257,7 @@ This product includes software developed by the OpenSSL Project for use in the O
     </message>
     <message>
         <location line="+82"/>
-        <source>Stratis will close now to finish the encryption process. Remember that encrypting your wallet cannot fully protect your coins from being stolen by malware infecting your computer.</source>
+        <source>DNotes will close now to finish the encryption process. Remember that encrypting your wallet cannot fully protect your coins from being stolen by malware infecting your computer.</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -350,7 +351,7 @@ This product includes software developed by the OpenSSL Project for use in the O
     </message>
     <message>
         <location line="+4"/>
-        <source>Show information about Stratis</source>
+        <source>Show information about DNotes</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -390,12 +391,12 @@ This product includes software developed by the OpenSSL Project for use in the O
     </message>
     <message>
         <location line="-55"/>
-        <source>Send coins to a Stratis address</source>
+        <source>Send coins to a DNotes address</source>
         <translation type="unfinished"/>
     </message>
     <message>
         <location line="+39"/>
-        <source>Modify configuration options for Stratis</source>
+        <source>Modify configuration options for DNotes</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -436,7 +437,7 @@ This product includes software developed by the OpenSSL Project for use in the O
     <message>
         <location line="-214"/>
         <location line="+555"/>
-        <source>Stratis</source>
+        <source>DNotes</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -446,7 +447,7 @@ This product includes software developed by the OpenSSL Project for use in the O
     </message>
     <message>
         <location line="+193"/>
-        <source>&amp;About Stratis</source>
+        <source>&amp;About DNotes</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -498,12 +499,12 @@ This product includes software developed by the OpenSSL Project for use in the O
     <message>
         <location line="+0"/>
         <location line="+58"/>
-        <source>Stratis client</source>
+        <source>DNotes client</source>
         <translation type="unfinished"/>
     </message>
     <message numerus="yes">
         <location line="+70"/>
-        <source>%n active connection(s) to Stratis network</source>
+        <source>%n active connection(s) to DNotes network</source>
         <translation type="unfinished"><numerusform></numerusform><numerusform></numerusform></translation>
     </message>
     <message>
@@ -597,7 +598,7 @@ Aadress: %4⏎</translation>
     <message>
         <location line="-15"/>
         <location line="+15"/>
-        <source>URI can not be parsed! This can be caused by an invalid Stratis address or malformed URI parameters.</source>
+        <source>URI can not be parsed! This can be caused by an invalid DNotes address or malformed URI parameters.</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -720,7 +721,7 @@ Aadress: %4⏎</translation>
     </message>
     <message>
         <location filename="../bitcoin.cpp" line="+104"/>
-        <source>A fatal error occurred. Stratis can no longer continue safely and will quit.</source>
+        <source>A fatal error occurred. DNotes can no longer continue safely and will quit.</source>
         <translation type="unfinished"/>
     </message>
 </context>
@@ -1040,7 +1041,7 @@ This label turns red, if the priority is smaller than &quot;medium&quot;.
     </message>
     <message>
         <location line="-5"/>
-        <source>The entered address &quot;%1&quot; is not a valid Stratis address.</source>
+        <source>The entered address &quot;%1&quot; is not a valid DNotes address.</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -1059,7 +1060,7 @@ This label turns red, if the priority is smaller than &quot;medium&quot;.
     <message>
         <location filename="../guiutil.cpp" line="+426"/>
         <location line="+12"/>
-        <source>Stratis-Qt</source>
+        <source>DNotes-Qt</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -1112,7 +1113,7 @@ This label turns red, if the priority is smaller than &quot;medium&quot;.
     </message>
     <message>
         <location line="+6"/>
-        <source>Optional transaction fee per kB that helps make sure your transactions are processed quickly. Most transactions are 1 kB. Fee 0.01 recommended.</source>
+        <source>Optional transaction fee per kB that helps make sure your transactions are processed quickly. Most transactions are 1 kB. Fee 0.05 recommended.</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -1132,12 +1133,12 @@ This label turns red, if the priority is smaller than &quot;medium&quot;.
     </message>
     <message>
         <location line="+31"/>
-        <source>Automatically start Stratis after logging in to the system.</source>
+        <source>Automatically start DNotes after logging in to the system.</source>
         <translation type="unfinished"/>
     </message>
     <message>
         <location line="+3"/>
-        <source>&amp;Start Stratis on system login</source>
+        <source>&amp;Start DNotes on system login</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -1147,7 +1148,7 @@ This label turns red, if the priority is smaller than &quot;medium&quot;.
     </message>
     <message>
         <location line="+6"/>
-        <source>Automatically open the Stratis client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <source>Automatically open the DNotes client port on the router. This only works when your router supports UPnP and it is enabled.</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -1177,7 +1178,7 @@ This label turns red, if the priority is smaller than &quot;medium&quot;.
     </message>
     <message>
         <location line="-57"/>
-        <source>Connect to the Stratis network through a SOCKS5 proxy (e.g. when connecting through Tor).</source>
+        <source>Connect to the DNotes network through a SOCKS5 proxy (e.g. when connecting through Tor).</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -1222,7 +1223,7 @@ This label turns red, if the priority is smaller than &quot;medium&quot;.
     </message>
     <message>
         <location line="+13"/>
-        <source>The user interface language can be set here. This setting will take effect after restarting Stratis.</source>
+        <source>The user interface language can be set here. This setting will take effect after restarting DNotes.</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -1289,7 +1290,7 @@ This label turns red, if the priority is smaller than &quot;medium&quot;.
     <message>
         <location line="-9"/>
         <location line="+9"/>
-        <source>This setting will take effect after restarting Stratis.</source>
+        <source>This setting will take effect after restarting DNotes.</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -1308,7 +1309,7 @@ This label turns red, if the priority is smaller than &quot;medium&quot;.
     <message>
         <location line="+46"/>
         <location line="+247"/>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Stratis network after a connection is established, but this process has not completed yet.</source>
+        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the DNotes network after a connection is established, but this process has not completed yet.</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -1382,7 +1383,7 @@ This label turns red, if the priority is smaller than &quot;medium&quot;.
     <name>PaymentServer</name>
     <message>
         <location filename="../paymentserver.cpp" line="+107"/>
-        <source>Cannot start stratis: click-to-pay handler</source>
+        <source>Cannot start DNotes: click-to-pay handler</source>
         <translation type="unfinished"/>
     </message>
 </context>
@@ -1550,7 +1551,7 @@ This label turns red, if the priority is smaller than &quot;medium&quot;.
     </message>
     <message>
         <location line="+7"/>
-        <source>Show the Stratis-Qt help message to get a list with possible Stratis command-line options.</source>
+        <source>Show the DNotes-Qt help message to get a list with possible DNotes command-line options.</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -1570,12 +1571,12 @@ This label turns red, if the priority is smaller than &quot;medium&quot;.
     </message>
     <message>
         <location line="-104"/>
-        <source>Stratis - Debug window</source>
+        <source>DNotes - Debug window</source>
         <translation type="unfinished"/>
     </message>
     <message>
         <location line="+25"/>
-        <source>Stratis Core</source>
+        <source>DNotes Core</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -1585,7 +1586,7 @@ This label turns red, if the priority is smaller than &quot;medium&quot;.
     </message>
     <message>
         <location line="+7"/>
-        <source>Open the Stratis debug log file from the current data directory. This can take a few seconds for large log files.</source>
+        <source>Open the DNotes debug log file from the current data directory. This can take a few seconds for large log files.</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -1595,7 +1596,7 @@ This label turns red, if the priority is smaller than &quot;medium&quot;.
     </message>
     <message>
         <location filename="../rpcconsole.cpp" line="+325"/>
-        <source>Welcome to the Stratis RPC console.</source>
+        <source>Welcome to the DNotes RPC console.</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -1776,7 +1777,7 @@ This label turns red, if the priority is smaller than &quot;medium&quot;.
     </message>
     <message>
         <location filename="../sendcoinsdialog.cpp" line="-174"/>
-        <source>Enter a Stratis address (e.g. SjBj1QvJvsAkU5EBKggdZ8gWc4oK2F5AMY)</source>
+        <source>Enter a DNotes address (e.g. SjBj1QvJvsAkU5EBKggdZ8gWc4oK2F5AMY)</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -1876,7 +1877,7 @@ This label turns red, if the priority is smaller than &quot;medium&quot;.
     </message>
     <message>
         <location line="+247"/>
-        <source>WARNING: Invalid Stratis address</source>
+        <source>WARNING: Invalid DNotes address</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -1950,7 +1951,7 @@ This label turns red, if the priority is smaller than &quot;medium&quot;.
     </message>
     <message>
         <location filename="../sendcoinsentry.cpp" line="+1"/>
-        <source>Enter a Stratis address (e.g. SjBj1QvJvsAkU5EBKggdZ8gWc4oK2F5AMY)</source>
+        <source>Enter a DNotes address (e.g. SjBj1QvJvsAkU5EBKggdZ8gWc4oK2F5AMY)</source>
         <translation type="unfinished"/>
     </message>
 </context>
@@ -2011,7 +2012,7 @@ This label turns red, if the priority is smaller than &quot;medium&quot;.
     </message>
     <message>
         <location line="+21"/>
-        <source>Sign the message to prove you own this Stratis address</source>
+        <source>Sign the message to prove you own this DNotes address</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -2043,7 +2044,7 @@ This label turns red, if the priority is smaller than &quot;medium&quot;.
     </message>
     <message>
         <location line="+40"/>
-        <source>Verify the message to ensure it was signed with the specified Stratis address</source>
+        <source>Verify the message to ensure it was signed with the specified DNotes address</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -2054,7 +2055,7 @@ This label turns red, if the priority is smaller than &quot;medium&quot;.
     <message>
         <location filename="../signverifymessagedialog.cpp" line="+27"/>
         <location line="+3"/>
-        <source>Enter a Stratis address (e.g. SjBj1QvJvsAkU5EBKggdZ8gWc4oK2F5AMY)</source>
+        <source>Enter a DNotes address (e.g. SjBj1QvJvsAkU5EBKggdZ8gWc4oK2F5AMY)</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -2064,7 +2065,7 @@ This label turns red, if the priority is smaller than &quot;medium&quot;.
     </message>
     <message>
         <location line="+3"/>
-        <source>Enter Stratis signature</source>
+        <source>Enter DNotes signature</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -2643,7 +2644,7 @@ This label turns red, if the priority is smaller than &quot;medium&quot;.
     <name>bitcoin-core</name>
     <message>
         <location filename="../bitcoinstrings.cpp" line="+171"/>
-        <source>Stratis version</source>
+        <source>DNotes version</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -2653,7 +2654,7 @@ This label turns red, if the priority is smaller than &quot;medium&quot;.
     </message>
     <message>
         <location line="+1"/>
-        <source>Send command to -server or stratisd</source>
+        <source>Send command to -server or DNotesd</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -2673,12 +2674,12 @@ This label turns red, if the priority is smaller than &quot;medium&quot;.
     </message>
     <message>
         <location line="+2"/>
-        <source>Specify configuration file (default: stratis.conf)</source>
+        <source>Specify configuration file (default: DNotes.conf)</source>
         <translation type="unfinished"/>
     </message>
     <message>
         <location line="+1"/>
-        <source>Specify pid file (default: stratisd.pid)</source>
+        <source>Specify pid file (default: DNotesd.pid)</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -2696,13 +2697,13 @@ This label turns red, if the priority is smaller than &quot;medium&quot;.
         <source>%s, you must set a rpcpassword in the configuration file:
 %s
 It is recommended you use the following random password:
-rpcuser=stratisrpc
+rpcuser=DNotesrpc
 rpcpassword=%s
 (you do not need to remember this password)
 The username and password MUST NOT be the same.
 If the file does not exist, create it with owner-readable-only file permissions.
 It is also recommended to set alertnotify so you are notified of problems;
-for example: alertnotify=echo %%s | mail -s &quot;Stratis Alert&quot; admin@foo.com
+for example: alertnotify=echo %%s | mail -s &quot;DNotes Alert&quot; admin@foo.com
 </source>
         <translation type="unfinished"/>
     </message>
@@ -2808,7 +2809,7 @@ for example: alertnotify=echo %%s | mail -s &quot;Stratis Alert&quot; admin@foo.
     </message>
     <message>
         <location line="-103"/>
-        <source>Warning: Please check that your computer&apos;s date and time are correct! If your clock is wrong Stratis will not work properly.</source>
+        <source>Warning: Please check that your computer&apos;s date and time are correct! If your clock is wrong DNotes will not work properly.</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -3103,7 +3104,7 @@ for example: alertnotify=echo %%s | mail -s &quot;Stratis Alert&quot; admin@foo.
     </message>
     <message>
         <location line="+8"/>
-        <source>Initialization sanity check failed. Stratis is shutting down.</source>
+        <source>Initialization sanity check failed. DNotes is shutting down.</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -3158,13 +3159,13 @@ for example: alertnotify=echo %%s | mail -s &quot;Stratis Alert&quot; admin@foo.
     </message>
     <message>
         <location line="+4"/>
-        <source>Error loading wallet.dat: Wallet requires newer version of Stratis</source>
-        <translation>Viga faili wallet.dat laadimisel: rahakott vajab Stratis&apos;i uuemat versiooni.</translation>
+        <source>Error loading wallet.dat: Wallet requires newer version of DNotes</source>
+        <translation>Viga faili wallet.dat laadimisel: rahakott vajab DNotes&apos;i uuemat versiooni.</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Wallet needed to be rewritten: restart Stratis to complete</source>
-        <translation>Rahakott on vaja üle kirjutada: käivita Stratis uuesti toimingu lõpetamiseks</translation>
+        <source>Wallet needed to be rewritten: restart DNotes to complete</source>
+        <translation>Rahakott on vaja üle kirjutada: käivita DNotes uuesti toimingu lõpetamiseks</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -3223,7 +3224,7 @@ for example: alertnotify=echo %%s | mail -s &quot;Stratis Alert&quot; admin@foo.
     </message>
     <message>
         <location line="+124"/>
-        <source>Unable to bind to %s on this computer. Stratis is probably already running.</source>
+        <source>Unable to bind to %s on this computer. DNotes is probably already running.</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -3258,7 +3259,7 @@ for example: alertnotify=echo %%s | mail -s &quot;Stratis Alert&quot; admin@foo.
     </message>
     <message>
         <location line="+3"/>
-        <source>Cannot obtain a lock on data directory %s. Stratis is probably already running.</source>
+        <source>Cannot obtain a lock on data directory %s. DNotes is probably already running.</source>
         <translation type="unfinished"/>
     </message>
     <message>

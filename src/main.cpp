@@ -77,7 +77,7 @@ map<uint256, set<uint256> > mapOrphanTransactionsByPrev;
 // Constant stuff for coinbase transactions we create:
 CScript COINBASE_FLAGS;
 
-const string strMessageMagic = "Stratis Signed Message:\n";
+const string strMessageMagic = "Stratis Signed Message:\n"; //Can/should this be changed?
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -996,13 +996,18 @@ static CBigNum GetProofOfStakeLimit(int nHeight)
 // miner's coin base reward
 int64_t GetProofOfWorkReward(int64_t nFees)
 {
-	int64_t PreMine = 98000000 * COIN;
-    if(pindexBest->nHeight == 1){return PreMine;} else {return 4*COIN;}
+	int64_t PreMine = 130000000 * COIN; //Approx outstanding DNotes as of 1/1/2018
+    if(pindexBest->nHeight == 1){return PreMine;} else {return 1*COIN;}
 }
 
 // miner's coin stake reward
 int64_t GetProofOfStakeReward(const CBlockIndex* pindexPrev, int64_t nCoinAge, int64_t nFees)
 {
+    //(outstanding coin / blocks in a year) * two percent
+    //(130 000 000 / 525600) * .02
+    int64_t testVar = (pindexPrev->nMoneySupply / 525600) * .02;
+    //think about rounding
+    
     return (1 * COIN) + nFees;
 }
 

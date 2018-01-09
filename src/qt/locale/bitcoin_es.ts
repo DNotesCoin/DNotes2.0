@@ -3,22 +3,21 @@
     <name>AboutDialog</name>
     <message>
         <location filename="../forms/aboutdialog.ui" line="+14"/>
-        <source>About Stratis</source>
-        <translation>Acerca de Stratis</translation>
+        <source>About DNotes</source>
+        <translation>Acerca de DNotes</translation>
     </message>
     <message>
         <location line="+39"/>
-        <source>&lt;b&gt;Stratis&lt;/b&gt; version</source>
-        <translation>&lt;b&gt;Stratis&lt;/b&gt; versión</translation>
+        <source>&lt;b&gt;DNotes&lt;/b&gt; version</source>
+        <translation>&lt;b&gt;DNotes&lt;/b&gt; versión</translation>
     </message>
     <message>
         <location line="+41"/>
         <source>Copyright © 2009-2014 The Bitcoin developers
-Copyright © 2012-2014 The NovaCoin developers
-Copyright © 2014 The Stratis developers</source>
-        <translation>Copyright © 2009-2014 The Bitcoin developers
-Copyright © 2012-2014 The NovaCoin developers
-Copyright © 2014 The Stratis developers</translation>
+        Copyright © 2012-2014 The NovaCoin developers
+        Copyright © 2014-2017 The Stratis developers
+        Copyright © 2017 The DNotes developers</source>
+        <translation type="unfinished"/>
     </message>
     <message>
         <location line="+15"/>
@@ -60,8 +59,8 @@ This product includes software developed by the OpenSSL Project for use in the O
     </message>
     <message>
         <location line="-43"/>
-        <source>These are your Stratis addresses for receiving payments. You may want to give a different one to each sender so you can keep track of who is paying you.</source>
-        <translation>Estas son las direcciones de Stratis para recibir pagos. Es posible que desee dar una diferente a cada remitente para que pueda realizar un seguimiento de quien te está pagando.</translation>
+        <source>These are your DNotes addresses for receiving payments. You may want to give a different one to each sender so you can keep track of who is paying you.</source>
+        <translation>Estas son las direcciones de DNotes para recibir pagos. Es posible que desee dar una diferente a cada remitente para que pueda realizar un seguimiento de quien te está pagando.</translation>
     </message>
     <message>
         <location line="+53"/>
@@ -75,8 +74,8 @@ This product includes software developed by the OpenSSL Project for use in the O
     </message>
     <message>
         <location line="+7"/>
-        <source>Sign a message to prove you own a Stratis address</source>
-        <translation>Firmar un mensaje para demostrar que es dueño de su dirección de Stratis</translation>
+        <source>Sign a message to prove you own a DNotes address</source>
+        <translation>Firmar un mensaje para demostrar que es dueño de su dirección de DNotes</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -90,8 +89,8 @@ This product includes software developed by the OpenSSL Project for use in the O
     </message>
     <message>
         <location line="-10"/>
-        <source>Verify a message to ensure it was signed with a specified Stratis address</source>
-        <translation>Verifique el mensaje para asegurarse que fue firmado por una dirección específica de Stratis</translation>
+        <source>Verify a message to ensure it was signed with a specified DNotes address</source>
+        <translation>Verifique el mensaje para asegurarse que fue firmado por una dirección específica de DNotes</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -258,8 +257,8 @@ This product includes software developed by the OpenSSL Project for use in the O
     </message>
     <message>
         <location line="+82"/>
-        <source>Stratis will close now to finish the encryption process. Remember that encrypting your wallet cannot fully protect your coins from being stolen by malware infecting your computer.</source>
-        <translation>Stratis cerrará para terminar el proceso de encriptación. Recuerde que la encriptación de su monedero no puede proteger completamente que sus monedas sean robadas por malware infectando su computadora.</translation>
+        <source>DNotes will close now to finish the encryption process. Remember that encrypting your wallet cannot fully protect your coins from being stolen by malware infecting your computer.</source>
+        <translation>DNotes cerrará para terminar el proceso de encriptación. Recuerde que la encriptación de su monedero no puede proteger completamente que sus monedas sean robadas por malware infectando su computadora.</translation>
     </message>
     <message>
         <location line="+13"/>
@@ -352,8 +351,8 @@ This product includes software developed by the OpenSSL Project for use in the O
     </message>
     <message>
         <location line="+4"/>
-        <source>Show information about Stratis</source>
-        <translation>Mostrar información sobre Stratis</translation>
+        <source>Show information about DNotes</source>
+        <translation>Mostrar información sobre DNotes</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -392,13 +391,13 @@ This product includes software developed by the OpenSSL Project for use in the O
     </message>
     <message>
         <location line="-55"/>
-        <source>Send coins to a Stratis address</source>
-        <translation>Enviar monedas a una dirección de Stratis</translation>
+        <source>Send coins to a DNotes address</source>
+        <translation>Enviar monedas a una dirección de DNotes</translation>
     </message>
     <message>
         <location line="+39"/>
-        <source>Modify configuration options for Stratis</source>
-        <translation>Modificar las opciones de configuración para Stratis</translation>
+        <source>Modify configuration options for DNotes</source>
+        <translation>Modificar las opciones de configuración para DNotes</translation>
     </message>
     <message>
         <location line="+17"/>
@@ -438,8 +437,8 @@ This product includes software developed by the OpenSSL Project for use in the O
     <message>
         <location line="-214"/>
         <location line="+555"/>
-        <source>Stratis</source>
-        <translation>Stratis</translation>
+        <source>DNotes</source>
+        <translation>DNotes</translation>
     </message>
     <message>
         <location line="-555"/>
@@ -448,8 +447,8 @@ This product includes software developed by the OpenSSL Project for use in the O
     </message>
     <message>
         <location line="+193"/>
-        <source>&amp;About Stratis</source>
-        <translation>Acerca de Stratis</translation>
+        <source>&amp;About DNotes</source>
+        <translation>Acerca de DNotes</translation>
     </message>
     <message>
         <location line="+9"/>
@@ -500,13 +499,13 @@ This product includes software developed by the OpenSSL Project for use in the O
     <message>
         <location line="+0"/>
         <location line="+58"/>
-        <source>Stratis client</source>
-        <translation>Cliente Stratis</translation>
+        <source>DNotes client</source>
+        <translation>Cliente DNotes</translation>
     </message>
     <message numerus="yes">
         <location line="+70"/>
-        <source>%n active connection(s) to Stratis network</source>
-        <translation><numerusform>%n conexión activa a la red Stratis</numerusform><numerusform>%n conexiones activas a la red Stratis</numerusform></translation>
+        <source>%n active connection(s) to DNotes network</source>
+        <translation><numerusform>%n conexión activa a la red DNotes</numerusform><numerusform>%n conexiones activas a la red DNotes</numerusform></translation>
     </message>
     <message>
         <location line="+488"/>
@@ -600,8 +599,8 @@ Dirección: %4
     <message>
         <location line="-15"/>
         <location line="+15"/>
-        <source>URI can not be parsed! This can be caused by an invalid Stratis address or malformed URI parameters.</source>
-        <translation>URI no se puede analizar! Esto puede ser causado por una dirección de Stratis no válida o parámetros de URI malformados.</translation>
+        <source>URI can not be parsed! This can be caused by an invalid DNotes address or malformed URI parameters.</source>
+        <translation>URI no se puede analizar! Esto puede ser causado por una dirección de DNotes no válida o parámetros de URI malformados.</translation>
     </message>
     <message>
         <location line="+9"/>
@@ -723,8 +722,8 @@ Dirección: %4
     </message>
     <message>
         <location filename="../bitcoin.cpp" line="+104"/>
-        <source>A fatal error occurred. Stratis can no longer continue safely and will quit.</source>
-        <translation>Se ha producido un error fatal. Stratis ya no puede continuar de forma segura y cerrará.</translation>
+        <source>A fatal error occurred. DNotes can no longer continue safely and will quit.</source>
+        <translation>Se ha producido un error fatal. DNotes ya no puede continuar de forma segura y cerrará.</translation>
     </message>
 </context>
 <context>
@@ -1057,8 +1056,8 @@ Esto significa que se requiere una cuota de al menos %2.</translation>
     </message>
     <message>
         <location line="-5"/>
-        <source>The entered address &quot;%1&quot; is not a valid Stratis address.</source>
-        <translation>La dirección introducida &quot;%1&quot; no es una dirección válida de Stratis.</translation>
+        <source>The entered address &quot;%1&quot; is not a valid DNotes address.</source>
+        <translation>La dirección introducida &quot;%1&quot; no es una dirección válida de DNotes.</translation>
     </message>
     <message>
         <location line="+10"/>
@@ -1076,8 +1075,8 @@ Esto significa que se requiere una cuota de al menos %2.</translation>
     <message>
         <location filename="../guiutil.cpp" line="+426"/>
         <location line="+12"/>
-        <source>Stratis-Qt</source>
-        <translation>Stratis-Qt</translation>
+        <source>DNotes-Qt</source>
+        <translation>DNotes-Qt</translation>
     </message>
     <message>
         <location line="-12"/>
@@ -1129,8 +1128,8 @@ Esto significa que se requiere una cuota de al menos %2.</translation>
     </message>
     <message>
         <location line="+6"/>
-        <source>Optional transaction fee per kB that helps make sure your transactions are processed quickly. Most transactions are 1 kB. Fee 0.01 recommended.</source>
-        <translation>Tarifa de transacción opcional por kB que ayuda a asegurarse de que sus transacciones se procesan rápidamente. La mayoría de las transacciones son 1 kB. Cuota de 0.01 recomendada.</translation>
+        <source>Optional transaction fee per kB that helps make sure your transactions are processed quickly. Most transactions are 1 kB. Fee 0.05 recommended.</source>
+        <translation>Tarifa de transacción opcional por kB que ayuda a asegurarse de que sus transacciones se procesan rápidamente. La mayoría de las transacciones son 1 kB. Cuota de 0.05 recomendada.</translation>
     </message>
     <message>
         <location line="+15"/>
@@ -1149,13 +1148,13 @@ Esto significa que se requiere una cuota de al menos %2.</translation>
     </message>
     <message>
         <location line="+31"/>
-        <source>Automatically start Stratis after logging in to the system.</source>
-        <translation>Iniciar Stratis automáticamente después de entrar en el sistema.</translation>
+        <source>Automatically start DNotes after logging in to the system.</source>
+        <translation>Iniciar DNotes automáticamente después de entrar en el sistema.</translation>
     </message>
     <message>
         <location line="+3"/>
-        <source>&amp;Start Stratis on system login</source>
-        <translation>&amp;Iniciar Stratis al inicio del sistema</translation>
+        <source>&amp;Start DNotes on system login</source>
+        <translation>&amp;Iniciar DNotes al inicio del sistema</translation>
     </message>
     <message>
         <location line="+21"/>
@@ -1164,8 +1163,8 @@ Esto significa que se requiere una cuota de al menos %2.</translation>
     </message>
     <message>
         <location line="+6"/>
-        <source>Automatically open the Stratis client port on the router. This only works when your router supports UPnP and it is enabled.</source>
-        <translation>Abrir automáticamente el puerto de cliente Stratis en el router. Esto sólo funciona cuando el router es compatible con UPnP y está habilitado.</translation>
+        <source>Automatically open the DNotes client port on the router. This only works when your router supports UPnP and it is enabled.</source>
+        <translation>Abrir automáticamente el puerto de cliente DNotes en el router. Esto sólo funciona cuando el router es compatible con UPnP y está habilitado.</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -1194,7 +1193,7 @@ Esto significa que se requiere una cuota de al menos %2.</translation>
     </message>
     <message>
         <location line="-57"/>
-        <source>Connect to the Stratis network through a SOCKS5 proxy (e.g. when connecting through Tor).</source>
+        <source>Connect to the DNotes network through a SOCKS5 proxy (e.g. when connecting through Tor).</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -1239,8 +1238,8 @@ Esto significa que se requiere una cuota de al menos %2.</translation>
     </message>
     <message>
         <location line="+13"/>
-        <source>The user interface language can be set here. This setting will take effect after restarting Stratis.</source>
-        <translation>El idioma del interfaz de usuario se puede configurar aquí. Esta configuración se aplicará después de reiniciar Stratis.</translation>
+        <source>The user interface language can be set here. This setting will take effect after restarting DNotes.</source>
+        <translation>El idioma del interfaz de usuario se puede configurar aquí. Esta configuración se aplicará después de reiniciar DNotes.</translation>
     </message>
     <message>
         <location line="+11"/>
@@ -1306,8 +1305,8 @@ Esto significa que se requiere una cuota de al menos %2.</translation>
     <message>
         <location line="-9"/>
         <location line="+9"/>
-        <source>This setting will take effect after restarting Stratis.</source>
-        <translation>Esta configuración se aplicará después de reiniciar Stratis.</translation>
+        <source>This setting will take effect after restarting DNotes.</source>
+        <translation>Esta configuración se aplicará después de reiniciar DNotes.</translation>
     </message>
     <message>
         <location line="+29"/>
@@ -1325,8 +1324,8 @@ Esto significa que se requiere una cuota de al menos %2.</translation>
     <message>
         <location line="+46"/>
         <location line="+247"/>
-        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the Stratis network after a connection is established, but this process has not completed yet.</source>
-        <translation>La información mostrada puede estar fuera de fecha. Su monedera se sincroniza automáticamente con la red Stratis después de que se establece una conexión, pero este proceso no se ha completado todavía.</translation>
+        <source>The displayed information may be out of date. Your wallet automatically synchronizes with the DNotes network after a connection is established, but this process has not completed yet.</source>
+        <translation>La información mostrada puede estar fuera de fecha. Su monedera se sincroniza automáticamente con la red DNotes después de que se establece una conexión, pero este proceso no se ha completado todavía.</translation>
     </message>
     <message>
         <location line="-173"/>
@@ -1399,7 +1398,7 @@ Esto significa que se requiere una cuota de al menos %2.</translation>
     <name>PaymentServer</name>
     <message>
         <location filename="../paymentserver.cpp" line="+107"/>
-        <source>Cannot start stratis: click-to-pay handler</source>
+        <source>Cannot start DNotes: click-to-pay handler</source>
         <translation type="unfinished"/>
     </message>
 </context>
@@ -1567,8 +1566,8 @@ Esto significa que se requiere una cuota de al menos %2.</translation>
     </message>
     <message>
         <location line="+7"/>
-        <source>Show the Stratis-Qt help message to get a list with possible Stratis command-line options.</source>
-        <translation>Mostrar el mensaje de ayuda de Stratis-Qt para obtener una lista con las posibles opciones de línea de comandos para Stratis.</translation>
+        <source>Show the DNotes-Qt help message to get a list with possible DNotes command-line options.</source>
+        <translation>Mostrar el mensaje de ayuda de DNotes-Qt para obtener una lista con las posibles opciones de línea de comandos para DNotes.</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -1587,13 +1586,13 @@ Esto significa que se requiere una cuota de al menos %2.</translation>
     </message>
     <message>
         <location line="-104"/>
-        <source>Stratis - Debug window</source>
-        <translation>Stratis - Ventana de depuración</translation>
+        <source>DNotes - Debug window</source>
+        <translation>DNotes - Ventana de depuración</translation>
     </message>
     <message>
         <location line="+25"/>
-        <source>Stratis Core</source>
-        <translation>Núcleo Stratis</translation>
+        <source>DNotes Core</source>
+        <translation>Núcleo DNotes</translation>
     </message>
     <message>
         <location line="+256"/>
@@ -1602,8 +1601,8 @@ Esto significa que se requiere una cuota de al menos %2.</translation>
     </message>
     <message>
         <location line="+7"/>
-        <source>Open the Stratis debug log file from the current data directory. This can take a few seconds for large log files.</source>
-        <translation>Abre el archivo de registro de Stratis del directorio de datos actual. Esto puede tardar algunos segundos para archivos grandes.</translation>
+        <source>Open the DNotes debug log file from the current data directory. This can take a few seconds for large log files.</source>
+        <translation>Abre el archivo de registro de DNotes del directorio de datos actual. Esto puede tardar algunos segundos para archivos grandes.</translation>
     </message>
     <message>
         <location line="+102"/>
@@ -1612,8 +1611,8 @@ Esto significa que se requiere una cuota de al menos %2.</translation>
     </message>
     <message>
         <location filename="../rpcconsole.cpp" line="+325"/>
-        <source>Welcome to the Stratis RPC console.</source>
-        <translation>Bienvenido a la consola RPC de Stratis</translation>
+        <source>Welcome to the DNotes RPC console.</source>
+        <translation>Bienvenido a la consola RPC de DNotes</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -1793,8 +1792,8 @@ Esto significa que se requiere una cuota de al menos %2.</translation>
     </message>
     <message>
         <location filename="../sendcoinsdialog.cpp" line="-174"/>
-        <source>Enter a Stratis address (e.g. SjBj1QvJvsAkU5EBKggdZ8gWc4oK2F5AMY)</source>
-        <translation>Introduce una dirección Stratis (p.ej. SjBj1QvJvsAkU5EBKggdZ8gWc4oK2F5AMY)</translation>
+        <source>Enter a DNotes address (e.g. SjBj1QvJvsAkU5EBKggdZ8gWc4oK2F5AMY)</source>
+        <translation>Introduce una dirección DNotes (p.ej. SjBj1QvJvsAkU5EBKggdZ8gWc4oK2F5AMY)</translation>
     </message>
     <message>
         <location line="+15"/>
@@ -1893,8 +1892,8 @@ Esto significa que se requiere una cuota de al menos %2.</translation>
     </message>
     <message>
         <location line="+247"/>
-        <source>WARNING: Invalid Stratis address</source>
-        <translation>ADVERTENCIA: Dirección Stratis inválida</translation>
+        <source>WARNING: Invalid DNotes address</source>
+        <translation>ADVERTENCIA: Dirección DNotes inválida</translation>
     </message>
     <message>
         <location line="+13"/>
@@ -1967,8 +1966,8 @@ Esto significa que se requiere una cuota de al menos %2.</translation>
     </message>
     <message>
         <location filename="../sendcoinsentry.cpp" line="+1"/>
-        <source>Enter a Stratis address (e.g. SjBj1QvJvsAkU5EBKggdZ8gWc4oK2F5AMY)</source>
-        <translation>Introduce una dirección Stratis (p.ej. SjBj1QvJvsAkU5EBKggdZ8gWc4oK2F5AMY)</translation>
+        <source>Enter a DNotes address (e.g. SjBj1QvJvsAkU5EBKggdZ8gWc4oK2F5AMY)</source>
+        <translation>Introduce una dirección DNotes (p.ej. SjBj1QvJvsAkU5EBKggdZ8gWc4oK2F5AMY)</translation>
     </message>
 </context>
 <context>
@@ -2028,8 +2027,8 @@ Esto significa que se requiere una cuota de al menos %2.</translation>
     </message>
     <message>
         <location line="+21"/>
-        <source>Sign the message to prove you own this Stratis address</source>
-        <translation>Firma el mensaje para demostrar que posees esta dirección Stratis.</translation>
+        <source>Sign the message to prove you own this DNotes address</source>
+        <translation>Firma el mensaje para demostrar que posees esta dirección DNotes.</translation>
     </message>
     <message>
         <location line="+17"/>
@@ -2060,8 +2059,8 @@ Esto significa que se requiere una cuota de al menos %2.</translation>
     </message>
     <message>
         <location line="+40"/>
-        <source>Verify the message to ensure it was signed with the specified Stratis address</source>
-        <translation>Verifique el mensaje para asegurarse de que se firmó con la dirección Stratis especificada.</translation>
+        <source>Verify the message to ensure it was signed with the specified DNotes address</source>
+        <translation>Verifique el mensaje para asegurarse de que se firmó con la dirección DNotes especificada.</translation>
     </message>
     <message>
         <location line="+17"/>
@@ -2071,8 +2070,8 @@ Esto significa que se requiere una cuota de al menos %2.</translation>
     <message>
         <location filename="../signverifymessagedialog.cpp" line="+27"/>
         <location line="+3"/>
-        <source>Enter a Stratis address (e.g. SjBj1QvJvsAkU5EBKggdZ8gWc4oK2F5AMY)</source>
-        <translation>Introduce una dirección Stratis (p.ej SjBj1QvJvsAkU5EBKggdZ8gWc4oK2F5AMY)</translation>
+        <source>Enter a DNotes address (e.g. SjBj1QvJvsAkU5EBKggdZ8gWc4oK2F5AMY)</source>
+        <translation>Introduce una dirección DNotes (p.ej SjBj1QvJvsAkU5EBKggdZ8gWc4oK2F5AMY)</translation>
     </message>
     <message>
         <location line="-2"/>
@@ -2081,8 +2080,8 @@ Esto significa que se requiere una cuota de al menos %2.</translation>
     </message>
     <message>
         <location line="+3"/>
-        <source>Enter Stratis signature</source>
-        <translation>Introduce la firma Stratis</translation>
+        <source>Enter DNotes signature</source>
+        <translation>Introduce la firma DNotes</translation>
     </message>
     <message>
         <location line="+85"/>
@@ -2660,8 +2659,8 @@ Esto significa que se requiere una cuota de al menos %2.</translation>
     <name>bitcoin-core</name>
     <message>
         <location filename="../bitcoinstrings.cpp" line="+171"/>
-        <source>Stratis version</source>
-        <translation>versión Stratis</translation>
+        <source>DNotes version</source>
+        <translation>versión DNotes</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -2670,8 +2669,8 @@ Esto significa que se requiere una cuota de al menos %2.</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Send command to -server or stratisd</source>
-        <translation>Envía un comando a -server o stratisd</translation>
+        <source>Send command to -server or DNotesd</source>
+        <translation>Envía un comando a -server o DNotesd</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -2693,13 +2692,13 @@ Esto significa que se requiere una cuota de al menos %2.</translation>
     </message>
     <message>
         <location line="+2"/>
-        <source>Specify configuration file (default: stratis.conf)</source>
-        <translation>Especifica un archivo de configuración (por defecto: stratis.conf)</translation>
+        <source>Specify configuration file (default: DNotes.conf)</source>
+        <translation>Especifica un archivo de configuración (por defecto: DNotes.conf)</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Specify pid file (default: stratisd.pid)</source>
-        <translation>Especifica un archivo pid (por defecto: stratisd.pid)</translation>
+        <source>Specify pid file (default: DNotesd.pid)</source>
+        <translation>Especifica un archivo pid (por defecto: DNotesd.pid)</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -2716,13 +2715,13 @@ Esto significa que se requiere una cuota de al menos %2.</translation>
         <source>%s, you must set a rpcpassword in the configuration file:
 %s
 It is recommended you use the following random password:
-rpcuser=stratisrpc
+rpcuser=DNotesrpc
 rpcpassword=%s
 (you do not need to remember this password)
 The username and password MUST NOT be the same.
 If the file does not exist, create it with owner-readable-only file permissions.
 It is also recommended to set alertnotify so you are notified of problems;
-for example: alertnotify=echo %%s | mail -s &quot;Stratis Alert&quot; admin@foo.com
+for example: alertnotify=echo %%s | mail -s &quot;DNotes Alert&quot; admin@foo.com
 </source>
         <translation type="unfinished"/>
     </message>
@@ -2831,8 +2830,8 @@ for example: alertnotify=echo %%s | mail -s &quot;Stratis Alert&quot; admin@foo.
     </message>
     <message>
         <location line="-103"/>
-        <source>Warning: Please check that your computer&apos;s date and time are correct! If your clock is wrong Stratis will not work properly.</source>
-        <translation>Advertencia: Verifique que la fecha y hora del equipo sean correctas! Si su reloj es erróneo Stratis no funcionará correctamente.</translation>
+        <source>Warning: Please check that your computer&apos;s date and time are correct! If your clock is wrong DNotes will not work properly.</source>
+        <translation>Advertencia: Verifique que la fecha y hora del equipo sean correctas! Si su reloj es erróneo DNotes no funcionará correctamente.</translation>
     </message>
     <message>
         <location line="+130"/>
@@ -3134,7 +3133,7 @@ for example: alertnotify=echo %%s | mail -s &quot;Stratis Alert&quot; admin@foo.
     </message>
     <message>
         <location line="+8"/>
-        <source>Initialization sanity check failed. Stratis is shutting down.</source>
+        <source>Initialization sanity check failed. DNotes is shutting down.</source>
         <translation type="unfinished"/>
     </message>
     <message>
@@ -3190,13 +3189,13 @@ for example: alertnotify=echo %%s | mail -s &quot;Stratis Alert&quot; admin@foo.
     </message>
     <message>
         <location line="+4"/>
-        <source>Error loading wallet.dat: Wallet requires newer version of Stratis</source>
-        <translation>Error cargando wallet.dat: El monedero requiere una nueva versión de Stratis</translation>
+        <source>Error loading wallet.dat: Wallet requires newer version of DNotes</source>
+        <translation>Error cargando wallet.dat: El monedero requiere una nueva versión de DNotes</translation>
     </message>
     <message>
         <location line="+1"/>
-        <source>Wallet needed to be rewritten: restart Stratis to complete</source>
-        <translation>El monedero necesita ser reescrito: reinicie Stratis para completar</translation>
+        <source>Wallet needed to be rewritten: restart DNotes to complete</source>
+        <translation>El monedero necesita ser reescrito: reinicie DNotes para completar</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -3255,8 +3254,8 @@ for example: alertnotify=echo %%s | mail -s &quot;Stratis Alert&quot; admin@foo.
     </message>
     <message>
         <location line="+124"/>
-        <source>Unable to bind to %s on this computer. Stratis is probably already running.</source>
-        <translation>No se puede enlazar a %s en este equipo. Stratis probablemente ya esté en funcionamiento.</translation>
+        <source>Unable to bind to %s on this computer. DNotes is probably already running.</source>
+        <translation>No se puede enlazar a %s en este equipo. DNotes probablemente ya esté en funcionamiento.</translation>
     </message>
     <message>
         <location line="-101"/>
@@ -3290,7 +3289,7 @@ for example: alertnotify=echo %%s | mail -s &quot;Stratis Alert&quot; admin@foo.
     </message>
     <message>
         <location line="+3"/>
-        <source>Cannot obtain a lock on data directory %s. Stratis is probably already running.</source>
+        <source>Cannot obtain a lock on data directory %s. DNotes is probably already running.</source>
         <translation type="unfinished"/>
     </message>
     <message>
