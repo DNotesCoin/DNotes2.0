@@ -88,6 +88,7 @@ public:
         //    CTxIn(COutPoint(0000000000, 4294967295), coinbase 00012a24323020466562203230313420426974636f696e2041544d7320636f6d6520746f20555341)
         //    CTxOut(empty)
         //  vMerkleTree: 12630d16a9
+        //const char* pszTimestamp = "https://www.washingtonpost.com/news/the-fix/wp/2018/01/09/oprah-might-run-for-president-we-did-the-opposition-research-for-you/?utm_term=.dad864a382bb";
         const char* pszTimestamp = "http://www.theonion.com/article/olympics-head-priestess-slits-throat-official-rio--53466";
         std::vector<CTxIn> vin;
         vin.resize(1);

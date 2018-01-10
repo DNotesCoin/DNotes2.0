@@ -22,7 +22,7 @@ using namespace std;
 using namespace boost;
 
 #if defined(NDEBUG)
-# error "Stratis cannot be compiled without assertions."
+# error "DNotes cannot be compiled without assertions."
 #endif
 
 //

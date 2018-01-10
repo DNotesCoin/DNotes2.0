@@ -3,6 +3,7 @@ src/stratis
 src/stratisd
 src/test_stratis
 src/build.h
+.vscode/*.*
 .*.swp
 *.*~*
 *.bak
