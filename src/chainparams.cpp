@@ -76,8 +76,8 @@ public:
         pchMessageStart[2] = 0x22;
         pchMessageStart[3] = 0x05;
         vAlertPubKey = ParseHex("0486bce1bac0d543f104cbff2bd23680056a3b9ea05e1137d2ff90eeb5e08472eb500322593a2cb06fbf8297d7beb6cd30cb90f98153b5b7cce1493749e41e0284");
-        nDefaultPort = 16178;
-        nRPCPort = 16174;
+        nDefaultPort = 11223;
+        nRPCPort = 11224;
         bnProofOfWorkLimit = CBigNum(~uint256(0) >> 20);
 
         // Build the genesis block. Note that the output of the genesis coinbase cannot
@@ -88,33 +88,33 @@ public:
         //    CTxIn(COutPoint(0000000000, 4294967295), coinbase 00012a24323020466562203230313420426974636f696e2041544d7320636f6d6520746f20555341)
         //    CTxOut(empty)
         //  vMerkleTree: 12630d16a9
-        //const char* pszTimestamp = "https://www.washingtonpost.com/news/the-fix/wp/2018/01/09/oprah-might-run-for-president-we-did-the-opposition-research-for-you/?utm_term=.dad864a382bb";
-        const char* pszTimestamp = "http://www.theonion.com/article/olympics-head-priestess-slits-throat-official-rio--53466";
+        const char* pszTimestamp = "https://www.washingtonpost.com/news/the-fix/wp/2018/01/09/oprah-might-run-for-president-we-did-the-opposition-research-for-you/?utm_term=.dad864a382bb";
         std::vector<CTxIn> vin;
         vin.resize(1);
         vin[0].scriptSig = CScript() << 0 << CBigNum(42) << vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
         std::vector<CTxOut> vout;
         vout.resize(1);
         vout[0].SetEmpty();
-        CTransaction txNew(1, 1470467000, vin, vout, 0);
+        CTransaction txNew(1, 1515606776, vin, vout, 0);
         genesis.vtx.push_back(txNew);
         genesis.hashPrevBlock = 0;
         genesis.hashMerkleRoot = genesis.BuildMerkleTree();
         genesis.nVersion = 1;
-        genesis.nTime    = 1470467000;
+        genesis.nTime    = 1515606776;
         genesis.nBits    = bnProofOfWorkLimit.GetCompact();
-        genesis.nNonce   = 1831645;
+        genesis.nNonce   = 0;
 
         hashGenesisBlock = genesis.GetHash();
 
-        assert(hashGenesisBlock == uint256("0x0000066e91e46e5a264d42c89e1204963b2ee6be230b443e9159020539d972af"));
-        assert(genesis.hashMerkleRoot == uint256("0x65a26bc20b0351aebf05829daefa8f7db2f800623439f3c114257c91447f1518"));
+        assert(hashGenesisBlock         ==    uint256("0x2492caec93252f6c8fbb2da9cf378164b7ced8e51a2acb93f2e44919b7641509"));
+        assert(genesis.hashMerkleRoot   ==    uint256("0x119fe5ac2db50936438ea3d824836f2a3cd3b97cd620ec81a8555ce7e42afc55"));
 
+/*
         vSeeds.push_back(CDNSSeedData("Seednode1", "seednode1.stratisplatform.com"));
         vSeeds.push_back(CDNSSeedData("Seednode2", "seednode2.stratis.cloud"));
         vSeeds.push_back(CDNSSeedData("Seednode3", "seednode3.stratisplatform.com"));
         vSeeds.push_back(CDNSSeedData("Seednode4", "seednode4.stratis.cloud"));
-
+*/
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 63);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 125);
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1, (63+128));
@@ -166,11 +166,11 @@ public:
   
         hashGenesisBlock = genesis.GetHash();
          
-        assert(hashGenesisBlock == uint256("0x00000e246d7b73b88c9ab55f2e5e94d9e22d471def3df5ea448f5576b1d156b9"));
+        assert(hashGenesisBlock == uint256("0xbf8e41b0fecd5392051e30509cbf89c6e1759e437defc9dfccee1515aa332daa"));
 
         vFixedSeeds.clear();
         vSeeds.clear();
-        vSeeds.push_back(CDNSSeedData("stratisplatform.com", "testnode1.stratisplatform.com"));
+        //vSeeds.push_back(CDNSSeedData("stratisplatform.com", "testnode1.stratisplatform.com"));
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 65); // stratis test net start with T
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 196);
@@ -205,7 +205,7 @@ public:
         nDefaultPort = 18444;
         strDataDir = "regtest";
 //        MineGenesis(genesis);
-        assert(hashGenesisBlock == uint256("0x00000d97ffc6d5e27e78954c5bf9022b081177756488f44780b4f3c2210b1645"));
+        assert(hashGenesisBlock == uint256("0xf2bab744149704f226108d2b98b107d9049c359babc9bd4e36ef70dc28d36035"));
 
         vSeeds.clear();  // Regtest mode doesn't have any DNS seeds.
     }

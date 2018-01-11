@@ -77,7 +77,7 @@ map<uint256, set<uint256> > mapOrphanTransactionsByPrev;
 // Constant stuff for coinbase transactions we create:
 CScript COINBASE_FLAGS;
 
-const string strMessageMagic = "Stratis Signed Message:\n"; //Can/should this be changed?
+const string strMessageMagic = "DNotes Signed Message:\n"; //Can/should this be changed?
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -2654,7 +2654,7 @@ struct CImportingNow
 
 void ThreadImport(std::vector<boost::filesystem::path> vImportFiles)
 {
-    RenameThread("stratis-loadblk");
+    RenameThread("dnotes-loadblk");
 
     CImportingNow imp;
 
