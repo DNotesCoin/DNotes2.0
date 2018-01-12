@@ -948,13 +948,13 @@ void PrintExceptionContinue(std::exception* pex, const char* pszThread)
 boost::filesystem::path GetDefaultDataDir()
 {
     namespace fs = boost::filesystem;
-    // Windows < Vista: C:\Documents and Settings\Username\Application Data\DNotes
-    // Windows >= Vista: C:\Users\Username\AppData\Roaming\DNotes
-    // Mac: ~/Library/Application Support/DNotes
-    // Unix: ~/.DNotes
+    // Windows < Vista: C:\Documents and Settings\Username\Application Data\DNotes2
+    // Windows >= Vista: C:\Users\Username\AppData\Roaming\DNotes2
+    // Mac: ~/Library/Application Support/DNotes2
+    // Unix: ~/.DNotes2
 #ifdef WIN32
     // Windows
-    return GetSpecialFolderPath(CSIDL_APPDATA) / "DNotes";
+    return GetSpecialFolderPath(CSIDL_APPDATA) / "DNotes2";
 #else
     fs::path pathRet;
     char* pszHome = getenv("HOME");
@@ -966,10 +966,10 @@ boost::filesystem::path GetDefaultDataDir()
     // Mac
     pathRet /= "Library/Application Support";
     fs::create_directory(pathRet);
-    return pathRet / "DNotes";
+    return pathRet / "DNotes2";
 #else
     // Unix
-    return pathRet / ".dnotes";
+    return pathRet / ".dnotes2";
 #endif
 #endif
 }

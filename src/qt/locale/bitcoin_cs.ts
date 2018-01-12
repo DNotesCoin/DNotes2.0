@@ -1128,8 +1128,8 @@ To znamená, že je potřebný poplatek ve výši nejméně %2.</translation>
     </message>
     <message>
         <location line="+6"/>
-        <source>Optional transaction fee per kB that helps make sure your transactions are processed quickly. Most transactions are 1 kB. Fee 0.05 recommended.</source>
-        <translation>Volitelný poplatek transakce za kB, který zajistí, že tvé transakce jsou rychle zpracovány. Většina transakcí má 1 kB. Poplatek 0.05 je doporučený.</translation>
+        <source>Optional transaction fee per kB that helps make sure your transactions are processed quickly. Most transactions are 1 kB. Fee 0.005 recommended.</source>
+        <translation>Volitelný poplatek transakce za kB, který zajistí, že tvé transakce jsou rychle zpracovány. Většina transakcí má 1 kB. Poplatek 0.005 je doporučený.</translation>
     </message>
     <message>
         <location line="+15"/>

@@ -1120,8 +1120,8 @@ This label turns red, if the priority is smaller than &quot;medium&quot;.
     </message>
     <message>
         <location line="+6"/>
-        <source>Optional transaction fee per kB that helps make sure your transactions are processed quickly. Most transactions are 1 kB. Fee 0.05 recommended.</source>
-        <translation>Optionale Transaktionsgebühr pro kB die eine zügige Bearbeitung der Transaktion gewährleistet. Die meisten Transaktionen sind 1 kB. Eine Gebühr von 0.05 ist empfohlen.</translation>
+        <source>Optional transaction fee per kB that helps make sure your transactions are processed quickly. Most transactions are 1 kB. Fee 0.005 recommended.</source>
+        <translation>Optionale Transaktionsgebühr pro kB die eine zügige Bearbeitung der Transaktion gewährleistet. Die meisten Transaktionen sind 1 kB. Eine Gebühr von 0.005 ist empfohlen.</translation>
     </message>
     <message>
         <location line="+15"/>

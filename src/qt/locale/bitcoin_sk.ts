@@ -1132,8 +1132,8 @@ To znamená, že je potrebný poplatok aspoň %2.</translation>
     </message>
     <message>
         <location line="+6"/>
-        <source>Optional transaction fee per kB that helps make sure your transactions are processed quickly. Most transactions are 1 kB. Fee 0.05 recommended.</source>
-        <translation>Voliteľný transakčný poplatok za kB, ktorý pomáha zaistiť, že vaše transakcie sú spracované rýchlo. Väčšina transakcií je 1 kB. Poplatok 0.05 je odporúčaný.</translation>
+        <source>Optional transaction fee per kB that helps make sure your transactions are processed quickly. Most transactions are 1 kB. Fee 0.005 recommended.</source>
+        <translation>Voliteľný transakčný poplatok za kB, ktorý pomáha zaistiť, že vaše transakcie sú spracované rýchlo. Väčšina transakcií je 1 kB. Poplatok 0.005 je odporúčaný.</translation>
     </message>
     <message>
         <location line="+15"/>
