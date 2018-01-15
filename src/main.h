@@ -57,7 +57,7 @@ static const int64_t COIN_YEAR_REWARD = 1 * CENT; // 1% per year - does this nee
 
 inline bool IsProtocolV1RetargetingFixed(int nHeight) { return TestNet() || nHeight > 0; }
 inline bool IsProtocolV2(int nHeight) { return TestNet() || nHeight > 0; }
-inline bool IsProtocolV3(int64_t nTime) { return TestNet() || nTime > 1470467000; }
+inline bool IsProtocolV3(int64_t nTime) { return TestNet() || nTime > 0; }
 
 inline bool IsDriftReduced(int64_t nTime) { return TestNet() || nTime > 1479513600; } // Drifting Bug Fix, hardfork on Sat, 19 Nov 2016 00:00:00 GMT
 

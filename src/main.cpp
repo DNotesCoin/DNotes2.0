@@ -46,7 +46,7 @@ int nStakeMinConfirmations = 10;
 unsigned int nStakeMinAge = 60; // 8 hours
 unsigned int nModifierInterval = 10 * 60; // time to elapse before new modifier is computed
 
-int nCoinbaseMaturity = 10;
+int nCoinbaseMaturity = 50;
 CBlockIndex* pindexGenesisBlock = NULL;
 int nBestHeight = -1;
 
@@ -996,7 +996,7 @@ static CBigNum GetProofOfStakeLimit(int nHeight)
 // miner's coin base reward
 int64_t GetProofOfWorkReward(int64_t nFees)
 {
-	int64_t PreMine = 130000000 * COIN; //Approx outstanding DNotes as of 1/1/2018
+	int64_t PreMine = 1300 * COIN; //Approx outstanding DNotes as of 1/1/2018, made smaller for testing JAKE:
     if(pindexBest->nHeight == 1){return PreMine;} else {return 1*COIN;}
 }
 
@@ -1005,13 +1005,12 @@ int64_t GetProofOfStakeReward(const CBlockIndex* pindexPrev, int64_t nCoinAge, i
 {
     //(outstanding coin / blocks in a year) * two percent
     //(130 000 000 / 525600) * .02
-    int64_t testVar = (pindexPrev->nMoneySupply / 525600) * .02;
-    //think about rounding
+    int64_t stakeReward = (pindexPrev->nMoneySupply / 525600) * .02;
     
-    return (1 * COIN) + nFees;
+    return (stakeReward) + nFees;
 }
 
-static const int64_t nTargetTimespan = 1 * 60;  // 16 mins
+static const int64_t nTargetTimespan = 1 * 60;  // 16 mins -> now 1 minute
 
 // ppcoin: find last block index up to pindex
 const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfStake)

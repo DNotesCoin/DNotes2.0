@@ -1,7 +1,7 @@
 src/*.exe
-src/stratis
-src/stratisd
-src/test_stratis
+src/dnotes
+src/dnotesd
+src/test_dnotes
 src/build.h
 .vscode/*.*
 .*.swp
@@ -15,7 +15,6 @@ src/build.h
 #compilation and Qt preprocessor part
 *.qm
 Makefile
-stratis-qt
 dnotes-qt
 #resources cpp
 qrc_*.cpp
@@ -26,3 +25,4 @@ qrc_*.cpp
 build
 
 !src/leveldb/Makefile
+src/dnotesd
