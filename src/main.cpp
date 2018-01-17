@@ -43,7 +43,7 @@ CBigNum bnProofOfStakeLimit(~uint256(0) >> 20);
 CBigNum bnProofOfStakeLimitV2(~uint256(0) >> 48);
 
 int nStakeMinConfirmations = 10;
-unsigned int nStakeMinAge = 60; // 8 hours
+unsigned int nStakeMinAge = 60; // 8 hours. DNote -> Obsolete in V3, now use nStakeMinconfirmations. Used to be involved in coin age calcualtions for coin age staking.
 unsigned int nModifierInterval = 10 * 60; // time to elapse before new modifier is computed
 
 int nCoinbaseMaturity = 50;
@@ -77,7 +77,7 @@ map<uint256, set<uint256> > mapOrphanTransactionsByPrev;
 // Constant stuff for coinbase transactions we create:
 CScript COINBASE_FLAGS;
 
-const string strMessageMagic = "DNotes Signed Message:\n"; //Can/should this be changed?
+const string strMessageMagic = "DNotes Signed Message:\n";
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -996,21 +996,21 @@ static CBigNum GetProofOfStakeLimit(int nHeight)
 // miner's coin base reward
 int64_t GetProofOfWorkReward(int64_t nFees)
 {
-	int64_t PreMine = 1300 * COIN; //Approx outstanding DNotes as of 1/1/2018, made smaller for testing JAKE:
+	int64_t PreMine = 131000000 * COIN; //Approx outstanding DNotes as of 1/1/2018
     if(pindexBest->nHeight == 1){return PreMine;} else {return 1*COIN;}
 }
 
 // miner's coin stake reward
 int64_t GetProofOfStakeReward(const CBlockIndex* pindexPrev, int64_t nCoinAge, int64_t nFees)
 {
-    //(outstanding coin / blocks in a year) * two percent
+    //(outstanding coin / approx blocks in a year at one per minute) * two percent
     //(130 000 000 / 525600) * .02
-    int64_t stakeReward = (pindexPrev->nMoneySupply / 525600) * .02;
+    int64_t stakeReward = (pindexPrev->nMoneySupply / (60 * 24 * 365)) * .02;
     
     return (stakeReward) + nFees;
 }
 
-static const int64_t nTargetTimespan = 1 * 60;  // 16 mins -> now 1 minute
+static const int64_t nTargetTimespan = 16 * 60;  // 16 mins, this is not the time between blocks.
 
 // ppcoin: find last block index up to pindex
 const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfStake)
@@ -1052,6 +1052,9 @@ unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfS
     int64_t nInterval = nTargetTimespan / nTargetSpacing;
     bnNew *= ((nInterval - 1) * nTargetSpacing + nActualSpacing + nActualSpacing);
     bnNew /= ((nInterval + 1) * nTargetSpacing);
+
+    string val1 = bnNew.GetHex();
+    string val2 = bnTargetLimit.GetHex();
 
     if (bnNew <= 0 || bnNew > bnTargetLimit)
         bnNew = bnTargetLimit;
