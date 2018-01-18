@@ -185,8 +185,8 @@ public:
 
         convertSeed6(vFixedSeeds, pnSeed6_test, ARRAYLEN(pnSeed6_test));
 
-        //nLastPOWBlock = 0x7fffffff; max signed int value
-        nLastPOWBlock = 300;
+        nLastPOWBlock = 0x7fffffff; max signed int value
+        //nLastPOWBlock = 300;
     }
     virtual Network NetworkID() const { return CChainParams::TESTNET; }
 };
