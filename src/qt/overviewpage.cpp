@@ -13,6 +13,8 @@
 #include <QAbstractItemDelegate>
 #include <QPainter>
 
+#include "iomanip"
+
 #define DECORATION_SIZE 64
 #define NUM_ITEMS 6
 
@@ -102,6 +104,11 @@ OverviewPage::OverviewPage(QWidget *parent) :
     txdelegate(new TxViewDelegate()),
     filter(0)
 {
+    lastPriceRequested = 0;
+    lastNewsRequested = 0;
+    currentPrice = 0.0;
+    news = "";
+
     ui->setupUi(this);
 
     // Recent transactions
@@ -153,13 +160,52 @@ void OverviewPage::setBalance(qint64 balance, qint64 stake, qint64 unconfirmedBa
     ui->labelUnconfirmed->setText(BitcoinUnits::formatWithUnit(unit, unconfirmedBalance));
     ui->labelImmature->setText(BitcoinUnits::formatWithUnit(unit, immatureBalance));
     ui->labelTotal->setText(BitcoinUnits::formatWithUnit(unit, balance + stake + unconfirmedBalance + immatureBalance));
-
+    ui->labelFiat->setText(getFiatLabel(balance + stake + unconfirmedBalance + immatureBalance));
 
     // only show immature (newly mined) balance if it's non-zero, so as not to complicate things
     // for the non-mining users
     bool showImmature = immatureBalance != 0;
     ui->labelImmature->setVisible(showImmature);
     ui->labelImmatureText->setVisible(showImmature);
+}
+
+QString OverviewPage::getFiatLabel(qint64 totalCoins)
+{
+    time_t now = time(0);
+    //cache price api request for 10 minutes
+    if(lastPriceRequested < now - 600)
+    {
+        std::string apiResponse = GUIUtil::getResponseFromUrl("api.coinmarketcap.com", "/v1/ticker/DNotes/?convert=USD", "443");
+
+        std::string searchString = "\"price_usd\": \"";
+        std::string::size_type searchStringStartPosition = apiResponse.find(searchString);
+        if(searchStringStartPosition != std::string::npos)
+        {
+            int priceStartPosition = searchStringStartPosition + searchString.length();
+            int priceEndPosition = apiResponse.find("\"", priceStartPosition + 1);
+            std::string priceString = apiResponse.substr(priceStartPosition, priceEndPosition - priceStartPosition);
+            currentPrice = atof (priceString.c_str());
+        }
+        else
+        {
+            //hide fiat label if we can't reach the api or if the response is malformatted.
+            ui->labelFiat->setVisible(false);
+            return "";
+        }
+
+        lastPriceRequested = now;
+    }
+
+    double totalFiatValue = currentPrice * (totalCoins) / 100000000; //total coins is in satoshis
+
+    //round to 2 decimal places
+    std::ostringstream ss;
+    ss << std::fixed << std::setprecision(2) << totalFiatValue;
+    std::string roundedFiatValue = ss.str();
+
+
+    return  "~$" + QString::fromStdString(roundedFiatValue) + " USD\r\n"
+            "(1 NOTE \u2245 " + QString::number(currentPrice) + "USD)" ; //\u2245 is the approximately equal symbol in unicode.
 }
 
 void OverviewPage::setClientModel(ClientModel *model)

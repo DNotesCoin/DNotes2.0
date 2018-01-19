@@ -113,12 +113,10 @@ public:
         vFixedSeeds.clear();
         vSeeds.clear();
 
-/*
-        vSeeds.push_back(CDNSSeedData("Seednode1", "seednode1.stratisplatform.com"));
-        vSeeds.push_back(CDNSSeedData("Seednode2", "seednode2.stratis.cloud"));
-        vSeeds.push_back(CDNSSeedData("Seednode3", "seednode3.stratisplatform.com"));
-        vSeeds.push_back(CDNSSeedData("Seednode4", "seednode4.stratis.cloud"));
-*/
+        vSeeds.push_back(CDNSSeedData("Seednode1", "d20.dnotescoin.com"));
+        vSeeds.push_back(CDNSSeedData("Seednode1", "d21.dnotescoin.com"));
+        vSeeds.push_back(CDNSSeedData("Seednode1", "d22.dnotescoin.com"));
+
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 63);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 125);
         base58Prefixes[SECRET_KEY] =     std::vector<unsigned char>(1, (63+128));
@@ -185,7 +183,7 @@ public:
 
         convertSeed6(vFixedSeeds, pnSeed6_test, ARRAYLEN(pnSeed6_test));
 
-        nLastPOWBlock = 0x7fffffff; max signed int value
+        nLastPOWBlock = 0x7fffffff;// max signed int value
         //nLastPOWBlock = 300;
     }
     virtual Network NetworkID() const { return CChainParams::TESTNET; }

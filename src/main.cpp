@@ -1012,6 +1012,8 @@ int64_t GetProofOfStakeReward(const CBlockIndex* pindexPrev, int64_t nCoinAge, i
     //(130 000 000 / 525600) * .02
     int64_t stakeReward = (pindexPrev->nMoneySupply / (60 * 24 * 365)) * .02;
     
+    //consider looking at actual blocks created in the last X time and use that to determine the # blocks in a year
+
     return (stakeReward); //destroy the transaction fees
 }
 
