@@ -24,10 +24,6 @@
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
 
-#include <boost/asio.hpp>
-#include <boost/asio/ssl.hpp>
-#include <iostream>
-
 #ifdef WIN32
 #ifdef _WIN32_WINNT
 #undef _WIN32_WINNT
@@ -47,49 +43,6 @@
 #endif
 
 namespace GUIUtil {
-
-std::string getResponseFromUrl(string host, string path, string port)
-{
-    try
-    {
-        boost::system::error_code ec;
-        using namespace boost::asio;
-        using namespace boost::asio::ssl;
-
-        // what we need
-        io_service svc;
-        ssl::context ctx(svc, (ssl::context::method) 10); //ssl::context::method::sslv23_client = 10
-        ssl::stream<ip::tcp::socket> ssock(svc, ctx);
-
-        ip::tcp::resolver resolver(svc);
-        ip::tcp::resolver::iterator endpoint_iterator = resolver.resolve({host, port});
-        boost::asio::connect(ssock.lowest_layer(), endpoint_iterator);
-
-        ssock.handshake((ssl::stream_base::handshake_type) 0); //ssl::stream_base::handshake_type::client = 0
-
-        // send request
-        std::string request("GET " + path + " HTTP/1.1\r\n"
-                            "Host: " + host + "\r\n"
-                            "Accept: */*\r\n"
-                            "Connection: close\r\n\r\n");
-        boost::asio::write(ssock, buffer(request));
-
-        // read response
-        std::string response;
-
-        do {
-            char buf[1024];
-            size_t bytes_transferred = ssock.read_some(buffer(buf), ec);
-            if (!ec) response.append(buf, buf + bytes_transferred);
-        } while (!ec);
-
-        return response ;
-    }
-    catch(std::exception const& e)
-    {
-        return "";
-    }
-}
 
 QString dateTimeStr(const QDateTime &date)
 {

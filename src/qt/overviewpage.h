@@ -45,13 +45,15 @@ private:
 
     double currentPrice;
     time_t lastPriceRequested;
-    std::string news;
+    QString dnotesNews;
+    QString dceBriefNews;
     time_t lastNewsRequested;
 
     TxViewDelegate *txdelegate;
     TransactionFilterProxy *filter;
 
 private slots:
+    void updateNewsFeeds();
     void updateDisplayUnit();
     void handleTransactionClicked(const QModelIndex &index);
     void updateAlerts(const QString &warnings);

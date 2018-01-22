@@ -20,9 +20,6 @@ QT_END_NAMESPACE
  */
 namespace GUIUtil
 {
-    // Get http response from url
-    std::string getResponseFromUrl(std::string host, std::string path, std::string port);
-
     // Create human-readable string from date
     QString dateTimeStr(const QDateTime &datetime);
     QString dateTimeStr(qint64 nTime);

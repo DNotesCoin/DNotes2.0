@@ -8,6 +8,7 @@
 #include "transactiontablemodel.h"
 #include "transactionfilterproxy.h"
 #include "guiutil.h"
+#include "webutil.h"
 #include "guiconstants.h"
 
 #include <QAbstractItemDelegate>
@@ -107,7 +108,8 @@ OverviewPage::OverviewPage(QWidget *parent) :
     lastPriceRequested = 0;
     lastNewsRequested = 0;
     currentPrice = 0.0;
-    news = "";
+    dnotesNews = "";
+    dceBriefNews = "";
 
     ui->setupUi(this);
 
@@ -162,11 +164,138 @@ void OverviewPage::setBalance(qint64 balance, qint64 stake, qint64 unconfirmedBa
     ui->labelTotal->setText(BitcoinUnits::formatWithUnit(unit, balance + stake + unconfirmedBalance + immatureBalance));
     ui->labelFiat->setText(getFiatLabel(balance + stake + unconfirmedBalance + immatureBalance));
 
+    updateNewsFeeds();
+
     // only show immature (newly mined) balance if it's non-zero, so as not to complicate things
     // for the non-mining users
     bool showImmature = immatureBalance != 0;
     ui->labelImmature->setVisible(showImmature);
     ui->labelImmatureText->setVisible(showImmature);
+}
+
+struct XmlParsingInfo
+{
+    std::string xmlString;
+    int startingIndex;
+};
+
+std::string getNextTitle(XmlParsingInfo &xmlInfo)
+{
+    std::string openingElement = "<title>";
+    std::string closingElement = "</title>";
+    std::string::size_type searchStringStartPosition = xmlInfo.xmlString.find(openingElement, xmlInfo.startingIndex);
+    if(searchStringStartPosition != std::string::npos)
+    {
+        int titleStartPosition = searchStringStartPosition + openingElement.length();
+        int closingStartPosition = xmlInfo.xmlString.find(closingElement, titleStartPosition + 1);
+
+        std::string title = xmlInfo.xmlString.substr(titleStartPosition, closingStartPosition - titleStartPosition);
+        xmlInfo.startingIndex = closingStartPosition + closingElement.length() + 1;
+        return title;
+    }
+
+    return "";
+}
+
+std::string getNextLink(XmlParsingInfo &xmlInfo)
+{
+    std::string openingElement = "<link>";
+    std::string closingElement = "</link>";
+    std::string::size_type searchStringStartPosition = xmlInfo.xmlString.find(openingElement, xmlInfo.startingIndex);
+    if(searchStringStartPosition != std::string::npos)
+    {
+        int linkStartPosition = searchStringStartPosition + openingElement.length();
+        int closingStartPosition = xmlInfo.xmlString.find(closingElement, linkStartPosition + 1);
+
+        std::string link = xmlInfo.xmlString.substr(linkStartPosition, closingStartPosition - linkStartPosition);
+        xmlInfo.startingIndex = closingStartPosition + closingElement.length() + 1;
+        return link;
+    }   
+    return "";
+}
+
+QString getFeedListItem(std::string title, std::string link)
+{
+    if(title != "" && link != "")
+    {
+        return "<li><a href=\"" + QString::fromStdString(link) + "\">" + QString::fromStdString(title) + "</a></li>";
+    }
+    return "";
+}
+
+void OverviewPage::updateNewsFeeds()
+{
+    time_t now = time(0);
+    if(lastNewsRequested < now - 600)
+    {
+        lastPriceRequested = now;
+
+        //DNotesCoin.com feed
+        std::string dnotesResponse = WebUtil::getHttpResponseFromUrl("dnotescoin.com", "/feed/");
+
+        if(dnotesResponse == "")
+        {
+            ui->browserDNotesNews->setVisible(false);
+        }
+
+        XmlParsingInfo xmlInfo;
+        xmlInfo.xmlString = dnotesResponse;
+        xmlInfo.startingIndex = 0;
+
+        //first title/link are for the feed.
+        std::string title = getNextTitle(xmlInfo);
+        std::string link = getNextLink(xmlInfo);
+
+        //get top 3 stories from feed
+        dnotesNews = "<ul style='-qt-list-indent:1;'>";
+
+        title = getNextTitle(xmlInfo);
+        link = getNextLink(xmlInfo);
+        dnotesNews += getFeedListItem(title, link);
+    
+        title = getNextTitle(xmlInfo);
+        link = getNextLink(xmlInfo);
+        dnotesNews += getFeedListItem(title, link);
+
+        title = getNextTitle(xmlInfo);
+        link = getNextLink(xmlInfo);
+        dnotesNews += getFeedListItem(title, link);
+        
+        dnotesNews += "</ul>";
+        ui->browserDNotesNews->setHtml(dnotesNews);
+
+        //DCEBrief feed
+        std::string dceBriefResponse = WebUtil::getHttpsResponseFromUrl("dcebrief.com", "/feed/");
+        
+        if(dceBriefResponse == "")
+        {
+            ui->browserDNotesNews->setVisible(false);
+        }
+
+        xmlInfo.xmlString = dceBriefResponse;
+        xmlInfo.startingIndex = 0;
+        dceBriefNews = "<ul style='-qt-list-indent:1;'>";
+        
+        //first title/link are for the feed.
+        title = getNextTitle(xmlInfo);
+        link = getNextLink(xmlInfo);
+
+        //get top 3 stories from feed
+        title = getNextTitle(xmlInfo);
+        link = getNextLink(xmlInfo);
+        dceBriefNews += getFeedListItem(title, link);
+    
+        title = getNextTitle(xmlInfo);
+        link = getNextLink(xmlInfo);
+        dceBriefNews += getFeedListItem(title, link);
+
+        title = getNextTitle(xmlInfo);
+        link = getNextLink(xmlInfo);
+        dceBriefNews += getFeedListItem(title, link);
+        
+        dceBriefNews += "</ul>";
+        ui->browserDCENews->setHtml(dceBriefNews);
+    }
 }
 
 QString OverviewPage::getFiatLabel(qint64 totalCoins)
@@ -175,7 +304,7 @@ QString OverviewPage::getFiatLabel(qint64 totalCoins)
     //cache price api request for 10 minutes
     if(lastPriceRequested < now - 600)
     {
-        std::string apiResponse = GUIUtil::getResponseFromUrl("api.coinmarketcap.com", "/v1/ticker/DNotes/?convert=USD", "443");
+        std::string apiResponse = WebUtil::getHttpsResponseFromUrl("api.coinmarketcap.com", "/v1/ticker/DNotes/?convert=USD");
 
         std::string searchString = "\"price_usd\": \"";
         std::string::size_type searchStringStartPosition = apiResponse.find(searchString);
