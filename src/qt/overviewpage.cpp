@@ -334,7 +334,7 @@ QString OverviewPage::getFiatLabel(qint64 totalCoins)
 
 
     return  "~$" + QString::fromStdString(roundedFiatValue) + " USD\r\n"
-            "(1 NOTE \u2245 " + QString::number(currentPrice) + "USD)" ; //\u2245 is the approximately equal symbol in unicode.
+            "(1 NOTE \u2245 " + QString::number(currentPrice) + " USD)" ; //\u2245 is the approximately equal symbol in unicode.
 }
 
 void OverviewPage::setClientModel(ClientModel *model)
