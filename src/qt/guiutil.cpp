@@ -44,6 +44,42 @@
 
 namespace GUIUtil {
 
+void parseInvoiceNumberAndAddress(QString input, QString& outAddress, QString& outInvoiceNumber)
+{
+    int plusIndex = input.indexOf("+");
+    if(plusIndex != -1)
+    {
+        outAddress = input.left(plusIndex);
+        outInvoiceNumber = input.mid(plusIndex + 1);
+    }
+    else
+    {
+        outAddress = input;
+        outInvoiceNumber = "";
+    }
+}
+
+bool validateInvoiceNumber(QString input)
+{
+    for(int idx=0; idx < input.size(); ++idx)
+    {
+        int ch = input.at(idx).unicode();
+
+        if(((ch >= '0' && ch<='9') ||
+           (ch >= 'a' && ch<='z') ||
+           (ch >= 'A' && ch<='Z') ||
+           (ch == '-')))
+        {
+            // Alphanumeric or -
+        }
+        else
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
 QString dateTimeStr(const QDateTime &date)
 {
     return date.date().toString(Qt::SystemLocaleShortDate) + QString(" ") + date.toString("hh:mm");
@@ -67,7 +103,8 @@ QFont bitcoinAddressFont()
 
 void setupAddressWidget(QLineEdit *widget, QWidget *parent)
 {
-    widget->setMaxLength(BitcoinAddressValidator::MaxAddressLength);
+    int maxLength = BitcoinAddressValidator::MaxAddressLength + 1 + 32; //DNotes address + '+' + 32 character invoice number
+    widget->setMaxLength(maxLength);
     widget->setValidator(new BitcoinAddressValidator(parent));
     widget->setFont(bitcoinAddressFont());
 }

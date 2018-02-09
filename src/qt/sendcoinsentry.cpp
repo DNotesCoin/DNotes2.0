@@ -61,7 +61,11 @@ void SendCoinsEntry::on_payTo_textChanged(const QString &address)
     if(!model)
         return;
     // Fill in label from address book, if address has an associated label
-    QString associatedLabel = model->getAddressTableModel()->labelForAddress(address);
+    QString invoiceNumber;
+    QString parsedAddress;
+    GUIUtil::parseInvoiceNumberAndAddress(address, parsedAddress, invoiceNumber);
+
+    QString associatedLabel = model->getAddressTableModel()->labelForAddress(parsedAddress);
     if(!associatedLabel.isEmpty())
         ui->addAsLabel->setText(associatedLabel);
 }
@@ -118,7 +122,7 @@ bool SendCoinsEntry::validate()
     }
 
     if(!ui->payTo->hasAcceptableInput() ||
-       (model && !model->validateAddress(ui->payTo->text())))
+       (model && !model->validateCombinedAddress(ui->payTo->text())))
     {
         ui->payTo->setValid(false);
         retval = false;
@@ -131,7 +135,7 @@ SendCoinsRecipient SendCoinsEntry::getValue()
 {
     SendCoinsRecipient rv;
 
-    rv.address = ui->payTo->text();
+    GUIUtil::parseInvoiceNumberAndAddress(ui->payTo->text(), rv.address, rv.invoiceNumber);
     rv.label = ui->addAsLabel->text();
     rv.amount = ui->payAmount->value();
 

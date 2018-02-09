@@ -24,8 +24,9 @@ QT_END_NAMESPACE
 
 class SendCoinsRecipient
 {
-public:
+public:;
     QString address;
+    QString invoiceNumber;
     QString label;
     qint64 amount;
 };
@@ -71,6 +72,7 @@ public:
 
     // Check address for validity
     bool validateAddress(const QString &address);
+    bool validateCombinedAddress(const QString &combinedAddress);
 
     // Return status record for SendCoins, contains error id + information
     struct SendCoinsReturn
