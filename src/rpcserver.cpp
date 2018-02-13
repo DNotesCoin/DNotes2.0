@@ -53,7 +53,7 @@ void RPCTypeCheck(const Array& params,
             break;
 
         const Value& v = params[i];
-        if (!((v.type() == t) || (fAllowNull && (v.type() == null_type))))
+        if (!((v.type() == t) || (fAllowNull && (v.type() == json_spirit::null_type))))
         {
             string err = strprintf("Expected type %s, got %s",
                                    Value_type_name[t], Value_type_name[v.type()]);
@@ -70,10 +70,10 @@ void RPCTypeCheck(const Object& o,
     BOOST_FOREACH(const PAIRTYPE(string, Value_type)& t, typesExpected)
     {
         const Value& v = find_value(o, t.first);
-        if (!fAllowNull && v.type() == null_type)
+        if (!fAllowNull && v.type() == json_spirit::null_type)
             throw JSONRPCError(RPC_TYPE_ERROR, strprintf("Missing %s", t.first));
 
-        if (!((v.type() == t.second) || (fAllowNull && (v.type() == null_type))))
+        if (!((v.type() == t.second) || (fAllowNull && (v.type() == json_spirit::null_type))))
         {
             string err = strprintf("Expected type %s for %s, got %s",
                                    Value_type_name[t.second], t.first, Value_type_name[v.type()]);
@@ -658,7 +658,7 @@ void JSONRequest::parse(const Value& valRequest)
 
     // Parse method
     Value valMethod = find_value(request, "method");
-    if (valMethod.type() == null_type)
+    if (valMethod.type() == json_spirit::null_type)
         throw JSONRPCError(RPC_INVALID_REQUEST, "Missing method");
     if (valMethod.type() != str_type)
         throw JSONRPCError(RPC_INVALID_REQUEST, "Method must be a string");
@@ -670,7 +670,7 @@ void JSONRequest::parse(const Value& valRequest)
     Value valParams = find_value(request, "params");
     if (valParams.type() == array_type)
         params = valParams.get_array();
-    else if (valParams.type() == null_type)
+    else if (valParams.type() == json_spirit::null_type)
         params = Array();
     else
         throw JSONRPCError(RPC_INVALID_REQUEST, "Params must be an array");

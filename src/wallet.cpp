@@ -15,8 +15,10 @@
 #include "walletdb.h"
 
 #include <boost/algorithm/string/replace.hpp>
+#include "boost/tuple/tuple.hpp"
 
 using namespace std;
+using namespace boost::tuples;
 
 // Settings
 int64_t nTransactionFee = MIN_TX_FEE;
@@ -1393,14 +1395,14 @@ bool CWallet::SelectCoinsForStaking(int64_t nTargetValue, unsigned int nSpendTim
     return true;
 }
 
-bool CWallet::CreateTransaction(const vector<pair<CScript, int64_t> >& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, int64_t& nFeeRet, const CCoinControl* coinControl)
+bool CWallet::CreateTransaction(const vector<tuple<CScript, int64_t, string> >& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, int64_t& nFeeRet, const CCoinControl* coinControl)
 {
     int64_t nValue = 0;
-    BOOST_FOREACH (const PAIRTYPE(CScript, int64_t)& s, vecSend)
+    BOOST_FOREACH (const TRIPLETYPE(CScript, int64_t, string)& s, vecSend)
     {
         if (nValue < 0)
             return false;
-        nValue += s.second;
+        nValue += s.get<1>();
     }
     if (vecSend.empty() || nValue < 0)
         return false;
@@ -1444,8 +1446,10 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, int64_t> >& vecSend, 
                 int64_t nTotalValue = nValue + nFeeRet;
                 double dPriority = 0;
                 // vouts to the payees
-                BOOST_FOREACH (const PAIRTYPE(CScript, int64_t)& s, vecSend)
-                    wtxNew.vout.push_back(CTxOut(s.second, s.first));
+                BOOST_FOREACH (const TRIPLETYPE(CScript, int64_t, string)& s, vecSend)
+                {
+                    wtxNew.vout.push_back(CTxOut(s.get<1>(), s.get<2>(), s.get<0>()));
+                }
 
                 // Choose coins to use
                 set<pair<const CWalletTx*,unsigned int> > setCoins;
@@ -1540,8 +1544,8 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, int64_t> >& vecSend, 
 
 bool CWallet::CreateTransaction(CScript scriptPubKey, int64_t nValue, CWalletTx& wtxNew, CReserveKey& reservekey, int64_t& nFeeRet, const CCoinControl* coinControl)
 {
-    vector< pair<CScript, int64_t> > vecSend;
-    vecSend.push_back(make_pair(scriptPubKey, nValue));
+    std::vector<tuple<CScript, int64_t, std::string> > vecSend;
+    vecSend.push_back(make_tuple(scriptPubKey, nValue, ""));
     return CreateTransaction(vecSend, wtxNew, reservekey, nFeeRet, coinControl);
 }
 

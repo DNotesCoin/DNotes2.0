@@ -510,7 +510,7 @@ Value getblocktemplate(const Array& params, bool fHelp)
         const Value& modeval = find_value(oparam, "mode");
         if (modeval.type() == str_type)
             strMode = modeval.get_str();
-        else if (modeval.type() == null_type)
+        else if (modeval.type() == json_spirit::null_type)
         {
             /* Do nothing */
         }

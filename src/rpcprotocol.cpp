@@ -26,6 +26,8 @@ using namespace boost;
 using namespace boost::asio;
 using namespace json_spirit;
 
+
+
 //
 // HTTP protocol
 //
@@ -230,7 +232,7 @@ string JSONRPCRequest(const string& strMethod, const Array& params, const Value&
 Object JSONRPCReplyObj(const Value& result, const Value& error, const Value& id)
 {
     Object reply;
-    if (error.type() != null_type)
+    if (error.type() != json_spirit::null_type)
         reply.push_back(Pair("result", Value::null));
     else
         reply.push_back(Pair("result", result));
