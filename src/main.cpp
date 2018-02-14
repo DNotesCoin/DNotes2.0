@@ -17,6 +17,7 @@
 #include "txdb.h"
 #include "txmempool.h"
 #include "ui_interface.h"
+#include "invoiceutil.h"
 
 using namespace std;
 using namespace boost;
@@ -560,6 +561,8 @@ bool CTransaction::CheckTransaction() const
         nValueOut += txout.nValue;
         if (!MoneyRange(nValueOut))
             return DoS(100, error("CTransaction::CheckTransaction() : txout total out of range"));
+        if(!InvoiceUtil::validateInvoiceNumber(txout.invoiceNumber))
+            return DoS(100, error("CTransaction::CheckTransaction() : txout invoice number invalid"));
     }
 
     // Check for duplicate inputs

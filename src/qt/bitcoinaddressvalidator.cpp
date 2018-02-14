@@ -1,5 +1,6 @@
 #include "bitcoinaddressvalidator.h"
 #include "guiutil.h"
+#include "invoiceutil.h"
 
 
 /* Base58 characters are:
@@ -75,7 +76,7 @@ QValidator::State BitcoinAddressValidator::validate(QString &input, int &pos) co
     }
 
     // invoice # validation
-    if(!GUIUtil::validateInvoiceNumber(invoiceNumber))
+    if(!InvoiceUtil::validateInvoiceNumber(invoiceNumber.toStdString()))
     {
         state = QValidator::Invalid;
     }

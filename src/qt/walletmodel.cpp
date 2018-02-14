@@ -9,6 +9,7 @@
 #include "walletdb.h" // for BackupWallet
 #include "base58.h"
 #include "guiutil.h"
+#include "invoiceutil.h"
 
 #include <QSet>
 #include <QTimer>
@@ -150,7 +151,7 @@ bool WalletModel::validateCombinedAddress(const QString &combinedAddress)
     QString address;
     GUIUtil::parseInvoiceNumberAndAddress(combinedAddress, address, invoiceNumber);
 
-    return validateAddress(address) && GUIUtil::validateInvoiceNumber(invoiceNumber);
+    return validateAddress(address) && InvoiceUtil::validateInvoiceNumber(invoiceNumber.toStdString());
 }
 
 
@@ -168,7 +169,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(const QList<SendCoinsRecipie
     // Pre-check input data for validity
     foreach(const SendCoinsRecipient &rcp, recipients)
     {
-        if(!validateAddress(rcp.address) || !GUIUtil::validateInvoiceNumber(rcp.invoiceNumber))
+        if(!validateAddress(rcp.address) || !InvoiceUtil::validateInvoiceNumber(rcp.invoiceNumber.toStdString()))
         {
             return InvalidAddress;
         }

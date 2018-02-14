@@ -193,6 +193,7 @@ HEADERS += src/qt/bitcoingui.h \
     src/json/json_spirit.h \
     src/qt/clientmodel.h \
     src/qt/guiutil.h \
+    src/invoiceutil.h \
     src/qt/webutil.h \
     src/qt/transactionrecord.h \
     src/qt/guiconstants.h \
@@ -291,6 +292,7 @@ SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/walletdb.cpp \
     src/qt/clientmodel.cpp \
     src/qt/guiutil.cpp \
+    src/invoiceutil.cpp \
     src/qt/webutil.cpp \
     src/qt/transactionrecord.cpp \
     src/qt/optionsmodel.cpp \
