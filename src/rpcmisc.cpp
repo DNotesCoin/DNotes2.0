@@ -11,6 +11,7 @@
 #include "rpcserver.h"
 #include "timedata.h"
 #include "util.h"
+#include "invoiceutil.h"
 #ifdef ENABLE_WALLET
 #include "wallet.h"
 #include "walletdb.h"
@@ -119,16 +120,23 @@ Value validateaddress(const Array& params, bool fHelp)
             "validateaddress <dnotesaddress>\n"
             "Return information about <dnotesaddress>.");
 
-    CBitcoinAddress address(params[0].get_str());
-    bool isValid = address.IsValid();
+    string inputAddress = params[0].get_str();
+    string invoiceNumber;
+    string addressString;
+    InvoiceUtil::parseInvoiceNumberAndAddress(inputAddress, addressString, invoiceNumber);
+
+    CBitcoinAddress address(addressString);
+    bool isAddressValid = address.IsValid();
+    bool isInvoiceNumberValid = InvoiceUtil::validateInvoiceNumber(invoiceNumber);
 
     Object ret;
-    ret.push_back(Pair("isvalid", isValid));
-    if (isValid)
+    ret.push_back(Pair("isvalid", isAddressValid && isInvoiceNumberValid));
+    if (isAddressValid)
     {
         CTxDestination dest = address.Get();
         string currentAddress = address.ToString();
         ret.push_back(Pair("address", currentAddress));
+        ret.push_back(Pair("invoiceNumber", invoiceNumber));
 #ifdef ENABLE_WALLET
         bool fMine = pwalletMain ? IsMine(*pwalletMain, dest) : false;
         ret.push_back(Pair("ismine", fMine));

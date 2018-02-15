@@ -52,15 +52,15 @@ QValidator::State BitcoinAddressValidator::validate(QString &input, int &pos) co
     }
 
     //split input into address and invoice number
-    QString invoiceNumber;
-    QString address;
-    GUIUtil::parseInvoiceNumberAndAddress(input, address, invoiceNumber);
+    string invoiceNumber;
+    string address;
+    InvoiceUtil::parseInvoiceNumberAndAddress(input.toStdString(), address, invoiceNumber);
 
     // address Validation
     QValidator::State state = QValidator::Acceptable;
-    for(int idx=0; idx < address.size(); ++idx)
+    for(uint idx=0; idx < address.size(); ++idx)
     {
-        int ch = address.at(idx).unicode();
+        int ch = address.at(idx);
 
         if(((ch >= '0' && ch<='9') ||
            (ch >= 'a' && ch<='z') ||
@@ -76,7 +76,7 @@ QValidator::State BitcoinAddressValidator::validate(QString &input, int &pos) co
     }
 
     // invoice # validation
-    if(!InvoiceUtil::validateInvoiceNumber(invoiceNumber.toStdString()))
+    if(!InvoiceUtil::validateInvoiceNumber(invoiceNumber))
     {
         state = QValidator::Invalid;
     }

@@ -17,6 +17,7 @@
 
 #include "boost/tuple/tuple.hpp"
 using namespace boost::tuples;
+using std::string;
 
 WalletModel::WalletModel(CWallet *wallet, OptionsModel *optionsModel, QObject *parent) :
     QObject(parent), wallet(wallet), optionsModel(optionsModel), addressTableModel(0),
@@ -141,19 +142,23 @@ void WalletModel::updateAddressBook(const QString &address, const QString &label
 
 bool WalletModel::validateAddress(const QString &address)
 {
-    CBitcoinAddress addressParsed(address.toStdString());
+    return validateAddress(address.toStdString());
+}
+
+bool WalletModel::validateAddress(const string &address)
+{
+    CBitcoinAddress addressParsed(address);
     return addressParsed.IsValid();
 }
 
 bool WalletModel::validateCombinedAddress(const QString &combinedAddress)
 {
-    QString invoiceNumber;
-    QString address;
-    GUIUtil::parseInvoiceNumberAndAddress(combinedAddress, address, invoiceNumber);
+    string invoiceNumber;
+    string address;
+    InvoiceUtil::parseInvoiceNumberAndAddress(combinedAddress.toStdString(), address, invoiceNumber);
 
-    return validateAddress(address) && InvoiceUtil::validateInvoiceNumber(invoiceNumber.toStdString());
+    return validateAddress(address) && InvoiceUtil::validateInvoiceNumber(invoiceNumber);
 }
-
 
 WalletModel::SendCoinsReturn WalletModel::sendCoins(const QList<SendCoinsRecipient> &recipients, const CCoinControl *coinControl)
 {

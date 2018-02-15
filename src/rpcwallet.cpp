@@ -10,6 +10,7 @@
 #include "netbase.h"
 #include "timedata.h"
 #include "util.h"
+#include "invoiceutil.h"
 #include "wallet.h"
 #include "walletdb.h"
 
@@ -270,9 +271,19 @@ Value sendtoaddress(const Array& params, bool fHelp)
             "<amount> is a real and is rounded to the nearest 0.000001"
             + HelpRequiringPassphrase());
 
-    CBitcoinAddress address(params[0].get_str());
-    if (!address.IsValid())
+    string invoiceNumber;
+    string addressString;
+    InvoiceUtil::parseInvoiceNumberAndAddress(params[0].get_str(), addressString, invoiceNumber);
+
+    CBitcoinAddress address(addressString);
+    if (!address.IsValid()) 
+    {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid DNotes address");
+    }
+    if (!InvoiceUtil::validateInvoiceNumber(invoiceNumber))
+    {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid DNotes address");
+    }
 
     // Amount
     int64_t nAmount = AmountFromValue(params[1]);
@@ -287,7 +298,7 @@ Value sendtoaddress(const Array& params, bool fHelp)
     if (pwalletMain->IsLocked())
         throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Please enter the wallet passphrase with walletpassphrase first.");
 
-    string strError = pwalletMain->SendMoneyToDestination(address.Get(), nAmount, wtx);
+    string strError = pwalletMain->SendMoneyToDestination(address.Get(), invoiceNumber, nAmount, wtx);
     if (strError != "")
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
 
@@ -597,9 +608,17 @@ Value sendfrom(const Array& params, bool fHelp)
             + HelpRequiringPassphrase());
 
     string strAccount = AccountFromValue(params[0]);
-    CBitcoinAddress address(params[1].get_str());
+
+    string invoiceNumber;
+    string addressString;
+    InvoiceUtil::parseInvoiceNumberAndAddress(params[1].get_str(), addressString, invoiceNumber);
+
+    CBitcoinAddress address(addressString);
     if (!address.IsValid())
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid DNotes address");
+    if (!InvoiceUtil::validateInvoiceNumber(invoiceNumber))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid DNotes address");
+
     int64_t nAmount = AmountFromValue(params[2]);
 
     int nMinDepth = 1;
@@ -621,7 +640,7 @@ Value sendfrom(const Array& params, bool fHelp)
         throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Account has insufficient funds");
 
     // Send
-    string strError = pwalletMain->SendMoneyToDestination(address.Get(), nAmount, wtx);
+    string strError = pwalletMain->SendMoneyToDestination(address.Get(), invoiceNumber, nAmount, wtx);
     if (strError != "")
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
 
@@ -652,10 +671,17 @@ Value sendmany(const Array& params, bool fHelp)
     vector<tuple<CScript, int64_t, string> > vecSend;
 
     int64_t totalAmount = 0;
+    string invoiceNumber;
+    string addressString;
     BOOST_FOREACH(const Pair& s, sendTo)
     {
-        CBitcoinAddress address(s.name_);
+        InvoiceUtil::parseInvoiceNumberAndAddress(s.name_, addressString, invoiceNumber);
+
+        CBitcoinAddress address(addressString);
         if (!address.IsValid())
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid DNotes address: ")+s.name_);
+
+        if (!InvoiceUtil::validateInvoiceNumber(invoiceNumber))
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid DNotes address: ")+s.name_);
 
         if (setAddress.count(address))
@@ -668,7 +694,7 @@ Value sendmany(const Array& params, bool fHelp)
 
         totalAmount += nAmount;
 
-        vecSend.push_back(make_tuple(scriptPubKey, nAmount, "TODO"));
+        vecSend.push_back(make_tuple(scriptPubKey, nAmount, invoiceNumber));
     }
 
     EnsureWalletIsUnlocked();

@@ -20,8 +20,8 @@ QT_END_NAMESPACE
  */
 namespace GUIUtil
 {
-    void parseInvoiceNumberAndAddress(QString input, QString& outAddress, QString& outInvoiceNumber);
 
+    
     // Create human-readable string from date
     QString dateTimeStr(const QDateTime &datetime);
     QString dateTimeStr(qint64 nTime);

@@ -12,6 +12,7 @@
 #include "main.h"
 #include "net.h"
 #include "keystore.h"
+#include "invoiceutil.h"
 #ifdef ENABLE_WALLET
 #include "wallet.h"
 #endif
@@ -272,21 +273,35 @@ Value createrawtransaction(const Array& params, bool fHelp)
     }
 
     set<CBitcoinAddress> setAddress;
+    string invoiceNumber;
+    string addressString;
     BOOST_FOREACH(const Pair& s, sendTo)
     {
-        CBitcoinAddress address(s.name_);
+        InvoiceUtil::parseInvoiceNumberAndAddress(s.name_, addressString, invoiceNumber);
+
+        CBitcoinAddress address(addressString);
         if (!address.IsValid())
+        {
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid DNotes address: ")+s.name_);
+        }
+
+        if (!InvoiceUtil::validateInvoiceNumber(invoiceNumber))
+        {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid DNotes address: ")+s.name_);
+        }
 
         if (setAddress.count(address))
+        {
             throw JSONRPCError(RPC_INVALID_PARAMETER, string("Invalid parameter, duplicated address: ")+s.name_);
+        }
+
         setAddress.insert(address);
 
         CScript scriptPubKey;
         scriptPubKey.SetDestination(address.Get());
         int64_t nAmount = AmountFromValue(s.value_);
 
-        CTxOut out(nAmount, scriptPubKey);
+        CTxOut out(nAmount, invoiceNumber, scriptPubKey);
         rawTx.vout.push_back(out);
     }
 

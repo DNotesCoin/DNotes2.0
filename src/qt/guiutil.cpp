@@ -44,21 +44,6 @@
 
 namespace GUIUtil {
 
-void parseInvoiceNumberAndAddress(QString input, QString& outAddress, QString& outInvoiceNumber)
-{
-    int plusIndex = input.indexOf("+");
-    if(plusIndex != -1)
-    {
-        outAddress = input.left(plusIndex);
-        outInvoiceNumber = input.mid(plusIndex + 1);
-    }
-    else
-    {
-        outAddress = input;
-        outInvoiceNumber = "";
-    }
-}
-
 QString dateTimeStr(const QDateTime &date)
 {
     return date.date().toString(Qt::SystemLocaleShortDate) + QString(" ") + date.toString("hh:mm");
