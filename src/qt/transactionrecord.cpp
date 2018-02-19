@@ -57,6 +57,8 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                     sub.type = TransactionRecord::RecvFromOther;
                     sub.address = mapValue["from"];
                 }
+                sub.invoiceNumber = txout.invoiceNumber;
+                
                 if (wtx.IsCoinBase())
                 {
                     // Generated (proof-of-work)
@@ -129,6 +131,8 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                     sub.type = TransactionRecord::SendToOther;
                     sub.address = mapValue["to"];
                 }
+                sub.invoiceNumber = txout.invoiceNumber;
+                
 
                 int64_t nValue = txout.nValue;
                 /* Add fee to first output */

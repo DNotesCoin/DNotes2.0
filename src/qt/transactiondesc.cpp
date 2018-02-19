@@ -90,6 +90,10 @@ QString TransactionDesc::toHTML(CWallet *wallet, CWalletTx &wtx, TransactionReco
                     strHTML += "<b>" + tr("From") + ":</b> " + tr("unknown") + "<br>";
                     strHTML += "<b>" + tr("To") + ":</b> ";
                     strHTML += GUIUtil::HtmlEscape(rec->address);
+                    if(rec->invoiceNumber != "")
+                    {
+                        strHTML += "+" + QString::fromStdString(rec->invoiceNumber);
+                    }
                     if (!wallet->mapAddressBook[address].empty())
                         strHTML += " (" + tr("own address") + ", " + tr("label") + ": " + GUIUtil::HtmlEscape(wallet->mapAddressBook[address]) + ")";
                     else
@@ -111,7 +115,9 @@ QString TransactionDesc::toHTML(CWallet *wallet, CWalletTx &wtx, TransactionReco
         CTxDestination dest = CBitcoinAddress(strAddress).Get();
         if (wallet->mapAddressBook.count(dest) && !wallet->mapAddressBook[dest].empty())
             strHTML += GUIUtil::HtmlEscape(wallet->mapAddressBook[dest]) + " ";
-        strHTML += GUIUtil::HtmlEscape(strAddress) + "<br>";
+        strHTML += GUIUtil::HtmlEscape(strAddress);
+        //Invoice number is not stored in mapvalue. 
+        strHTML += "<br>";
     }
 
     //
@@ -169,6 +175,10 @@ QString TransactionDesc::toHTML(CWallet *wallet, CWalletTx &wtx, TransactionReco
                         if (wallet->mapAddressBook.count(address) && !wallet->mapAddressBook[address].empty())
                             strHTML += GUIUtil::HtmlEscape(wallet->mapAddressBook[address]) + " ";
                         strHTML += GUIUtil::HtmlEscape(CBitcoinAddress(address).ToString());
+                        if(txout.invoiceNumber != "")
+                        {
+                            strHTML += "+" + QString::fromStdString(txout.invoiceNumber);
+                        }
                         strHTML += "<br>";
                     }
                 }

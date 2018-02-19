@@ -45,6 +45,7 @@ public:
 
         QDateTime date = index.data(TransactionTableModel::DateRole).toDateTime();
         QString address = index.data(Qt::DisplayRole).toString();
+        QString invoice = index.data(TransactionTableModel::InvoiceRole).toString();
         qint64 amount = index.data(TransactionTableModel::AmountRole).toLongLong();
         bool confirmed = index.data(TransactionTableModel::ConfirmedRole).toBool();
         QVariant value = index.data(Qt::ForegroundRole);
@@ -54,8 +55,13 @@ public:
             foreground = qvariant_cast<QColor>(value);
         }
 
+        QString combinedAddress = address;
+        if(invoice != "")
+        {
+            combinedAddress += "+" + invoice;
+        }
         painter->setPen(fUseBlackTheme ? QColor(255, 255, 255) : foreground);
-        painter->drawText(addressRect, Qt::AlignLeft|Qt::AlignVCenter, address);
+        painter->drawText(addressRect, Qt::AlignLeft|Qt::AlignVCenter, combinedAddress);
 
         if(amount < 0)
         {

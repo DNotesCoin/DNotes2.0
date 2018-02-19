@@ -107,6 +107,7 @@ public:
     qint64 time;
     Type type;
     std::string address;
+    std::string invoiceNumber;
     qint64 debit;
     qint64 credit;
     /**@}*/
