@@ -1,6 +1,7 @@
 #include "addresstablemodel.h"
 
 #include "guiutil.h"
+#include "invoiceutil.h"
 #include "walletmodel.h"
 
 #include "wallet.h"
@@ -218,6 +219,7 @@ bool AddressTableModel::setData(const QModelIndex &index, const QVariant &value,
     AddressTableEntry *rec = static_cast<AddressTableEntry*>(index.internalPointer());
 
     editStatus = OK;
+    containsInvoiceNumber = false;
 
     if(role == Qt::EditRole)
     {
@@ -233,34 +235,47 @@ bool AddressTableModel::setData(const QModelIndex &index, const QVariant &value,
             wallet->SetAddressBookName(CBitcoinAddress(rec->address.toStdString()).Get(), value.toString().toStdString());
             break;
         case Address:
-            // Do nothing, if old address == new address
-            if(CBitcoinAddress(rec->address.toStdString()) == CBitcoinAddress(value.toString().toStdString()))
-            {
-                editStatus = NO_CHANGES;
-                return false;
-            }
+            
+            std::string strAddress = "";
+            std::string invoiceNumber = "";
+            QString inputAddress = value.toString();
+
             // Refuse to set invalid address, set error status and return false
-            else if(!walletModel->validateAddress(value.toString()))
+            if(!walletModel->validateCombinedAddress(inputAddress))
             {
                 editStatus = INVALID_ADDRESS;
                 return false;
             }
+
+            //parse out invoice #
+            InvoiceUtil::parseInvoiceNumberAndAddress(inputAddress.toStdString(), strAddress, invoiceNumber);
+            if(invoiceNumber != "")
+            {
+                containsInvoiceNumber = true;
+            }
+
+            // Do nothing, if old address == new address
+            if(rec->address.toStdString() == strAddress)
+            {
+                editStatus = NO_CHANGES;
+                return false;
+            }
             // Check for duplicate addresses to prevent accidental deletion of addresses, if you try
             // to paste an existing address over another address (with a different label)
-            else if(wallet->mapAddressBook.count(CBitcoinAddress(value.toString().toStdString()).Get()))
+            if(wallet->mapAddressBook.count(CBitcoinAddress(strAddress).Get()))
             {
                 editStatus = DUPLICATE_ADDRESS;
                 return false;
             }
             // Double-check that we're not overwriting a receiving address
-            else if(rec->type == AddressTableEntry::Sending)
+            if(rec->type == AddressTableEntry::Sending)
             {
                 {
                     LOCK(wallet->cs_wallet);
                     // Remove old entry
                     wallet->DelAddressBookName(CBitcoinAddress(rec->address.toStdString()).Get());
                     // Add new entry with new address
-                    wallet->SetAddressBookName(CBitcoinAddress(value.toString().toStdString()).Get(), rec->label.toStdString());
+                    wallet->SetAddressBookName(CBitcoinAddress(strAddress).Get(), rec->label.toStdString());
                 }
             }
             break;
@@ -322,17 +337,26 @@ void AddressTableModel::updateEntry(const QString &address, const QString &label
 QString AddressTableModel::addRow(const QString &type, const QString &label, const QString &address)
 {
     std::string strLabel = label.toStdString();
-    std::string strAddress = address.toStdString();
+    std::string strAddress = "";
+    std::string invoiceNumber = "";
 
     editStatus = OK;
+    containsInvoiceNumber = false;
 
     if(type == Send)
     {
-        if(!walletModel->validateAddress(address))
+        if(!walletModel->validateCombinedAddress(address))
         {
             editStatus = INVALID_ADDRESS;
             return QString();
         }
+
+        InvoiceUtil::parseInvoiceNumberAndAddress(address.toStdString(), strAddress, invoiceNumber);
+        if(invoiceNumber != "")
+        {
+            containsInvoiceNumber = true;
+        }
+
         // Check for duplicate addresses
         {
             LOCK(wallet->cs_wallet);

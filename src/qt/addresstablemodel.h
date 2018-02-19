@@ -68,6 +68,7 @@ public:
     int lookupAddress(const QString &address) const;
 
     EditStatus getEditStatus() const { return editStatus; }
+    bool getContainsInvoiceNumber() const { return containsInvoiceNumber; }
 
 private:
     WalletModel *walletModel;
@@ -75,6 +76,7 @@ private:
     AddressTablePriv *priv;
     QStringList columns;
     EditStatus editStatus;
+    bool containsInvoiceNumber;
 
     /** Notify listeners that data changed. */
     void emitDataChanged(int index);
