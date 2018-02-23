@@ -39,7 +39,7 @@ void MineGenesis(CBlock genesis){
 	    printf("New best: %s\n", newhash.GetHex().c_str());
 	}
     }
-    printf("Found Genesis, Nonce: %ld, Hash: %s\n", genesis.nNonce, genesis.GetHash().GetHex().c_str());
+    printf("Found Genesis, Nonce: %u, Hash: %s\n", genesis.nNonce, genesis.GetHash().GetHex().c_str());
     printf("Gensis Hash Merkle: %s\n", genesis.hashMerkleRoot.ToString().c_str());
 }
 
@@ -126,6 +126,13 @@ public:
         convertSeed6(vFixedSeeds, pnSeed6_main, ARRAYLEN(pnSeed6_main));
 
         nLastPOWBlock = 2000;
+
+        nCRISPPayoutInterval = 60 * 24 * 30; //43200 minutes in 30 days
+        nCRISPPayoutLag = 60 * 24 * 7; //10080 minutes in 30 days
+        nMaxCRISPPayoutsPerBlock = 10000;
+        nMaxTransactionsPerBlock = 100;
+        nMaxInputsAndOutputsPerBlock = 300;
+        nCRISPPayoutPercentage = .005; //half a percent, paid out roughly monthly
     }
 
     virtual const CBlock& GenesisBlock() const { return genesis; }
@@ -212,6 +219,10 @@ public:
         assert(hashGenesisBlock == uint256("0x0000074d707edc8763d1f1a295f474e59a8e827d73b150bef1611279c08fc068"));
 
         vSeeds.clear();  // Regtest mode doesn't have any DNS seeds.
+
+        nCRISPPayoutInterval = 100;
+        nCRISPPayoutLag = 25;
+        fPOWNoRetargeting = true;
     }
 
     virtual bool RequireRPCPassword() const { return false; }

@@ -68,6 +68,14 @@ public:
     virtual const vector<CAddress>& FixedSeeds() const = 0;
     int RPCPort() const { return nRPCPort; }
     int LastPOWBlock() const { return nLastPOWBlock; }
+    bool POWNoRetargeting() const { return fPOWNoRetargeting; }
+    
+    int CRISPPayoutInterval() const {return nCRISPPayoutInterval;}
+    int CRISPPayoutLag() const {return nCRISPPayoutLag;}
+    double CRISPPayoutPercentage() const {return nCRISPPayoutPercentage;}
+    int MaxCRISPPayoutsPerBlock() const {return nMaxCRISPPayoutsPerBlock;}
+    int MaxTransactionsPerBlock() const {return nMaxTransactionsPerBlock;}
+    int MaxInputsAndOutputsPerBlock() const {return nMaxInputsAndOutputsPerBlock;}
 protected:
     CChainParams() {};
 
@@ -83,6 +91,14 @@ protected:
     vector<CDNSSeedData> vSeeds;
     std::vector<unsigned char> base58Prefixes[MAX_BASE58_TYPES];
     int nLastPOWBlock;
+    bool fPOWNoRetargeting;
+     
+    int nCRISPPayoutInterval;
+    int nCRISPPayoutLag;
+    double nCRISPPayoutPercentage;
+    int nMaxCRISPPayoutsPerBlock;
+    int nMaxTransactionsPerBlock;
+    int nMaxInputsAndOutputsPerBlock;
 };
 
 /**

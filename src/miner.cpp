@@ -7,6 +7,7 @@
 #include "txdb.h"
 #include "miner.h"
 #include "kernel.h"
+#include "crisp.h"
 
 using namespace std;
 
@@ -101,6 +102,14 @@ public:
 // CreateNewBlock: create new block (without proof-of-work/proof-of-stake)
 CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFees)
 {
+    CPubKey pubKey;
+    if (!reservekey.GetReservedKey(pubKey))
+        return NULL;
+    return CreateNewBlock(pubKey, fProofOfStake, pFees);
+}
+
+CBlock* CreateNewBlock(CPubKey pubKey, bool fProofOfStake, int64_t* pFees)
+{
     // Create new block
     auto_ptr<CBlock> pblock(new CBlock());
     if (!pblock.get())
@@ -110,29 +119,29 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
     int nHeight = pindexPrev->nHeight + 1;
 
     // Create coinbase tx
-    CTransaction txNew;
-    txNew.vin.resize(1);
-    txNew.vin[0].prevout.SetNull();
-    txNew.vout.resize(1);
+    CTransaction coinbaseTransaction;
+    coinbaseTransaction.vin.resize(1);
+    coinbaseTransaction.vin[0].prevout.SetNull();
+    coinbaseTransaction.vout.resize(1);
 
     if (!fProofOfStake)
     {
-        CPubKey pubkey;
-        if (!reservekey.GetReservedKey(pubkey))
-            return NULL;
-        txNew.vout[0].scriptPubKey.SetDestination(pubkey.GetID());
+        coinbaseTransaction.vout[0].scriptPubKey.SetDestination(pubKey.GetID());
     }
     else
     {
         // Height first in coinbase required for block.version=2
-        txNew.vin[0].scriptSig = (CScript() << nHeight) + COINBASE_FLAGS;
-        assert(txNew.vin[0].scriptSig.size() <= 100);
+        coinbaseTransaction.vin[0].scriptSig = (CScript() << nHeight) + COINBASE_FLAGS;
+        assert(coinbaseTransaction.vin[0].scriptSig.size() <= 100);
 
-        txNew.vout[0].SetEmpty();
+        coinbaseTransaction.vout[0].SetEmpty();
     }
 
+    //calculate CRISP payouts
+    pblock->addressBalances = CRISP::AddCRISPPayouts(nHeight, coinbaseTransaction);
+
     // Add our coinbase tx as first transaction
-    pblock->vtx.push_back(txNew);
+    pblock->vtx.push_back(coinbaseTransaction);
 
     // Largest block you're willing to create:
     unsigned int nBlockMaxSize = GetArg("-blockmaxsize", MAX_BLOCK_SIZE_GEN/2);
@@ -160,7 +169,7 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
 
     pblock->nBits = GetNextTargetRequired(pindexPrev, fProofOfStake);
 
-    // Collect memory pool transactions into the block
+    // Collect memo ry pool transactions into the block
     int64_t nFees = 0;
     {
         LOCK2(cs_main, mempool.cs);
@@ -370,7 +379,6 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
 
     return pblock.release();
 }
-
 
 void IncrementExtraNonce(CBlock* pblock, CBlockIndex* pindexPrev, unsigned int& nExtraNonce)
 {

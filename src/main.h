@@ -598,6 +598,12 @@ public:
 
     // network and disk
     std::vector<CTransaction> vtx;
+    
+    //Running tally of addresses and their balance on the blockchain for use in CRISP calculations.
+    //Only hydrated in every nCRISPPayoutInterval blocks.
+    //is valid thru the end of block height: block's height - nCRISPPayoutLag - 1
+    //needs to be serialized for network and disk.
+    std::map<CTxDestination, int64_t> addressBalances; 
 
     // ppcoin: block signature - signed by one of the coin base txout[N]'s owner
     std::vector<unsigned char> vchBlockSig;
