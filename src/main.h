@@ -629,6 +629,7 @@ public:
         READWRITE(nTime);
         READWRITE(nBits);
         READWRITE(nNonce);
+        READWRITE(addressBalances);
 
         // ConnectBlock depends on vtx following header to generate CDiskTxPos
         if (!(nType & (SER_GETHASH|SER_BLOCKHEADERONLY)))
@@ -639,6 +640,7 @@ public:
         else if (fRead)
         {
             const_cast<CBlock*>(this)->vtx.clear();
+            const_cast<CBlock*>(this)->addressBalances.clear();
             const_cast<CBlock*>(this)->vchBlockSig.clear();
         }
     )
@@ -652,6 +654,7 @@ public:
         nBits = 0;
         nNonce = 0;
         vtx.clear();
+        addressBalances.clear();
         vchBlockSig.clear();
         vMerkleTree.clear();
         nDoS = 0;
@@ -824,13 +827,14 @@ public:
     std::string ToString() const
     {
         std::stringstream s;
-        s << strprintf("CBlock(hash=%s, ver=%d, hashPrevBlock=%s, hashMerkleRoot=%s, nTime=%u, nBits=%08x, nNonce=%u, vtx=%u, vchBlockSig=%s)\n",
+        s << strprintf("CBlock(hash=%s, ver=%d, hashPrevBlock=%s, hashMerkleRoot=%s, nTime=%u, nBits=%08x, nNonce=%u, vtx=%u, addressBalances=%u, vchBlockSig=%s)\n",
             GetHash().ToString(),
             nVersion,
             hashPrevBlock.ToString(),
             hashMerkleRoot.ToString(),
             nTime, nBits, nNonce,
             vtx.size(),
+            addressBalances.size(),
             HexStr(vchBlockSig.begin(), vchBlockSig.end()));
         for (unsigned int i = 0; i < vtx.size(); i++)
         {

@@ -169,7 +169,7 @@ CBlock* CreateNewBlock(CPubKey pubKey, bool fProofOfStake, int64_t* pFees)
 
     pblock->nBits = GetNextTargetRequired(pindexPrev, fProofOfStake);
 
-    // Collect memo ry pool transactions into the block
+    // Collect memory pool transactions into the block
     int64_t nFees = 0;
     {
         LOCK2(cs_main, mempool.cs);
@@ -588,7 +588,7 @@ void ThreadStakeMiner(CWallet *pwallet)
 double dHashesPerSec = 0.0;
 int64_t nHPSTimerStart = 0;
 
-void static BitcoinMiner(CWallet *pwallet)
+void static BitcoinMiner(CWallet *pwallet, int nMaxBlockHeight)
 {
     LogPrintf("BRAINHasher Miner started\n");
     SetThreadPriority(THREAD_PRIORITY_LOWEST);
@@ -602,8 +602,8 @@ void static BitcoinMiner(CWallet *pwallet)
 
         // Busy-wait for the network to come online so we don't waste time mining
         // on an obsolete chain. In regtest mode we expect to fly solo.
-//        while (vNodes.empty())
-//            MilliSleep(1000);
+        //        while (vNodes.empty())
+        //            MilliSleep(1000);
  
 
         //
@@ -612,26 +612,29 @@ void static BitcoinMiner(CWallet *pwallet)
         unsigned int nTransactionsUpdatedLast = mempool.GetTransactionsUpdated();
         CBlockIndex* pindexPrev = pindexBest;
 
+        if(pindexPrev->nHeight >= nMaxBlockHeight)
+            return;
+        
         int64_t nFees;
         auto_ptr<CBlock> pblocktemplate(CreateNewBlock(reservekey, false, &nFees));
         if (!pblocktemplate.get())
             return;
-	CBlock *pblock = pblocktemplate.get();
+	    CBlock *pblock = pblocktemplate.get();
 
         IncrementExtraNonce(pblock, pindexPrev, nExtraNonce);
 
         /*LogPrintf("Running BRAINHash Miner with %llu transactions in block (%u bytes)\n", pblock->vtx.size(),
                ::GetSerializeSize(*pblock, SER_NETWORK, PROTOCOL_VERSION));
-*/
+        */
         uint256 hashTarget = CBigNum().SetCompact(pblock->nBits).getuint256();
-	int64_t nStart = GetTime();
-	uint256 hash;
-	unsigned int nHashesDone = 0;
+        int64_t nStart = GetTime();
+        uint256 hash;
+        unsigned int nHashesDone = 0;
 
         while (true)
         {            
             hash = pblock->GetPoWHash();
-	    ++nHashesDone;
+	        ++nHashesDone;
             
             if (hash <= hashTarget)
             {
@@ -641,7 +644,7 @@ void static BitcoinMiner(CWallet *pwallet)
                 SetThreadPriority(THREAD_PRIORITY_LOWEST);
                 break;
             }       
-	    ++pblock->nNonce;    
+	        ++pblock->nNonce;    
 
             // Meter hashes/sec
             static int64_t nHashCounter;
@@ -701,7 +704,7 @@ void static BitcoinMiner(CWallet *pwallet)
     }
 }
 
-void GenerateBitcoins(bool fGenerate, CWallet* pwallet, int nThreads)
+void GenerateBitcoins(bool fGenerate, CWallet* pwallet, int nThreads, int nMaxBlocksToGenerate)
 {
     static boost::thread_group* minerThreads = NULL;
     if(nThreads == -1)
@@ -709,14 +712,20 @@ void GenerateBitcoins(bool fGenerate, CWallet* pwallet, int nThreads)
     
     if (minerThreads != NULL)
     {
-	minerThreads->interrupt_all();
-	delete minerThreads;
-	minerThreads = NULL;
+        minerThreads->interrupt_all();
+        delete minerThreads;
+        minerThreads = NULL;
     }
     if (nThreads == 0 || !fGenerate)
-	return;
+	    return;
+
+    int nMaxBlockHeight = pindexBest->nHeight + nMaxBlocksToGenerate;
+    if(nMaxBlocksToGenerate == INT_MAX){
+        nMaxBlockHeight = INT_MAX;
+    }
+    
     minerThreads = new boost::thread_group();
     for (int i = 0; i < nThreads; i++)
-	minerThreads->create_thread(boost::bind(&BitcoinMiner, pwallet));
+	    minerThreads->create_thread(boost::bind(&BitcoinMiner, pwallet, nMaxBlockHeight));
 }
 #endif

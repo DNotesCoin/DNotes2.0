@@ -18,6 +18,7 @@
 
 #include <boost/type_traits/is_fundamental.hpp>
 #include <boost/tuple/tuple.hpp>
+#include <boost/serialization/variant.hpp>
 
 #include "allocators.h"
 #include "version.h"
@@ -420,9 +421,10 @@ template<typename K, typename Pred, typename A> unsigned int GetSerializeSize(co
 template<typename Stream, typename K, typename Pred, typename A> void Serialize(Stream& os, const std::set<K, Pred, A>& m, int nType, int nVersion);
 template<typename Stream, typename K, typename Pred, typename A> void Unserialize(Stream& is, std::set<K, Pred, A>& m, int nType, int nVersion);
 
-
-
-
+//3 varint
+template<typename T0, typename T1, typename T2> unsigned int GetSerializeSize(const boost::variant<T0, T1, T2> item, int nType, int nVersion);
+template<typename Stream, typename T0, typename T1, typename T2> void Serialize(Stream& os, const boost::variant<T0, T1, T2>& item, int nType, int nVersion);
+template<typename Stream, typename T0, typename T1, typename T2> void Unserialize(Stream& is, boost::variant<T0, T1, T2>& item, int nType, int nVersion);
 
 //
 // If none of the specialized versions above matched, default to calling member function.
@@ -752,7 +754,97 @@ void Unserialize(Stream& is, std::set<K, Pred, A>& m, int nType, int nVersion)
     }
 }
 
+//
+// 3 variant
+//
+template<typename T0, typename T1, typename T2> 
+unsigned int GetSerializeSize(const boost::variant<T0, T1, T2> item, int nType, int nVersion)
+{
+    unsigned int nSize = GetSizeOfCompactSize(1); //1 byte to specify the variant type
 
+    switch (item.which()) 
+    {
+        case 0: // it's a t0
+        {
+            //T0 type0Value = boost::get<T0>(item);
+            //nSize += GetSerializeSize(type0Value, nType, nVersion);
+            break;
+        }
+        case 1: // it's a t1
+        {
+            T1 type1Value = boost::get<T1>(item);
+            nSize += GetSerializeSize(type1Value, nType, nVersion);
+            break;
+        }
+        case 2: // it's a t2
+        {
+            T2 type2Value = boost::get<T2>(item);
+            nSize += GetSerializeSize(type2Value, nType, nVersion);
+            break;
+        }    
+    }
+   
+    return nSize;
+}
+
+template<typename Stream, typename T0, typename T1, typename T2>
+void Serialize(Stream& os, const boost::variant<T0, T1, T2>& item, int nType, int nVersion)
+{
+    
+    switch (item.which()) 
+    {
+        case 0: // it's a t0
+        {
+            WriteCompactSize(os, 0); //write variant type
+            //T0 type0Value = boost::get<T0>(item);
+            //Serialize(os, type0Value, nType, nVersion);
+            break;
+        }
+        case 1: // it's a t1
+        {
+            WriteCompactSize(os, 1); //write variant type
+            T1 type1Value = boost::get<T1>(item);
+            Serialize(os, type1Value, nType, nVersion);
+            break;
+        }
+        case 2: // it's a t2
+        {
+            WriteCompactSize(os, 2); //write variant type
+            T2 type2Value = boost::get<T2>(item);
+            Serialize(os, type2Value, nType, nVersion);
+            break;
+        }    
+    }
+}
+
+template<typename Stream, typename T0, typename T1, typename T2>
+void Unserialize(Stream& is, boost::variant<T0, T1, T2>& item, int nType, int nVersion)
+{
+    unsigned int variantType = ReadCompactSize(is);
+
+    switch (variantType) 
+    {
+        case 0: // it's a t0
+        {
+            item = T0();
+            //Unserialize(is, type0Value, nType, nVersion);
+            //item = NoDestination();
+            break;
+        }
+        case 1: // it's a t1
+        {
+            T1 type1Value = T1();
+            Unserialize(is, type1Value, nType, nVersion);
+            break;
+        }
+        case 2: // it's a t2
+        {
+            T2 type2Value = T2();
+            Unserialize(is, type2Value, nType, nVersion);
+            break;
+        }    
+    }
+}
 
 //
 // Support for IMPLEMENT_SERIALIZE and READWRITE macro

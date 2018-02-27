@@ -1534,6 +1534,7 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
         mapQueuedChanges[hashTx] = CTxIndex(posThisTx, tx.vout.size());
     }
 
+    //TODO: validate CRISP payouts
     if (IsProofOfWork())
     {
         int64_t nReward = GetProofOfWorkReward(nFees);
@@ -1986,6 +1987,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
         if (vtx[i].IsCoinBase())
             return DoS(100, error("CheckBlock() : more than one coinbase"));
 
+    //TODO: validate CRISP payouts
     if (IsProofOfStake())
     {
         // Coinbase output should be empty if proof-of-stake block

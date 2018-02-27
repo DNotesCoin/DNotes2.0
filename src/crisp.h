@@ -7,7 +7,7 @@
 
 namespace CRISP
 {
-    std::map<CTxDestination, int64_t> AddCRISPPayouts(int currentBlockHeight, CTransaction coinbaseTransaction);
+    std::map<CTxDestination, int64_t> AddCRISPPayouts(int currentBlockHeight, CTransaction& coinbaseTransaction);
 }
 
 #endif // CRISP_H

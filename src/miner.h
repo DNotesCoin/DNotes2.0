@@ -10,7 +10,7 @@
 #include "wallet.h"
 
 /** Run the miner threads */
-void GenerateBitcoins(bool fGenerate, CWallet* pwallet, int nThreads);
+void GenerateBitcoins(bool fGenerate, CWallet* pwallet, int nThreads, int nMaxBlocksToGenerate);
 
 /* Generate a new block, without valid proof-of-work */
 CBlock* CreateNewBlock(CPubKey pubKey, bool fProofOfStake=false, int64_t* pFees = 0);

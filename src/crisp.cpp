@@ -9,10 +9,10 @@ namespace CRISP
 {
     std::map<CTxDestination, int64_t> GetStartingAddressBalances(int blockHeight);
     std::map<CTxDestination, int64_t> CalculateAddressBalanceDeltas(int startingHeight, int endingHeight);
-    std::map<CTxDestination, int64_t> CalculateAddressPayouts(std::map<CTxDestination, int64_t> startingAddressBalances, std::map<CTxDestination, int64_t> addressBalanceDeltas);
+    std::map<CTxDestination, int64_t> CalculateAddressPayouts(std::map<CTxDestination, int64_t>& startingAddressBalances, std::map<CTxDestination, int64_t>& addressBalanceDeltas);
 
     //returns address balances to set on the 
-    std::map<CTxDestination, int64_t> AddCRISPPayouts(int currentBlockHeight, CTransaction coinbaseTransaction)
+    std::map<CTxDestination, int64_t> AddCRISPPayouts(int currentBlockHeight, CTransaction& coinbaseTransaction)
     {
         bool makeCRISPPayouts = false;
         bool makeCRISPCatchupPayouts = false;
@@ -45,15 +45,48 @@ namespace CRISP
             std::map<CTxDestination, int64_t> payouts = CalculateAddressPayouts(startingBalances, balanceDeltas);
 
             //iterate through payouts to build vouts for each (up to maximum)
-            //build up list of CRISP payouts from recent blocks to avoid double paying them
+            std::map<CTxDestination, int64_t>::iterator payoutIterator = payouts.begin();
+            while (payoutIterator != payouts    . /.end())
+            {
+                CTxDestination address = payoutIterator->first;
+                int64_t payoutAmount = payoutIterator->second;
 
+                CTxOut crispPayout;
+                crispPayout.scriptPubKey.SetDestination(address);
+                crispPayout.nValue = payoutAmount;
+                coinbaseTransaction.vout.push_back(crispPayout);
+
+                //TODO consider 10k maximum and previous block payouts
+                payoutIterator++;
+            }
+
+            //return address balances to store in the block
             if(!makeCRISPCatchupPayouts)
             {
                 std::map<CTxDestination, int64_t> currentBalances;
                 //combine initial balance and delta and store that value into the block (if we're not playing catchup)
                 
-                //throw std::runtime_error("not yet implemented");
-                return currentBalances; //what i know about heap, pointers, and c++ memory tells me that this will not work how i want.
+                std::map<CTxDestination, int64_t>::iterator it1 = startingBalances.begin();
+                while (it1 != startingBalances.end())
+                {
+                    CTxDestination address = it1->first;
+                    int64_t value = it1->second;
+
+                    currentBalances[address] += value;
+                    it1++;
+                }
+
+                std::map<CTxDestination, int64_t>::iterator it2 = balanceDeltas.begin();
+                while (it2 != balanceDeltas.end())
+                {
+                    CTxDestination address = it2->first;
+                    int64_t value = it2->second;
+
+                    currentBalances[address] += value;
+                    it2++;
+                }
+
+                return currentBalances; //am i using the right parameter and return types? * vs & vs normal?
             }   
 
         }
@@ -95,15 +128,13 @@ namespace CRISP
         LogPrint("crisp", "starting balance delta loop");
         CBlock block;
         CBlockIndex *pblockindex = mapBlockIndex[hashBestChain];
-        while (pblockindex->nHeight >= startingHeight)
+        while (pblockindex && pblockindex->nHeight >= startingHeight)
         {
             LogPrint("crisp", "balance delta loop %d", pblockindex->nHeight);
             pblockindex = pblockindex->pprev;
-            if (pblockindex->nHeight <= endingHeight)
+            if (pblockindex && pblockindex->nHeight <= endingHeight)
             {
                 uint256 hash = *pblockindex->phashBlock;
-
-
 
                 pblockindex = mapBlockIndex[hash];
                 block.ReadFromDisk(pblockindex, true);
@@ -111,37 +142,50 @@ namespace CRISP
                 //transactions
                 BOOST_FOREACH (CTransaction &transaction, block.vtx)
                 {
+                    std::set<CTxDestination> inputsAddressesInThisTransaction;
+                    txnouttype type;
+                    vector<CTxDestination> addresses;
+                    int nRequired;
+
                     //inputs
                     BOOST_FOREACH (CTxIn &input, transaction.vin)
                     {
-                        //addressBalanceDeltas.count(NoTxDestination)
                         CTransaction inputTransaction;
                         uint256 hashBlock = 0;
                         if (GetTransaction(input.prevout.hash, inputTransaction, hashBlock))
                         {
-                            txnouttype type;
-                            vector<CTxDestination> addresses;
-                            int nRequired;
                             CTxOut originatingOutput = inputTransaction.vout[input.prevout.n];
 
-                            if (!ExtractDestinations(originatingOutput.scriptPubKey, type, addresses, nRequired))
+                            if (ExtractDestinations(originatingOutput.scriptPubKey, type, addresses, nRequired))
                             {
-                            }
+                                BOOST_FOREACH (const CTxDestination &addr, addresses)
+                                {
+                                    inputsAddressesInThisTransaction.insert(addr);
 
-                            BOOST_FOREACH (const CTxDestination &addr, addresses)
-                            {
-                                //a.push_back(CBitcoinAddress(addr).ToString());
+                                    addressBalanceDeltas[addr] -= originatingOutput.nValue;
+                                }
                             }
                         }
                         else
                         {
-                            //something has gone wrong.
+                            //something has gone wrong. or this is a coinbase transaction
                         }
                     }
 
                     //outputs
                     BOOST_FOREACH (CTxOut &output, transaction.vout)
                     {
+                        vector<CTxDestination> addresses;
+                        if (ExtractDestinations(output.scriptPubKey, type, addresses, nRequired))
+                        {
+                            BOOST_FOREACH (const CTxDestination &addr, addresses)
+                            {
+                                if(transaction.IsCoinBase() || inputsAddressesInThisTransaction.count(addr) > 0)
+                                {
+                                    addressBalanceDeltas[addr] += output.nValue;
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -150,11 +194,32 @@ namespace CRISP
         return addressBalanceDeltas;
     }
 
-    std::map<CTxDestination, int64_t> CalculateAddressPayouts(std::map<CTxDestination, int64_t> startingAddressBalances, std::map<CTxDestination, int64_t> addressBalanceDeltas)
+    std::map<CTxDestination, int64_t> CalculateAddressPayouts(std::map<CTxDestination, int64_t>& startingAddressBalances, std::map<CTxDestination, int64_t>& addressBalanceDeltas)
     {
         std::map<CTxDestination, int64_t> addressPayouts; 
         
+        std::map<CTxDestination, int64_t>::iterator startingBalanceIterator = startingAddressBalances.begin();
+        while (startingBalanceIterator != startingAddressBalances.end())
+        {
+            CTxDestination address = startingBalanceIterator->first;
+            int64_t matureBalance = startingBalanceIterator->second;
+            int64_t balanceDelta = addressBalanceDeltas[address];
 
+            if(balanceDelta >= 0)
+            {
+                addressPayouts[address] = matureBalance * Params().CRISPPayoutPercentage();
+            }
+            else if (matureBalance + balanceDelta > 0)
+            {
+                addressPayouts[address] = (matureBalance + balanceDelta) * Params().CRISPPayoutPercentage();
+            }
+            else if(matureBalance + balanceDelta < 0)
+            {
+                //no payout
+            }
+
+            startingBalanceIterator++;
+        }
 
         return addressPayouts;
     }
