@@ -11,11 +11,11 @@ namespace CRISP
     std::map<CTxDestination, int64_t> CalculateAddressBalanceDeltas(int startingHeight, int endingHeight);
     std::map<CTxDestination, int64_t> CalculateAddressPayouts(std::map<CTxDestination, int64_t>& startingAddressBalances, std::map<CTxDestination, int64_t>& addressBalanceDeltas);
 
-    //returns address balances to set on the 
-    std::map<CTxDestination, int64_t> AddCRISPPayouts(int currentBlockHeight, CTransaction& coinbaseTransaction)
+
+    bool BlockShouldHaveCRISPPayouts(int currentBlockHeight, bool& makeCRISPCatchupPayouts)
     {
+        makeCRISPCatchupPayouts = false;
         bool makeCRISPPayouts = false;
-        bool makeCRISPCatchupPayouts = false;
         //make CRISP payouts every CRISPPayoutInterval blocks
         if(currentBlockHeight > Params().CRISPPayoutInterval() && currentBlockHeight % Params().CRISPPayoutInterval() == Params().CRISPPayoutLag())
         {
@@ -26,6 +26,15 @@ namespace CRISP
             makeCRISPPayouts = true;
             makeCRISPCatchupPayouts = true;
         }
+
+        return makeCRISPPayouts;
+    }
+
+    //returns address balances to set on the 
+    std::map<CTxDestination, int64_t> AddCRISPPayouts(int currentBlockHeight, CTransaction& coinbaseTransaction)
+    {
+        bool makeCRISPCatchupPayouts = false;
+        bool makeCRISPPayouts = BlockShouldHaveCRISPPayouts(currentBlockHeight, makeCRISPCatchupPayouts);
 
         if(makeCRISPPayouts)
         {
@@ -46,7 +55,7 @@ namespace CRISP
 
             //iterate through payouts to build vouts for each (up to maximum)
             std::map<CTxDestination, int64_t>::iterator payoutIterator = payouts.begin();
-            while (payoutIterator != payouts    . /.end())
+            while (payoutIterator != payouts.end())
             {
                 CTxDestination address = payoutIterator->first;
                 int64_t payoutAmount = payoutIterator->second;
@@ -59,6 +68,8 @@ namespace CRISP
                 //TODO consider 10k maximum and previous block payouts
                 payoutIterator++;
             }
+
+            //TODO: think about sorting the payouts
 
             //return address balances to store in the block
             if(!makeCRISPCatchupPayouts)
@@ -111,7 +122,7 @@ namespace CRISP
             uint256 hash = *pblockindex->phashBlock;
 
             pblockindex = mapBlockIndex[hash];
-            block.ReadFromDisk(pblockindex, false);
+            block.ReadFromDisk(pblockindex, true);
 
             return block.addressBalances;
         }

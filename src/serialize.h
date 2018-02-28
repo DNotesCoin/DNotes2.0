@@ -835,12 +835,14 @@ void Unserialize(Stream& is, boost::variant<T0, T1, T2>& item, int nType, int nV
         {
             T1 type1Value = T1();
             Unserialize(is, type1Value, nType, nVersion);
+            item = type1Value;
             break;
         }
         case 2: // it's a t2
         {
             T2 type2Value = T2();
             Unserialize(is, type2Value, nType, nVersion);
+            item = type2Value;
             break;
         }    
     }

@@ -629,12 +629,12 @@ public:
         READWRITE(nTime);
         READWRITE(nBits);
         READWRITE(nNonce);
-        READWRITE(addressBalances);
 
         // ConnectBlock depends on vtx following header to generate CDiskTxPos
         if (!(nType & (SER_GETHASH|SER_BLOCKHEADERONLY)))
         {
             READWRITE(vtx);
+            READWRITE(addressBalances);
             READWRITE(vchBlockSig);
         }
         else if (fRead)

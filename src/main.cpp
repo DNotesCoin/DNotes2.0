@@ -18,6 +18,8 @@
 #include "txmempool.h"
 #include "ui_interface.h"
 #include "invoiceutil.h"
+#include "crisp.h"
+#include "consensus.h"
 
 using namespace std;
 using namespace boost;
@@ -1534,27 +1536,10 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
         mapQueuedChanges[hashTx] = CTxIndex(posThisTx, tx.vout.size());
     }
 
-    //TODO: validate CRISP payouts
-    if (IsProofOfWork())
+    bool rewardValid = Consensus::ValidateReward(pindex, *this, nFees, nStakeReward);
+    if(!rewardValid)
     {
-        int64_t nReward = GetProofOfWorkReward(nFees);
-        // Check coinbase reward
-        if (vtx[0].GetValueOut() > nReward)
-            return DoS(50, error("ConnectBlock() : coinbase reward exceeded (actual=%d vs calculated=%d)",
-                   vtx[0].GetValueOut(),
-                   nReward));
-    }
-    if (IsProofOfStake())
-    {
-        // ppcoin: coin stake tx earns reward instead of paying fee
-        uint64_t nCoinAge;
-        if (!vtx[1].GetCoinAge(txdb, pindex->pprev, nCoinAge))
-            return error("ConnectBlock() : %s unable to get coin age for coinstake", vtx[1].GetHash().ToString());
-
-        int64_t nCalculatedStakeReward = GetProofOfStakeReward(pindex->pprev, nCoinAge, nFees);
-
-        if (nStakeReward > nCalculatedStakeReward)
-            return DoS(100, error("ConnectBlock() : coinstake pays too much(actual=%d vs calculated=%d)", nStakeReward, nCalculatedStakeReward));
+        return rewardValid;
     }
 
     // ppcoin: track money supply and mint amount info
