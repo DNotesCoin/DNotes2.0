@@ -357,6 +357,8 @@ QString TransactionTableModel::formatTxType(const TransactionRecord *wtx) const
         return tr("Payment to yourself");
     case TransactionRecord::Generated:
         return tr("Mined");
+    case TransactionRecord::CRISP:
+        return tr("CRISP Payout");
     default:
         return QString();
     }
@@ -366,6 +368,8 @@ QVariant TransactionTableModel::txAddressDecoration(const TransactionRecord *wtx
 {
     switch(wtx->type)
     {
+    case TransactionRecord::CRISP:
+        return QIcon( ":/icons/tx_crisp");
     case TransactionRecord::Generated:
         return QIcon(fUseBlackTheme ? ":/icons/black/tx_mined" : ":/icons/tx_mined");
     case TransactionRecord::RecvWithAddress:
@@ -386,6 +390,7 @@ QString TransactionTableModel::formatTxToAddress(const TransactionRecord *wtx, b
     {
         case TransactionRecord::RecvFromOther:
             return QString::fromStdString(wtx->address);
+        case TransactionRecord::CRISP:
         case TransactionRecord::RecvWithAddress:
         case TransactionRecord::SendToAddress:
         case TransactionRecord::Generated:
@@ -409,6 +414,7 @@ QVariant TransactionTableModel::addressColor(const TransactionRecord *wtx) const
     // Show addresses without label in a less visible color
     switch(wtx->type)
     {
+    case TransactionRecord::CRISP:
     case TransactionRecord::RecvWithAddress:
     case TransactionRecord::SendToAddress:
     case TransactionRecord::Generated:

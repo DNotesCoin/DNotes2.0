@@ -31,6 +31,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
     int64_t nNet = nCredit - nDebit;
     uint256 hash = wtx.GetHash(), hashPrev = 0;
     std::map<std::string, std::string> mapValue = wtx.mapValue;
+    int64_t voutIndex = -1;
 
     if (nNet > 0 || wtx.IsCoinBase() || wtx.IsCoinStake())
     {
@@ -39,6 +40,7 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
         //
         BOOST_FOREACH(const CTxOut& txout, wtx.vout)
         {
+            voutIndex++;
             if(wallet->IsMine(txout))
             {
                 TransactionRecord sub(hash, nTime);
@@ -61,8 +63,15 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet *
                 
                 if (wtx.IsCoinBase())
                 {
-                    // Generated (proof-of-work)
-                    sub.type = TransactionRecord::Generated;
+                    if(voutIndex == 0)
+                    {
+                        // Generated (proof-of-work)
+                        sub.type = TransactionRecord::Generated;
+                    }
+                    else
+                    {
+                        sub.type = TransactionRecord::CRISP;
+                    }
                 }
                 if (wtx.IsCoinStake())
                 {

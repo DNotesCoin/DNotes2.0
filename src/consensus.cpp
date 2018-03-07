@@ -42,11 +42,11 @@ bool ValidateReward(CBlockIndex *proposedBlockIndex, CBlock &proposedBlock, int6
                     calculatedFirstOutputValue = GetProofOfWorkReward(fees);
                 }
 
-                if(proposedOutput.nValue != calculatedFirstOutputValue)
+                if (proposedOutput.nValue != calculatedFirstOutputValue)
                 {
                     return proposedBlock.DoS(50, error("ConnectBlock() : coinbase reward exceeded (actual=%d vs calculated=%d)",
-                                               proposedOutput.nValue,
-                                               calculatedFirstOutputValue));
+                                                       proposedOutput.nValue,
+                                                       calculatedFirstOutputValue));
                 }
             }
             else

@@ -73,9 +73,10 @@ public:
     int CRISPPayoutInterval() const {return nCRISPPayoutInterval;}
     int CRISPPayoutLag() const {return nCRISPPayoutLag;}
     double CRISPPayoutPercentage() const {return nCRISPPayoutPercentage;}
-    int MaxCRISPPayoutsPerBlock() const {return nMaxCRISPPayoutsPerBlock;}
-    int MaxTransactionsPerBlock() const {return nMaxTransactionsPerBlock;}
-    int MaxInputsAndOutputsPerBlock() const {return nMaxInputsAndOutputsPerBlock;}
+    uint MaxCRISPPayoutsPerBlock() const {return nMaxCRISPPayoutsPerBlock;}
+    uint MaxTransactionsPerBlock() const {return nMaxTransactionsPerBlock;}
+    uint MaxInputsAndOutputsPerBlock() const {return nMaxInputsAndOutputsPerBlock;}
+    uint MaxInputsAndOutputsPerTransaction() const {return nMaxInputsAndOutputsPerTransaction;}
 protected:
     CChainParams() {};
 
@@ -96,9 +97,10 @@ protected:
     int nCRISPPayoutInterval;
     int nCRISPPayoutLag;
     double nCRISPPayoutPercentage;
-    int nMaxCRISPPayoutsPerBlock;
-    int nMaxTransactionsPerBlock;
-    int nMaxInputsAndOutputsPerBlock;
+    uint nMaxCRISPPayoutsPerBlock;
+    uint nMaxTransactionsPerBlock;
+    uint nMaxInputsAndOutputsPerBlock;
+    uint nMaxInputsAndOutputsPerTransaction;
 };
 
 /**

@@ -1,14 +1,14 @@
 #define BOOST_TEST_MODULE DNotes Test Suite
 #include <boost/test/unit_test.hpp>
 
-
-////#include "main.h"
+//#include "main.h"
 //#include "wallet.h"
 
 //extern bool fPrintToConsole;
+
 struct TestingSetup {
     TestingSetup() {
-       // fPrintToConsole = true; // don't want to write to debug.log file
+        //fPrintToConsole = true; // don't want to write to debug.log file
         //pwalletMain = new CWallet();
         //RegisterWallet(pwalletMain);
     }
@@ -25,3 +25,8 @@ void Shutdown(void* parg)
 {
   exit(0);
 }
+
+//void StartShutdown()
+//{
+//  exit(0);
+//}

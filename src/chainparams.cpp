@@ -132,6 +132,7 @@ public:
         nMaxCRISPPayoutsPerBlock = 10000;
         nMaxTransactionsPerBlock = 100;
         nMaxInputsAndOutputsPerBlock = 300;
+        nMaxInputsAndOutputsPerTransaction = 50;
         nCRISPPayoutPercentage = .005; //half a percent, paid out roughly monthly
     }
 

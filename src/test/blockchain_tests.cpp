@@ -61,6 +61,45 @@ BOOST_AUTO_TEST_CASE(serialize_block)
         BOOST_CHECK(block.addressBalances[addr1] == newBlock.addressBalances[addr1]);
 }
 
+
+BOOST_AUTO_TEST_CASE(serialize_transaction)
+{
+        //Test that a transaction can be serialized and maintain vins and vouts
+        CTransaction tx = CTransaction();
+        tx.nTime = 123;
+
+        CTxIn input = CTxIn();
+        input.nSequence = 678;
+        //input.prevout = COutPoint();
+        /*
+         CScript scriptSig;
+        unsigned int nSequence;
+        */
+        CTxOut output = CTxOut();
+        output.nValue = 1234;
+        /* int64_t nValue;
+        std::string invoiceNumber;
+        CScript scriptPubKey;
+        */
+        tx.vin.push_back(input);
+        tx.vout.push_back(output);
+
+        std::stringstream ss;
+        tx.Serialize(ss, 1, 1);
+        BOOST_TEST_MESSAGE(string_to_hex(ss.str()));
+
+        CTransaction newTx = CTransaction();
+        newTx.Unserialize(ss, 1, 1);
+
+        std::stringstream ss2;
+        newTx.Serialize(ss2, 1, 1);
+        BOOST_TEST_MESSAGE(string_to_hex(ss2.str()));
+
+        BOOST_CHECK(tx.nTime == newTx.nTime);
+        BOOST_CHECK(1 == newTx.vin.size());
+        BOOST_CHECK(1 == newTx.vout.size());
+}
+
 BOOST_AUTO_TEST_CASE(serialize_variant_map)
 {
         //Test that a map <CTxDestination,int> can be serialized and deserialized and maintain values
@@ -108,12 +147,6 @@ BOOST_AUTO_TEST_CASE(serialize_int_map)
 
         BOOST_CHECK(map.size() == newMap.size());
         BOOST_CHECK(map[addr1] == newMap[addr1]);
-}
-
-
-BOOST_AUTO_TEST_CASE(performance_simple)
-{
-       
 }
 
 

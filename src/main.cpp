@@ -6,6 +6,7 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
+#include <boost/math/special_functions/round.hpp>
 
 #include "alert.h"
 #include "chainparams.h"
@@ -20,7 +21,7 @@
 #include "invoiceutil.h"
 #include "crisp.h"
 #include "consensus.h"
-
+  
 using namespace std;
 using namespace boost;
 
@@ -548,7 +549,22 @@ bool CTransaction::CheckTransaction() const
     // Size limits
     if (::GetSerializeSize(*this, SER_NETWORK, PROTOCOL_VERSION) > MAX_BLOCK_SIZE)
         return DoS(100, error("CTransaction::CheckTransaction() : size limits failed"));
-
+    
+    if (IsCoinBase())
+    {
+        if(vout.size() > Params().MaxCRISPPayoutsPerBlock() + 1) //1 for the pow/pos coinbase reward
+            return DoS(100, error("CTransaction::CheckTransaction() : input/output limits failed"));
+    }
+    else if(IsCoinStake())
+    {  
+            //coinstake validation done elseware
+    }
+    else
+    {
+        if(vin.size() + vout.size() > Params().MaxInputsAndOutputsPerTransaction())
+            return DoS(100, error("CTransaction::CheckTransaction() : input/output limits failed"));
+    }
+    
     // Check for negative or overflow output values
     int64_t nValueOut = 0;
     for (unsigned int i = 0; i < vout.size(); i++)
@@ -1015,7 +1031,7 @@ int64_t GetProofOfStakeReward(const CBlockIndex* pindexPrev, int64_t nCoinAge, i
 {
     //(outstanding coin / approx blocks in a year at one per minute) * two percent
     //(130 000 000 / 525600) * .02
-    int64_t stakeReward = (pindexPrev->nMoneySupply / (60 * 24 * 365)) * .02;
+    int64_t stakeReward = boost::math::round((pindexPrev->nMoneySupply / (60 * 24 * 365)) * .02);
     
     //consider looking at actual blocks created in the last X time and use that to determine the # blocks in a year
 
@@ -1972,13 +1988,23 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
         if (vtx[i].IsCoinBase())
             return DoS(100, error("CheckBlock() : more than one coinbase"));
 
-    //TODO: validate CRISP payouts
+    //Only 10k CRISP payouts allowed per block
+    if(vtx[0].vout.size() > (Params().MaxCRISPPayoutsPerBlock() + 1))
+        return DoS(100, error("CheckBlock() : too many CRISP outputs"));
+    
+    //only 101 or 102 transactions allowed per block
+    uint reservedTransactionCount = 1; //coinbase tx
     if (IsProofOfStake())
     {
-        // Coinbase output should be empty if proof-of-stake block
-        if (vtx[0].vout.size() != 1 || !vtx[0].vout[0].IsEmpty())
-            return DoS(100, error("CheckBlock() : coinbase output not empty for proof-of-stake block"));
+        reservedTransactionCount++; //coinstake tx
+    }
+    if(vtx.size() > Params().MaxTransactionsPerBlock() + reservedTransactionCount)
+        return DoS(100, error("CheckBlock() : too many transactions"));
+    
+    //check tx count in block
 
+    if (IsProofOfStake())
+    {
         // Second transaction must be coinstake, the rest must not be
         if (vtx.empty() || !vtx[1].IsCoinStake())
             return DoS(100, error("CheckBlock() : second tx is not coinstake"));
@@ -1991,6 +2017,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
     if (fCheckSig && !CheckBlockSignature())
         return DoS(100, error("CheckBlock() : bad proof-of-stake block signature"));
 
+    uint totalInputsAndOutputs = 0;
     // Check transactions
     BOOST_FOREACH(const CTransaction& tx, vtx)
     {
@@ -2000,7 +2027,13 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
         // ppcoin: check transaction timestamp
         if (GetBlockTime() < (int64_t)tx.nTime)
             return DoS(50, error("CheckBlock() : block timestamp earlier than transaction timestamp"));
+
+        if(!tx.IsCoinBase() && !tx.IsCoinStake())
+            totalInputsAndOutputs += tx.vin.size() + tx.vout.size();
     }
+
+    if(totalInputsAndOutputs > Params().MaxInputsAndOutputsPerBlock())
+        return DoS(50, error("CheckBlock() : block has too many total inputs and outputs"));
 
     // Check for duplicate txids. This is caught by ConnectInputs(),
     // but catching it earlier avoids a potential DoS attack:

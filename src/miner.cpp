@@ -254,6 +254,7 @@ CBlock* CreateNewBlock(CPubKey pubKey, bool fProofOfStake, int64_t* pFees)
         map<uint256, CTxIndex> mapTestPool;
         uint64_t nBlockSize = 1000;
         uint64_t nBlockTx = 0;
+        uint64_t nBlockInputsAndOutputs = 0;
         int nBlockSigOps = 100;
         bool fSortedByFee = (nBlockPrioritySize <= 0);
 
@@ -273,6 +274,10 @@ CBlock* CreateNewBlock(CPubKey pubKey, bool fProofOfStake, int64_t* pFees)
             // Size limits
             unsigned int nTxSize = ::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION);
             if (nBlockSize + nTxSize >= nBlockMaxSize)
+                continue;
+            if(nBlockTx + 1 > Params().MaxTransactionsPerBlock())
+                continue;
+            if(nBlockInputsAndOutputs + tx.vin.size() + tx.vout.size() > Params().MaxInputsAndOutputsPerBlock())
                 continue;
 
             // Legacy limits on sigOps:
@@ -329,6 +334,7 @@ CBlock* CreateNewBlock(CPubKey pubKey, bool fProofOfStake, int64_t* pFees)
             pblock->vtx.push_back(tx);
             nBlockSize += nTxSize;
             ++nBlockTx;
+            nBlockInputsAndOutputs += tx.vin.size() + tx.vout.size();
             nBlockSigOps += nTxSigOps;
             nFees += nTxFees;
 
@@ -355,7 +361,7 @@ CBlock* CreateNewBlock(CPubKey pubKey, bool fProofOfStake, int64_t* pFees)
                     }
                 }
             }
-        }
+        } //end while
 
         nLastBlockTx = nBlockTx;
         nLastBlockSize = nBlockSize;
@@ -444,6 +450,42 @@ void FormatHashBuffers(CBlock* pblock, char* pmidstate, char* pdata, char* phash
     memcpy(phash1, &tmp.hash1, 64);
 }
 
+bool CheckWork(CBlock* pblock, CWallet& wallet)
+{
+    uint256 hashBlock = pblock->GetHash();
+    uint256 hashProof = pblock->GetPoWHash();
+    uint256 hashTarget = CBigNum().SetCompact(pblock->nBits).getuint256();
+
+    if(!pblock->IsProofOfWork())
+        return error("CheckWork() : %s is not a proof-of-work block", hashBlock.GetHex());
+
+    if (hashProof > hashTarget)
+        return error("CheckWork() : proof-of-work not meeting target");
+
+    //// debug print
+    LogPrintf("CheckWork() : new proof-of-work block found  \n  proof hash: %s  \ntarget: %s\n", hashProof.GetHex(), hashTarget.GetHex());
+    LogPrintf("%s\n", pblock->ToString());
+    LogPrintf("generated %s\n", FormatMoney(pblock->vtx[0].vout[0].nValue));
+
+    // Found a solution
+    {
+        LOCK(cs_main);
+        if (pblock->hashPrevBlock != hashBestChain)
+            return error("CheckWork() : generated block is stale");
+
+        // Track how many getdata requests this block gets
+        {
+            LOCK(wallet.cs_wallet);
+            wallet.mapRequestCount[hashBlock] = 0;
+        }
+
+        // Process this block the same as if we had received it from another node
+        if (!ProcessBlock(NULL, pblock))
+            return error("CheckWork() : ProcessBlock, block not accepted");
+    }
+
+    return true;
+}
 
 bool CheckWork(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey)
 {
@@ -529,7 +571,7 @@ void ThreadStakeMiner(CWallet *pwallet)
     // Make this thread recognisable as the mining thread
     RenameThread("dnotes-miner");
 
-    CReserveKey reservekey(pwallet);
+    //CReserveKey reservekey(pwallet);
 
     bool fTryToSync = true;
 
@@ -562,7 +604,7 @@ void ThreadStakeMiner(CWallet *pwallet)
         // Create new block
         //
         int64_t nFees;
-        auto_ptr<CBlock> pblock(CreateNewBlock(reservekey, true, &nFees));
+        auto_ptr<CBlock> pblock(CreateNewBlock(pwallet->vchDefaultKey, true, &nFees));
         if (!pblock.get())
             return;
 
@@ -616,7 +658,7 @@ void static BitcoinMiner(CWallet *pwallet, int nMaxBlockHeight)
             return;
         
         int64_t nFees;
-        auto_ptr<CBlock> pblocktemplate(CreateNewBlock(reservekey, false, &nFees));
+        auto_ptr<CBlock> pblocktemplate(CreateNewBlock(pwallet->vchDefaultKey, false, &nFees));
         if (!pblocktemplate.get())
             return;
 	    CBlock *pblock = pblocktemplate.get();
@@ -640,7 +682,7 @@ void static BitcoinMiner(CWallet *pwallet, int nMaxBlockHeight)
             {
                 // Found a solution
                 SetThreadPriority(THREAD_PRIORITY_NORMAL);
-                CheckWork(pblock, *pwallet, reservekey);
+                CheckWork(pblock, *pwallet);
                 SetThreadPriority(THREAD_PRIORITY_LOWEST);
                 break;
             }       

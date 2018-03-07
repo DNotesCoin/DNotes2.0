@@ -1462,8 +1462,17 @@ bool CWallet::CreateTransaction(const vector<tuple<CScript, int64_t, string> >& 
                     dPriority += (double)nCredit * pcoin.first->GetDepthInMainChain();
                 }
 
-                int64_t nChange = nValueIn - nValue - nFeeRet;
+                // Fill vin
+                //
+                // Note how the sequence number is set to max()-1 so that the
+                // nLockTime set above actually works.
+                BOOST_FOREACH(const PAIRTYPE(const CWalletTx*,unsigned int)& coin, setCoins)
+                    wtxNew.vin.push_back(CTxIn(coin.first->GetHash(),coin.second,CScript(),
+                                              std::numeric_limits<unsigned int>::max()-1));
 
+
+                //set change output
+                int64_t nChange = nValueIn - nValue - nFeeRet;
                 if (nChange > 0)
                 {
                     // Fill a vout to ourself
@@ -1473,25 +1482,65 @@ bool CWallet::CreateTransaction(const vector<tuple<CScript, int64_t, string> >& 
 
                     // coin control: send change to custom address
                     if (coinControl && !boost::get<CNoDestination>(&coinControl->destChange))
+                    {
                         scriptChange.SetDestination(coinControl->destChange);
-
+                    }
                     // no coin control: send change to newly generated address
                     else
                     {
-                        // Note: We use a new key here to keep it from being obvious which side is the change.
-                        //  The drawback is that by not reusing a previous key, the change may be lost if a
-                        //  backup is restored, if the backup doesn't have the new private key for the change.
-                        //  If we reused the old key, it would be possible to add code to look for and
-                        //  rediscover unknown transactions that were written with keys of ours to recover
-                        //  post-backup change.
-
-                        // Reserve a new key pair from key pool
+                       /*
                         CPubKey vchPubKey;
                         bool ret;
                         ret = reservekey.GetReservedKey(vchPubKey);
                         assert(ret); // should never fail, as we just unlocked
 
                         scriptChange.SetDestination(vchPubKey.GetID());
+                        */
+                        //needs to be back to the same address as the largest input value
+                        int64_t maxInputValue = 0;
+                        CTxDestination maxInputAddress = CNoDestination();
+                        txnouttype type;
+                        vector<CTxDestination> addresses;
+                        int nRequired;
+
+                        BOOST_FOREACH (CTxIn &input, wtxNew.vin)
+                        {
+                            CTransaction inputTransaction;
+                            uint256 hashBlock = 0;
+
+                            //CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
+                            //ssTx << tx;
+                            //string strHex = HexStr(ssTx.begin(), ssTx.end());
+                            string test1 = input.prevout.hash.ToString().c_str();
+
+
+                            if (GetTransaction(input.prevout.hash, inputTransaction, hashBlock))
+                            {
+                                CTxOut originatingOutput = inputTransaction.vout[input.prevout.n];
+
+                                if (ExtractDestinations(originatingOutput.scriptPubKey, type, addresses, nRequired))
+                                {
+                                    BOOST_FOREACH (const CTxDestination &addr, addresses)
+                                    {
+                                        if(originatingOutput.nValue > maxInputValue)
+                                        {
+                                            maxInputValue = originatingOutput.nValue;
+                                            maxInputAddress = addr;
+                                        }
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                //something has gone wrong. or this is a coinbase transaction
+                            }
+                        }
+
+                        if(boost::get<CNoDestination>(&maxInputAddress))
+                        {
+                            return false;
+                        }
+                        scriptChange.SetDestination(maxInputAddress);
                     }
 
                     // Insert change txn at random position:
@@ -1499,15 +1548,9 @@ bool CWallet::CreateTransaction(const vector<tuple<CScript, int64_t, string> >& 
                     wtxNew.vout.insert(position, CTxOut(nChange, scriptChange));
                 }
                 else
+                {
                     reservekey.ReturnKey();
-
-                // Fill vin
-                //
-                // Note how the sequence number is set to max()-1 so that the
-                // nLockTime set above actually works.
-                BOOST_FOREACH(const PAIRTYPE(const CWalletTx*,unsigned int)& coin, setCoins)
-                    wtxNew.vin.push_back(CTxIn(coin.first->GetHash(),coin.second,CScript(),
-                                              std::numeric_limits<unsigned int>::max()-1));
+                }
 
                 // Sign
                 int nIn = 0;
@@ -1539,6 +1582,12 @@ bool CWallet::CreateTransaction(const vector<tuple<CScript, int64_t, string> >& 
             }
         }
     }
+
+    if(wtxNew.vin.size() + wtxNew.vout.size() > Params().MaxInputsAndOutputsPerTransaction())
+    {
+        return false;
+    }
+
     return true;
 }
 
