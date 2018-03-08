@@ -46,7 +46,7 @@ bool BlockShouldHaveCRISPPayouts(int currentBlockHeight, bool &makeCRISPCatchupP
     {
         makeCRISPPayouts = true;
     }
-    else if (PreviousBlockHadMaximumCRISPPayouts)
+    else if (previousBlockHadMaximumCRISPPayouts)
     {
         makeCRISPPayouts = true;
         makeCRISPCatchupPayouts = true;
