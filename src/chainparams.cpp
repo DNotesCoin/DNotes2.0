@@ -193,6 +193,11 @@ public:
 
         nLastPOWBlock = 0x7fffffff;// max signed int value
         //nLastPOWBlock = 300;
+        nCRISPPayoutInterval = 60;
+        nCRISPPayoutLag = 6;
+
+        //for testing
+        nMaxCoinBaseOutputsPerBlock = 10;
     }
     virtual Network NetworkID() const { return CChainParams::TESTNET; }
 };
