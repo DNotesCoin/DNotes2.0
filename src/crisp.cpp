@@ -1,5 +1,5 @@
 #include <boost/math/special_functions/round.hpp>
-  
+
 using namespace std;
 
 #include "main.h"
@@ -8,26 +8,30 @@ using namespace std;
 namespace CRISP
 {
 std::map<CTxDestination, int64_t> GetStartingAddressBalances(int blockHeight);
-std::map<CTxDestination, int64_t> CalculateAddressBalanceDeltas(int startingHeight, int endingHeight);
+void CalculateAddressBalanceDeltas(int startingHeight, int endingHeight, std::map<CTxDestination, int64_t> &fullDeltas, std::map<CTxDestination, int64_t> &matureDeltas);
 std::map<CTxDestination, int64_t> CalculateAddressPayouts(std::map<CTxDestination, int64_t> &startingAddressBalances, std::map<CTxDestination, int64_t> &addressBalanceDeltas);
-
 
 bool PreviousBlockHadMaximumCRISPPayouts()
 {
     CBlock block;
-    CBlockIndex *pblockindex = mapBlockIndex[hashBestChain];
-    pblockindex = pblockindex->pprev;
-    
-    uint256 hash = *pblockindex->phashBlock;
-    
-    pblockindex = mapBlockIndex[hash];
-    block.ReadFromDisk(pblockindex, true);
-    
-    CTransaction coinBaseTransaction = block.vtx[0];
-    if(coinBaseTransaction.vout.size() == Params().MaxCRISPPayoutsPerBlock())
+    if (hashBestChain != 0)
     {
-        return true;
+        CBlockIndex *pblockindex = mapBlockIndex[hashBestChain];
+        if (pblockindex != NULL)
+        {
+            uint256 hash = *pblockindex->phashBlock;
+
+            pblockindex = mapBlockIndex[hash];
+            block.ReadFromDisk(pblockindex, true);
+
+            CTransaction coinBaseTransaction = block.vtx[0];
+            if (coinBaseTransaction.vout.size() == Params().MaxCoinBaseOutputsPerBlock())
+            {
+                return true;
+            }
+        }
     }
+
     return false;
 }
 
@@ -62,7 +66,7 @@ std::map<CTxDestination, int64_t> AddCRISPPayouts(int currentBlockHeight, CTrans
         if (makeCRISPCatchupPayouts)
         {
             //if we're catching up, determine the original block that the payouts should have been for
-            crispPayoutBlockHeight = currentBlockHeight % Params().CRISPPayoutInterval() - Params().CRISPPayoutLag();
+            crispPayoutBlockHeight = currentBlockHeight - (currentBlockHeight % Params().CRISPPayoutInterval() - Params().CRISPPayoutLag());
         }
 
         std::map<CTxDestination, int64_t> startingBalances = GetStartingAddressBalances(crispPayoutBlockHeight);
@@ -70,19 +74,21 @@ std::map<CTxDestination, int64_t> AddCRISPPayouts(int currentBlockHeight, CTrans
         int deltaStartingHeight, deltaEndingHeight;
         deltaStartingHeight = crispPayoutBlockHeight - Params().CRISPPayoutInterval() - Params().CRISPPayoutLag();
         deltaEndingHeight = crispPayoutBlockHeight - Params().CRISPPayoutLag() - 1;
-        std::map<CTxDestination, int64_t> balanceDeltas = CalculateAddressBalanceDeltas(deltaStartingHeight, deltaEndingHeight);
-        std::map<CTxDestination, int64_t> payouts = CalculateAddressPayouts(startingBalances, balanceDeltas);
+        std::map<CTxDestination, int64_t> matureBalanceDeltas;
+        std::map<CTxDestination, int64_t> fullBalanceDeltas;
+        CalculateAddressBalanceDeltas(deltaStartingHeight, deltaEndingHeight, fullBalanceDeltas, matureBalanceDeltas);
+        std::map<CTxDestination, int64_t> payouts = CalculateAddressPayouts(startingBalances, matureBalanceDeltas);
 
         //iterate through payouts to build vouts for each (up to maximum)
         int payoutIndex = 0;
         int blocksBetweenCurrentAndCRISPPayout = currentBlockHeight - crispPayoutBlockHeight;
-        int firstPayoutIndex = (blocksBetweenCurrentAndCRISPPayout * Params().MaxCRISPPayoutsPerBlock()) - blocksBetweenCurrentAndCRISPPayout; //0 for no catchup
-        int lastPayoutIndex = firstPayoutIndex + Params().MaxCRISPPayoutsPerBlock() - 2; //+ 9998, 1 is reserved for coinbase, 1 is because the index is inclusive
+        int firstPayoutIndex = (blocksBetweenCurrentAndCRISPPayout * Params().MaxCoinBaseOutputsPerBlock()) - blocksBetweenCurrentAndCRISPPayout; //0 for no catchup
+        int lastPayoutIndex = firstPayoutIndex + Params().MaxCoinBaseOutputsPerBlock() - 2;                                                       //+ 9998, 1 is reserved for coinbase, 1 is because the index is inclusive
 
         std::map<CTxDestination, int64_t>::iterator payoutIterator = payouts.begin();
         while (payoutIterator != payouts.end())
         {
-            if(payoutIndex >= firstPayoutIndex && payoutIndex <= lastPayoutIndex)
+            if (payoutIndex >= firstPayoutIndex && payoutIndex <= lastPayoutIndex)
             {
                 CTxDestination address = payoutIterator->first;
                 int64_t payoutAmount = payoutIterator->second;
@@ -118,14 +124,29 @@ std::map<CTxDestination, int64_t> AddCRISPPayouts(int currentBlockHeight, CTrans
                 it1++;
             }
 
-            std::map<CTxDestination, int64_t>::iterator it2 = balanceDeltas.begin();
-            while (it2 != balanceDeltas.end())
+            std::map<CTxDestination, int64_t>::iterator it2 = fullBalanceDeltas.begin();
+            while (it2 != fullBalanceDeltas.end())
             {
                 CTxDestination address = it2->first;
                 int64_t value = it2->second;
 
                 currentBalances[address] += value;
                 it2++;
+            }
+
+            //trim 0 balances from list
+            std::map<CTxDestination, int64_t>::iterator it3 = currentBalances.begin();
+            while (it3 != currentBalances.end())
+            {
+                int64_t value = it3->second;
+                if(value == 0)
+                {
+                    currentBalances.erase(it3);
+                }
+                else
+                {
+                    it3++;
+                }
             }
 
             return currentBalances; //am i using the right parameter and return types? * vs & vs normal?
@@ -162,10 +183,8 @@ std::map<CTxDestination, int64_t> GetStartingAddressBalances(int blockHeight)
     return addressBalances;
 }
 
-std::map<CTxDestination, int64_t> CalculateAddressBalanceDeltas(int startingHeight, int endingHeight)
+void CalculateAddressBalanceDeltas(int startingHeight, int endingHeight, std::map<CTxDestination, int64_t> &fullDeltas, std::map<CTxDestination, int64_t> &matureDeltas)
 {
-    std::map<CTxDestination, int64_t> addressBalanceDeltas;
-
     //iterate through blocks backward from tip.
     LogPrint("crisp", "starting balance delta loop");
     CBlock block;
@@ -204,7 +223,8 @@ std::map<CTxDestination, int64_t> CalculateAddressBalanceDeltas(int startingHeig
                             {
                                 inputsAddressesInThisTransaction.insert(addr);
 
-                                addressBalanceDeltas[addr] -= originatingOutput.nValue;
+                                fullDeltas[addr] -= originatingOutput.nValue;
+                                matureDeltas[addr] -= originatingOutput.nValue;
                             }
                         }
                     }
@@ -222,9 +242,10 @@ std::map<CTxDestination, int64_t> CalculateAddressBalanceDeltas(int startingHeig
                     {
                         BOOST_FOREACH (const CTxDestination &addr, addresses)
                         {
+                            fullDeltas[addr] += output.nValue;
                             if (transaction.IsCoinBase() || inputsAddressesInThisTransaction.count(addr) > 0)
                             {
-                                addressBalanceDeltas[addr] += output.nValue;
+                                matureDeltas[addr] += output.nValue;
                             }
                         }
                     }
@@ -232,8 +253,6 @@ std::map<CTxDestination, int64_t> CalculateAddressBalanceDeltas(int startingHeig
             }
         }
     }
-
-    return addressBalanceDeltas;
 }
 
 std::map<CTxDestination, int64_t> CalculateAddressPayouts(std::map<CTxDestination, int64_t> &startingAddressBalances, std::map<CTxDestination, int64_t> &addressBalanceDeltas)
@@ -250,18 +269,18 @@ std::map<CTxDestination, int64_t> CalculateAddressPayouts(std::map<CTxDestinatio
         int64_t payout = 0;
         if (balanceDelta >= 0)
         {
-            int64_t payout = boost::math::round(matureBalance * Params().CRISPPayoutPercentage());
+            payout = boost::math::round(matureBalance * Params().CRISPPayoutPercentage());
         }
         else if (matureBalance + balanceDelta > 0)
         {
-            int64_t payout = boost::math::round((matureBalance + balanceDelta) * Params().CRISPPayoutPercentage());
+            payout = boost::math::round((matureBalance + balanceDelta) * Params().CRISPPayoutPercentage());
         }
         else if (matureBalance + balanceDelta < 0)
         {
             //no payout
         }
 
-        if(payout > 0)
+        if (payout > 0)
         {
             addressPayouts[address] = payout;
         }

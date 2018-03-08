@@ -7,6 +7,7 @@
 #include "main.h"
 #include "kernel.h"
 #include "checkpoints.h"
+#include "base58.h"
 
 using namespace json_spirit;
 using namespace std;
@@ -157,6 +158,22 @@ Object blockToJSON(const CBlock& block, const CBlockIndex* blockindex, bool fPri
 
     if (block.IsProofOfStake())
         result.push_back(Pair("signature", HexStr(block.vchBlockSig.begin(), block.vchBlockSig.end())));
+
+    Array balanceInfo;
+    std::map<CTxDestination, int64_t>::const_iterator it = block.addressBalances.begin();
+    while (it != block.addressBalances.end())
+    {
+        CTxDestination address = it->first;
+        int64_t payoutAmount = it->second;
+        Object entry;
+    
+        entry.push_back(Pair("address", CBitcoinAddress(address).ToString()));
+        entry.push_back(Pair("balance", payoutAmount));
+
+        balanceInfo.push_back(entry);
+        it++;
+    }
+    result.push_back(Pair("addressBalances", balanceInfo));
 
     return result;
 }

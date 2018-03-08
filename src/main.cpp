@@ -552,7 +552,7 @@ bool CTransaction::CheckTransaction() const
     
     if (IsCoinBase())
     {
-        if(vout.size() > Params().MaxCRISPPayoutsPerBlock() + 1) //1 for the pow/pos coinbase reward
+        if(vout.size() > Params().MaxCoinBaseOutputsPerBlock() + 1) //1 for the pow/pos coinbase reward
             return DoS(100, error("CTransaction::CheckTransaction() : input/output limits failed"));
     }
     else if(IsCoinStake())
@@ -1989,7 +1989,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
             return DoS(100, error("CheckBlock() : more than one coinbase"));
 
     //Only 10k CRISP payouts allowed per block
-    if(vtx[0].vout.size() > (Params().MaxCRISPPayoutsPerBlock() + 1))
+    if(vtx[0].vout.size() > (Params().MaxCoinBaseOutputsPerBlock() + 1))
         return DoS(100, error("CheckBlock() : too many CRISP outputs"));
     
     //only 101 or 102 transactions allowed per block

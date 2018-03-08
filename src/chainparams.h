@@ -73,7 +73,7 @@ public:
     int CRISPPayoutInterval() const {return nCRISPPayoutInterval;}
     int CRISPPayoutLag() const {return nCRISPPayoutLag;}
     double CRISPPayoutPercentage() const {return nCRISPPayoutPercentage;}
-    uint MaxCRISPPayoutsPerBlock() const {return nMaxCRISPPayoutsPerBlock;}
+    uint MaxCoinBaseOutputsPerBlock() const {return nMaxCoinBaseOutputsPerBlock;}
     uint MaxTransactionsPerBlock() const {return nMaxTransactionsPerBlock;}
     uint MaxInputsAndOutputsPerBlock() const {return nMaxInputsAndOutputsPerBlock;}
     uint MaxInputsAndOutputsPerTransaction() const {return nMaxInputsAndOutputsPerTransaction;}
@@ -97,7 +97,7 @@ protected:
     int nCRISPPayoutInterval;
     int nCRISPPayoutLag;
     double nCRISPPayoutPercentage;
-    uint nMaxCRISPPayoutsPerBlock;
+    uint nMaxCoinBaseOutputsPerBlock;
     uint nMaxTransactionsPerBlock;
     uint nMaxInputsAndOutputsPerBlock;
     uint nMaxInputsAndOutputsPerTransaction;

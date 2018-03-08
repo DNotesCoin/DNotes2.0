@@ -129,7 +129,7 @@ public:
 
         nCRISPPayoutInterval = 60 * 24 * 30; //43200 minutes in 30 days
         nCRISPPayoutLag = 60 * 24 * 7; //10080 minutes in 30 days
-        nMaxCRISPPayoutsPerBlock = 10000;
+        nMaxCoinBaseOutputsPerBlock = 10000;
         nMaxTransactionsPerBlock = 100;
         nMaxInputsAndOutputsPerBlock = 300;
         nMaxInputsAndOutputsPerTransaction = 50;
@@ -224,15 +224,9 @@ public:
         nCRISPPayoutInterval = 100;
         nCRISPPayoutLag = 25;
         fPOWNoRetargeting = true;
-/*
-        nCRISPPayoutInterval = 60 * 24 * 30; //43200 minutes in 30 days
-        nCRISPPayoutLag = 60 * 24 * 7; //10080 minutes in 30 days
-        nMaxCRISPPayoutsPerBlock = 10000;
-        nMaxTransactionsPerBlock = 100;
-        nMaxInputsAndOutputsPerBlock = 300;
-        nMaxInputsAndOutputsPerTransaction = 50;
-        nCRISPPayoutPercentage = .005; //half a percent, paid out roughly monthly
-        */
+
+        //for testing
+        nMaxCoinBaseOutputsPerBlock = 5;
     }
 
     virtual bool RequireRPCPassword() const { return false; }
