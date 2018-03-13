@@ -139,6 +139,7 @@ CBlock* CreateNewBlock(CPubKey pubKey, bool fProofOfStake, int64_t* pFees)
 
     //calculate CRISP payouts
     pblock->addressBalances = CRISP::AddCRISPPayouts(nHeight, coinbaseTransaction);
+    //pblock->addressBalances.clear()
 
     // Add our coinbase tx as first transaction
     pblock->vtx.push_back(coinbaseTransaction);
@@ -582,14 +583,14 @@ void ThreadStakeMiner(CWallet *pwallet)
             nLastCoinStakeSearchInterval = 0;
             MilliSleep(1000);
         }
-
+/*
         while (vNodes.empty() || IsInitialBlockDownload())
         {
             nLastCoinStakeSearchInterval = 0;
             fTryToSync = true;
             MilliSleep(1000);
         }
-
+*/
         if (fTryToSync)
         {
             fTryToSync = false;

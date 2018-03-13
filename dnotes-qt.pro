@@ -175,6 +175,7 @@ HEADERS += src/qt/bitcoingui.h \
     src/miner.h \
     src/consensus.h \
     src/crisp.h \
+    src/fs.h \
     src/net.h \
     src/key.h \
     src/db.h \
@@ -288,6 +289,7 @@ SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/miner.cpp \
     src/consensus.cpp \
     src/crisp.cpp \
+    src/fs.cpp \
     src/init.cpp \
     src/net.cpp \
     src/checkpoints.cpp \

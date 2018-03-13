@@ -329,7 +329,8 @@ public:
             filein >> *this;
         }
         catch (std::exception &e) {
-            return error("%s() : deserialize or I/O error", __PRETTY_FUNCTION__);
+            return error("%s() : deserialize or I/O error.", __PRETTY_FUNCTION__);
+            //return error("%s() : deserialize or I/O error. Exception: %s. Current transaction: %s", __PRETTY_FUNCTION__, e.what(), this->ToString());
         }
 
         // Return file pointer

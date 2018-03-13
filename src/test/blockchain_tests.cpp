@@ -2,6 +2,9 @@
 
 #include "main.h"
 #include "miner.h"
+#include "txdb.h"
+#include <fs.h>
+#include <test/test_runner.h>
 
 
 //CBlockIndex genesisBlockIndex;
@@ -124,7 +127,6 @@ BOOST_AUTO_TEST_CASE(serialize_variant_map)
         BOOST_CHECK(map[addr1] == newMap[addr1]);
 }
 
-
 BOOST_AUTO_TEST_CASE(serialize_int_map)
 {
         //Test that a map <int,int> can be serialized and deserialized and maintain values
@@ -148,6 +150,40 @@ BOOST_AUTO_TEST_CASE(serialize_int_map)
         BOOST_CHECK(map.size() == newMap.size());
         BOOST_CHECK(map[addr1] == newMap[addr1]);
 }
+
+BOOST_AUTO_TEST_CASE(aaaa)
+{
+
+        //
+        int64_t nStart = GetTime();
+        CBlockIndex* pindexPrev = pindexBest;
+        unsigned int nExtraNonce = 0;
+        int64_t nFees = 0;
+        auto_ptr<CBlock> pblocktemplate(CreateNewBlock(ptestWallet->vchDefaultKey, false, &nFees));
+        CBlock *pblock = pblocktemplate.get();
+
+        IncrementExtraNonce(pblock, pindexPrev, nExtraNonce);
+        uint256 hashTarget = CBigNum().SetCompact(pblock->nBits).getuint256();
+        uint256 hash;
+
+        while(true)
+        {
+                if (hash <= hashTarget)
+                {
+                        if(CheckWork(pblock, *ptestWallet)){
+                                break;
+                        }
+                }
+            
+	        ++pblock->nNonce;    
+        }
+        BOOST_CHECK(true);
+
+        //fs::remove_all(pathTemp);
+        
+}
+
+
 
 
 BOOST_AUTO_TEST_SUITE_END()
