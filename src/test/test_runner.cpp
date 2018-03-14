@@ -50,16 +50,16 @@ void CleanupWallet()
 struct TestingSetup {
     TestingSetup() {
         SelectParams(CChainParams::REGTEST);
-        CreateTestFolders();
-        SetupDatabase();
-        SetupWallet();
+        //CreateTestFolders();
+        //SetupDatabase();
+        //SetupWallet();
 
         fPrintToConsole = true;
     }
     ~TestingSetup()
     {
-        CleanupWallet();
-        DeleteTestFolders();
+        //CleanupWallet();
+        //DeleteTestFolders();
     }
 };
 

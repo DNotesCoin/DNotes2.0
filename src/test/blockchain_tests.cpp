@@ -28,6 +28,51 @@ std::string string_to_hex(const std::string& input)
     return "0x" + output;
 }
 
+
+BOOST_AUTO_TEST_CASE(serialize_block2)
+{
+        CBlock block = CBlock();
+        std::stringstream ss;
+        ss.str("");
+        block.Serialize(ss, 1, 1);
+        BOOST_TEST_MESSAGE(string_to_hex(ss.str()));
+
+        CTxDestination addr1 = CKeyID(uint160(1));
+        block.addressBalances[addr1] = 123;
+        
+        ss.str("");
+        block.Serialize(ss, 1, 1);
+        BOOST_TEST_MESSAGE(string_to_hex(ss.str()));
+        
+        CTxDestination addr2 = CKeyID(uint160(2));
+        block.addressBalances[addr2] = 123;
+        
+        ss.str("");
+        block.Serialize(ss, 1, 1);
+        BOOST_TEST_MESSAGE(string_to_hex(ss.str()));
+        
+        CTransaction tx = CTransaction();
+        CTxIn input = CTxIn();
+        input.nSequence = 678;
+        CTxOut output = CTxOut();
+        output.nValue = 1234;
+
+        tx.vin.push_back(input);
+        tx.vout.push_back(output);
+
+        block.vtx.push_back(tx);
+
+        ss.str("");
+        block.Serialize(ss, 1, 1);
+        BOOST_TEST_MESSAGE(string_to_hex(ss.str()));
+
+        block.vtx.push_back(tx);
+
+        ss.str("");
+        block.Serialize(ss, 1, 1);
+        BOOST_TEST_MESSAGE(string_to_hex(ss.str()));
+}
+
 BOOST_AUTO_TEST_CASE(serialize_block)
 {
         //Test that a block can be serialized and deserialized and maintain values
@@ -154,6 +199,12 @@ BOOST_AUTO_TEST_CASE(serialize_int_map)
 BOOST_AUTO_TEST_CASE(aaaa)
 {
 
+        BOOST_TEST_MESSAGE(::GetSerializeSize(CBlock(), SER_DISK, CLIENT_VERSION));
+        BOOST_TEST_MESSAGE(2 * GetSizeOfCompactSize(0));
+        BOOST_TEST_MESSAGE(GetSizeOfCompactSize(1));
+
+
+        /*
         //
         int64_t nStart = GetTime();
         CBlockIndex* pindexPrev = pindexBest;
@@ -180,7 +231,7 @@ BOOST_AUTO_TEST_CASE(aaaa)
         BOOST_CHECK(true);
 
         //fs::remove_all(pathTemp);
-        
+        */
 }
 
 

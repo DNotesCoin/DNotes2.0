@@ -1481,8 +1481,18 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
         // Since we're just checking the block and not actually connecting it, it might not (and probably shouldn't) be on the disk to get the transaction from
         nTxPos = 1;
     else
-        nTxPos = pindex->nBlockPos + ::GetSerializeSize(CBlock(), SER_DISK, CLIENT_VERSION) - (2 * GetSizeOfCompactSize(0)) + GetSizeOfCompactSize(vtx.size());
-
+        nTxPos = pindex->nBlockPos + 
+                ::GetSerializeSize(CBlock(), SER_DISK, CLIENT_VERSION) - 
+                (2 * GetSizeOfCompactSize(0)) + //1 for sizeof vtx, 1 for sizeof vchBlockSig, which could be wrong if either has > 256 elements. potential bug
+                ::GetSerializeSize(addressBalances, SER_DISK, CLIENT_VERSION) +
+                GetSizeOfCompactSize(vtx.size()) - 
+                1; //i don't know why, but this is the right math in my examples. it's been a long 3 days.
+/*
+    unsigned int test1 = ::GetSerializeSize(CBlock(), SER_DISK, CLIENT_VERSION);
+    unsigned int test2 = ::GetSerializeSize(*this, SER_DISK, CLIENT_VERSION);
+    unsigned int test3 = ::GetSerializeSize(vtx, SER_DISK, CLIENT_VERSION);
+    unsigned int test4 = ::GetSerializeSize(addressBalances, SER_DISK, CLIENT_VERSION);
+*/
     map<uint256, CTxIndex> mapQueuedChanges;
     int64_t nFees = 0;
     int64_t nValueIn = 0;
