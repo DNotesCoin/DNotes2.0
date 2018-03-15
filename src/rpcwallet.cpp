@@ -668,7 +668,7 @@ Value sendmany(const Array& params, bool fHelp)
         wtx.mapValue["comment"] = params[3].get_str();
 
     set<CBitcoinAddress> setAddress;
-    vector<tuple<CScript, int64_t, string> > vecSend;
+    vector<boost::tuples::tuple<CScript, int64_t, string> > vecSend;
 
     int64_t totalAmount = 0;
     string invoiceNumber;
@@ -694,7 +694,7 @@ Value sendmany(const Array& params, bool fHelp)
 
         totalAmount += nAmount;
 
-        vecSend.push_back(make_tuple(scriptPubKey, nAmount, invoiceNumber));
+        vecSend.push_back(boost::make_tuple(scriptPubKey, nAmount, invoiceNumber));
     }
 
     EnsureWalletIsUnlocked();

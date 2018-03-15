@@ -1395,7 +1395,7 @@ bool CWallet::SelectCoinsForStaking(int64_t nTargetValue, unsigned int nSpendTim
     return true;
 }
 
-bool CWallet::CreateTransaction(const vector<tuple<CScript, int64_t, string> >& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, int64_t& nFeeRet, const CCoinControl* coinControl)
+bool CWallet::CreateTransaction(const vector<boost::tuple<CScript, int64_t, string> >& vecSend, CWalletTx& wtxNew, CReserveKey& reservekey, int64_t& nFeeRet, const CCoinControl* coinControl)
 {
     int64_t nValue = 0;
     BOOST_FOREACH (const TRIPLETYPE(CScript, int64_t, string)& s, vecSend)
@@ -1593,8 +1593,8 @@ bool CWallet::CreateTransaction(const vector<tuple<CScript, int64_t, string> >& 
 
 bool CWallet::CreateTransaction(CScript scriptPubKey, string invoiceNumber, int64_t nValue, CWalletTx& wtxNew, CReserveKey& reservekey, int64_t& nFeeRet, const CCoinControl* coinControl)
 {
-    std::vector<tuple<CScript, int64_t, std::string> > vecSend;
-    vecSend.push_back(make_tuple(scriptPubKey, nValue, invoiceNumber));
+    std::vector<boost::tuple<CScript, int64_t, std::string> > vecSend;
+    vecSend.push_back(boost::make_tuple(scriptPubKey, nValue, invoiceNumber));
     return CreateTransaction(vecSend, wtxNew, reservekey, nFeeRet, coinControl);
 }
 
