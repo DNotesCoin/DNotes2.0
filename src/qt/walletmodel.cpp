@@ -208,12 +208,12 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(const QList<SendCoinsRecipie
         LOCK2(cs_main, wallet->cs_wallet);
 
         // Sendmany
-        std::vector<tuple<CScript, int64_t, std::string> > vecSend;
+        std::vector<boost::tuple<CScript, int64_t, std::string> > vecSend;
         foreach(const SendCoinsRecipient &rcp, recipients)
         {
             CScript scriptPubKey;
             scriptPubKey.SetDestination(CBitcoinAddress(rcp.address.toStdString()).Get());
-            vecSend.push_back(make_tuple(scriptPubKey, rcp.amount, rcp.invoiceNumber.toStdString()));
+            vecSend.push_back(boost::make_tuple(scriptPubKey, rcp.amount, rcp.invoiceNumber.toStdString()));
         }
 
         CWalletTx wtx;
