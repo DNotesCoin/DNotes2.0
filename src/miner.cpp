@@ -583,14 +583,14 @@ void ThreadStakeMiner(CWallet *pwallet)
             nLastCoinStakeSearchInterval = 0;
             MilliSleep(1000);
         }
-/*
+
         while (vNodes.empty() || IsInitialBlockDownload())
         {
             nLastCoinStakeSearchInterval = 0;
             fTryToSync = true;
             MilliSleep(1000);
         }
-*/
+
         if (fTryToSync)
         {
             fTryToSync = false;

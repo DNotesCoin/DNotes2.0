@@ -237,7 +237,7 @@ void OverviewPage::updateNewsFeeds()
         lastPriceRequested = now;
 
         //DNotesCoin.com feed
-        std::string dnotesResponse = "";//WebUtil::getHttpResponseFromUrl("dnotescoin.com", "/feed/");
+        std::string dnotesResponse = WebUtil::getHttpResponseFromUrl("dnotescoin.com", "/feed/");
 
         if(dnotesResponse == "")
         {

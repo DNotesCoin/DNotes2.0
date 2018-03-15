@@ -134,6 +134,10 @@ public:
         nMaxInputsAndOutputsPerBlock = 300;
         nMaxInputsAndOutputsPerTransaction = 50;
         nCRISPPayoutPercentage = .005; //half a percent, paid out roughly monthly
+
+        //prototype build values
+        nCRISPPayoutInterval = 1440;
+        nCRISPPayoutLag = 60;
     }
 
     virtual const CBlock& GenesisBlock() const { return genesis; }
