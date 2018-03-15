@@ -2003,7 +2003,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
         return DoS(100, error("CheckBlock() : too many CRISP outputs"));
     
     //only 101 or 102 transactions allowed per block
-    uint reservedTransactionCount = 1; //coinbase tx
+    unsigned int reservedTransactionCount = 1; //coinbase tx
     if (IsProofOfStake())
     {
         reservedTransactionCount++; //coinstake tx
@@ -2027,7 +2027,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
     if (fCheckSig && !CheckBlockSignature())
         return DoS(100, error("CheckBlock() : bad proof-of-stake block signature"));
 
-    uint totalInputsAndOutputs = 0;
+    unsigned int totalInputsAndOutputs = 0;
     // Check transactions
     BOOST_FOREACH(const CTransaction& tx, vtx)
     {

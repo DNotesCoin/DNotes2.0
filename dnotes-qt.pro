@@ -7,6 +7,7 @@ DEFINES += ENABLE_WALLET
 DEFINES += BOOST_THREAD_USE_LIB BOOST_SPIRIT_THREADSAFE
 CONFIG += no_include_pwd
 CONFIG += thread
+QMAKE_CXXFLAGS += -std=c++98
 
 greaterThan(QT_MAJOR_VERSION, 4) {
     QT += widgets
