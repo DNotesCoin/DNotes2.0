@@ -58,7 +58,7 @@ QValidator::State BitcoinAddressValidator::validate(QString &input, int &pos) co
 
     // address Validation
     QValidator::State state = QValidator::Acceptable;
-    for(uint idx=0; idx < address.size(); ++idx)
+    for(unsigned int idx=0; idx < address.size(); ++idx)
     {
         int ch = address.at(idx);
 

@@ -73,10 +73,10 @@ public:
     int CRISPPayoutInterval() const {return nCRISPPayoutInterval;}
     int CRISPPayoutLag() const {return nCRISPPayoutLag;}
     double CRISPPayoutPercentage() const {return nCRISPPayoutPercentage;}
-    uint MaxCoinBaseOutputsPerBlock() const {return nMaxCoinBaseOutputsPerBlock;}
-    uint MaxTransactionsPerBlock() const {return nMaxTransactionsPerBlock;}
-    uint MaxInputsAndOutputsPerBlock() const {return nMaxInputsAndOutputsPerBlock;}
-    uint MaxInputsAndOutputsPerTransaction() const {return nMaxInputsAndOutputsPerTransaction;}
+    unsigned int MaxCoinBaseOutputsPerBlock() const {return nMaxCoinBaseOutputsPerBlock;}
+    unsigned int MaxTransactionsPerBlock() const {return nMaxTransactionsPerBlock;}
+    unsigned int MaxInputsAndOutputsPerBlock() const {return nMaxInputsAndOutputsPerBlock;}
+    unsigned int MaxInputsAndOutputsPerTransaction() const {return nMaxInputsAndOutputsPerTransaction;}
 protected:
     CChainParams() {};
 
@@ -97,10 +97,10 @@ protected:
     int nCRISPPayoutInterval;
     int nCRISPPayoutLag;
     double nCRISPPayoutPercentage;
-    uint nMaxCoinBaseOutputsPerBlock;
-    uint nMaxTransactionsPerBlock;
-    uint nMaxInputsAndOutputsPerBlock;
-    uint nMaxInputsAndOutputsPerTransaction;
+    unsigned int nMaxCoinBaseOutputsPerBlock;
+    unsigned int nMaxTransactionsPerBlock;
+    unsigned int nMaxInputsAndOutputsPerBlock;
+    unsigned int nMaxInputsAndOutputsPerTransaction;
 };
 
 /**

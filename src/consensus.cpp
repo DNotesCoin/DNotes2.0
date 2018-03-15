@@ -29,7 +29,7 @@ bool ValidateReward(CBlockIndex *proposedBlockIndex, CBlock &proposedBlock, int6
             return proposedBlock.DoS(50, error("ConnectBlock() : coinbase CRISP Payout invalid."));
         }
 
-        for (uint i = 0; i < calculatedCRISPCoinbase.vout.size(); i++)
+        for (unsigned int i = 0; i < calculatedCRISPCoinbase.vout.size(); i++)
         {
             CTxOut calculatedOutput = calculatedCRISPCoinbase.vout[i];
             CTxOut proposedOutput = proposedCRISPCoinbase.vout[i];
