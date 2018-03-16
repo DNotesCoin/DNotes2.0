@@ -12,6 +12,7 @@
 #include "main.h"
 #include "net.h"
 #include "keystore.h"
+#include "invoiceutil.h"
 #ifdef ENABLE_WALLET
 #include "wallet.h"
 #endif
@@ -78,6 +79,7 @@ void TxToJSON(const CTransaction& tx, const uint256 hashBlock, Object& entry)
         const CTxOut& txout = tx.vout[i];
         Object out;
         out.push_back(Pair("value", ValueFromAmount(txout.nValue)));
+        out.push_back(Pair("invoiceNumber", txout.invoiceNumber));
         out.push_back(Pair("n", (int64_t)i));
         Object o;
         ScriptPubKeyToJSON(txout.scriptPubKey, o, true);
@@ -271,21 +273,35 @@ Value createrawtransaction(const Array& params, bool fHelp)
     }
 
     set<CBitcoinAddress> setAddress;
+    string invoiceNumber;
+    string addressString;
     BOOST_FOREACH(const Pair& s, sendTo)
     {
-        CBitcoinAddress address(s.name_);
+        InvoiceUtil::parseInvoiceNumberAndAddress(s.name_, addressString, invoiceNumber);
+
+        CBitcoinAddress address(addressString);
         if (!address.IsValid())
+        {
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid DNotes address: ")+s.name_);
+        }
+
+        if (!InvoiceUtil::validateInvoiceNumber(invoiceNumber))
+        {
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid DNotes address: ")+s.name_);
+        }
 
         if (setAddress.count(address))
+        {
             throw JSONRPCError(RPC_INVALID_PARAMETER, string("Invalid parameter, duplicated address: ")+s.name_);
+        }
+
         setAddress.insert(address);
 
         CScript scriptPubKey;
         scriptPubKey.SetDestination(address.Get());
         int64_t nAmount = AmountFromValue(s.value_);
 
-        CTxOut out(nAmount, scriptPubKey);
+        CTxOut out(nAmount, invoiceNumber, scriptPubKey);
         rawTx.vout.push_back(out);
     }
 
@@ -412,7 +428,7 @@ Value signrawtransaction(const Array& params, bool fHelp)
 
     bool fGivenKeys = false;
     CBasicKeyStore tempKeystore;
-    if (params.size() > 2 && params[2].type() != null_type)
+    if (params.size() > 2 && params[2].type() != json_spirit::null_type)
     {
         fGivenKeys = true;
         Array keys = params[2].get_array();
@@ -432,7 +448,7 @@ Value signrawtransaction(const Array& params, bool fHelp)
 #endif
 
     // Add previous txouts given in the RPC call:
-    if (params.size() > 1 && params[1].type() != null_type)
+    if (params.size() > 1 && params[1].type() != json_spirit::null_type)
     {
         Array prevTxs = params[1].get_array();
         BOOST_FOREACH(Value& p, prevTxs)
@@ -498,7 +514,7 @@ Value signrawtransaction(const Array& params, bool fHelp)
 #endif
 
     int nHashType = SIGHASH_ALL;
-    if (params.size() > 3 && params[3].type() != null_type)
+    if (params.size() > 3 && params[3].type() != json_spirit::null_type)
     {
         static map<string, int> mapSigHashValues =
             boost::assign::map_list_of

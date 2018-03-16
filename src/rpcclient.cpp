@@ -105,6 +105,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
 {
     { "setgenerate", 0 },
     { "setgenerate", 1 },
+    { "setgenerate", 2 },
     { "stop", 0 },
     { "getaddednodeinfo", 0 },
     { "sendtoaddress", 1 },
@@ -238,7 +239,7 @@ int CommandLineRPC(int argc, char *argv[])
         const Value& result = find_value(reply, "result");
         const Value& error  = find_value(reply, "error");
 
-        if (error.type() != null_type)
+        if (error.type() != json_spirit::null_type)
         {
             // Error
             strPrint = "error: " + write_string(error, false);
@@ -248,7 +249,7 @@ int CommandLineRPC(int argc, char *argv[])
         else
         {
             // Result
-            if (result.type() == null_type)
+            if (result.type() == json_spirit::null_type)
                 strPrint = "";
             else if (result.type() == str_type)
                 strPrint = result.get_str();

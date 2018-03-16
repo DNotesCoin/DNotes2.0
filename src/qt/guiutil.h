@@ -20,6 +20,8 @@ QT_END_NAMESPACE
  */
 namespace GUIUtil
 {
+
+    
     // Create human-readable string from date
     QString dateTimeStr(const QDateTime &datetime);
     QString dateTimeStr(qint64 nTime);
@@ -31,7 +33,7 @@ namespace GUIUtil
     void setupAddressWidget(QLineEdit *widget, QWidget *parent);
     void setupAmountWidget(QLineEdit *widget, QWidget *parent);
 
-    // Parse "stratis:" URI into recipient object, return true on successful parsing
+    // Parse "dnotes:" URI into recipient object, return true on successful parsing
     // See Bitcoin URI definition discussion here: https://bitcointalk.org/index.php?topic=33490.0
     bool parseBitcoinURI(const QUrl &uri, SendCoinsRecipient *out);
     bool parseBitcoinURI(QString uri, SendCoinsRecipient *out);

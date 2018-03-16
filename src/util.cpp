@@ -918,7 +918,7 @@ static std::string FormatException(std::exception* pex, const char* pszThread)
     char pszModule[MAX_PATH] = "";
     GetModuleFileNameA(NULL, pszModule, sizeof(pszModule));
 #else
-    const char* pszModule = "stratis";
+    const char* pszModule = "dnotes";
 #endif
     if (pex)
         return strprintf(
@@ -948,13 +948,13 @@ void PrintExceptionContinue(std::exception* pex, const char* pszThread)
 boost::filesystem::path GetDefaultDataDir()
 {
     namespace fs = boost::filesystem;
-    // Windows < Vista: C:\Documents and Settings\Username\Application Data\Stratis
-    // Windows >= Vista: C:\Users\Username\AppData\Roaming\Stratis
-    // Mac: ~/Library/Application Support/Stratis
-    // Unix: ~/.stratis
+    // Windows < Vista: C:\Documents and Settings\Username\Application Data\DNotes2
+    // Windows >= Vista: C:\Users\Username\AppData\Roaming\DNotes2
+    // Mac: ~/Library/Application Support/DNotes2
+    // Unix: ~/.DNotes2
 #ifdef WIN32
     // Windows
-    return GetSpecialFolderPath(CSIDL_APPDATA) / "Stratis";
+    return GetSpecialFolderPath(CSIDL_APPDATA) / "DNotes2";
 #else
     fs::path pathRet;
     char* pszHome = getenv("HOME");
@@ -966,10 +966,10 @@ boost::filesystem::path GetDefaultDataDir()
     // Mac
     pathRet /= "Library/Application Support";
     fs::create_directory(pathRet);
-    return pathRet / "Stratis";
+    return pathRet / "DNotes2";
 #else
     // Unix
-    return pathRet / ".stratis";
+    return pathRet / ".dnotes2";
 #endif
 #endif
 }
@@ -1018,7 +1018,7 @@ void ClearDatadirCache()
 
 boost::filesystem::path GetConfigFile()
 {
-    boost::filesystem::path pathConfigFile(GetArg("-conf", "stratis.conf"));
+    boost::filesystem::path pathConfigFile(GetArg("-conf", "dnotes.conf"));
     if (!pathConfigFile.is_complete()) pathConfigFile = GetDataDir(false) / pathConfigFile;
     return pathConfigFile;
 }
@@ -1051,7 +1051,7 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
 
 boost::filesystem::path GetPidFile()
 {
-    boost::filesystem::path pathPidFile(GetArg("-pid", "stratisd.pid"));
+    boost::filesystem::path pathPidFile(GetArg("-pid", "dnotesd.pid"));
     if (!pathPidFile.is_complete()) pathPidFile = GetDataDir() / pathPidFile;
     return pathPidFile;
 }

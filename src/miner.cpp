@@ -7,6 +7,7 @@
 #include "txdb.h"
 #include "miner.h"
 #include "kernel.h"
+#include "crisp.h"
 
 using namespace std;
 
@@ -101,6 +102,14 @@ public:
 // CreateNewBlock: create new block (without proof-of-work/proof-of-stake)
 CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFees)
 {
+    CPubKey pubKey;
+    if (!reservekey.GetReservedKey(pubKey))
+        return NULL;
+    return CreateNewBlock(pubKey, fProofOfStake, pFees);
+}
+
+CBlock* CreateNewBlock(CPubKey pubKey, bool fProofOfStake, int64_t* pFees)
+{
     // Create new block
     auto_ptr<CBlock> pblock(new CBlock());
     if (!pblock.get())
@@ -110,29 +119,30 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
     int nHeight = pindexPrev->nHeight + 1;
 
     // Create coinbase tx
-    CTransaction txNew;
-    txNew.vin.resize(1);
-    txNew.vin[0].prevout.SetNull();
-    txNew.vout.resize(1);
+    CTransaction coinbaseTransaction;
+    coinbaseTransaction.vin.resize(1);
+    coinbaseTransaction.vin[0].prevout.SetNull();
+    coinbaseTransaction.vout.resize(1);
 
     if (!fProofOfStake)
     {
-        CPubKey pubkey;
-        if (!reservekey.GetReservedKey(pubkey))
-            return NULL;
-        txNew.vout[0].scriptPubKey.SetDestination(pubkey.GetID());
+        coinbaseTransaction.vout[0].scriptPubKey.SetDestination(pubKey.GetID());
     }
     else
     {
         // Height first in coinbase required for block.version=2
-        txNew.vin[0].scriptSig = (CScript() << nHeight) + COINBASE_FLAGS;
-        assert(txNew.vin[0].scriptSig.size() <= 100);
+        coinbaseTransaction.vin[0].scriptSig = (CScript() << nHeight) + COINBASE_FLAGS;
+        assert(coinbaseTransaction.vin[0].scriptSig.size() <= 100);
 
-        txNew.vout[0].SetEmpty();
+        coinbaseTransaction.vout[0].SetEmpty();
     }
 
+    //calculate CRISP payouts
+    pblock->addressBalances = CRISP::AddCRISPPayouts(nHeight, coinbaseTransaction);
+    //pblock->addressBalances.clear()
+
     // Add our coinbase tx as first transaction
-    pblock->vtx.push_back(txNew);
+    pblock->vtx.push_back(coinbaseTransaction);
 
     // Largest block you're willing to create:
     unsigned int nBlockMaxSize = GetArg("-blockmaxsize", MAX_BLOCK_SIZE_GEN/2);
@@ -245,6 +255,7 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
         map<uint256, CTxIndex> mapTestPool;
         uint64_t nBlockSize = 1000;
         uint64_t nBlockTx = 0;
+        uint64_t nBlockInputsAndOutputs = 0;
         int nBlockSigOps = 100;
         bool fSortedByFee = (nBlockPrioritySize <= 0);
 
@@ -264,6 +275,10 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
             // Size limits
             unsigned int nTxSize = ::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION);
             if (nBlockSize + nTxSize >= nBlockMaxSize)
+                continue;
+            if(nBlockTx + 1 > Params().MaxTransactionsPerBlock())
+                continue;
+            if(nBlockInputsAndOutputs + tx.vin.size() + tx.vout.size() > Params().MaxInputsAndOutputsPerBlock())
                 continue;
 
             // Legacy limits on sigOps:
@@ -320,6 +335,7 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
             pblock->vtx.push_back(tx);
             nBlockSize += nTxSize;
             ++nBlockTx;
+            nBlockInputsAndOutputs += tx.vin.size() + tx.vout.size();
             nBlockSigOps += nTxSigOps;
             nFees += nTxFees;
 
@@ -346,7 +362,7 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
                     }
                 }
             }
-        }
+        } //end while
 
         nLastBlockTx = nBlockTx;
         nLastBlockSize = nBlockSize;
@@ -370,7 +386,6 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
 
     return pblock.release();
 }
-
 
 void IncrementExtraNonce(CBlock* pblock, CBlockIndex* pindexPrev, unsigned int& nExtraNonce)
 {
@@ -436,6 +451,42 @@ void FormatHashBuffers(CBlock* pblock, char* pmidstate, char* pdata, char* phash
     memcpy(phash1, &tmp.hash1, 64);
 }
 
+bool CheckWork(CBlock* pblock, CWallet& wallet)
+{
+    uint256 hashBlock = pblock->GetHash();
+    uint256 hashProof = pblock->GetPoWHash();
+    uint256 hashTarget = CBigNum().SetCompact(pblock->nBits).getuint256();
+
+    if(!pblock->IsProofOfWork())
+        return error("CheckWork() : %s is not a proof-of-work block", hashBlock.GetHex());
+
+    if (hashProof > hashTarget)
+        return error("CheckWork() : proof-of-work not meeting target");
+
+    //// debug print
+    LogPrintf("CheckWork() : new proof-of-work block found  \n  proof hash: %s  \ntarget: %s\n", hashProof.GetHex(), hashTarget.GetHex());
+    LogPrintf("%s\n", pblock->ToString());
+    LogPrintf("generated %s\n", FormatMoney(pblock->vtx[0].vout[0].nValue));
+
+    // Found a solution
+    {
+        LOCK(cs_main);
+        if (pblock->hashPrevBlock != hashBestChain)
+            return error("CheckWork() : generated block is stale");
+
+        // Track how many getdata requests this block gets
+        {
+            LOCK(wallet.cs_wallet);
+            wallet.mapRequestCount[hashBlock] = 0;
+        }
+
+        // Process this block the same as if we had received it from another node
+        if (!ProcessBlock(NULL, pblock))
+            return error("CheckWork() : ProcessBlock, block not accepted");
+    }
+
+    return true;
+}
 
 bool CheckWork(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey)
 {
@@ -519,9 +570,9 @@ void ThreadStakeMiner(CWallet *pwallet)
     SetThreadPriority(THREAD_PRIORITY_LOWEST);
 
     // Make this thread recognisable as the mining thread
-    RenameThread("stratis-miner");
+    RenameThread("dnotes-miner");
 
-    CReserveKey reservekey(pwallet);
+    //CReserveKey reservekey(pwallet);
 
     bool fTryToSync = true;
 
@@ -554,7 +605,7 @@ void ThreadStakeMiner(CWallet *pwallet)
         // Create new block
         //
         int64_t nFees;
-        auto_ptr<CBlock> pblock(CreateNewBlock(reservekey, true, &nFees));
+        auto_ptr<CBlock> pblock(CreateNewBlock(pwallet->vchDefaultKey, true, &nFees));
         if (!pblock.get())
             return;
 
@@ -580,7 +631,7 @@ void ThreadStakeMiner(CWallet *pwallet)
 double dHashesPerSec = 0.0;
 int64_t nHPSTimerStart = 0;
 
-void static BitcoinMiner(CWallet *pwallet)
+void static BitcoinMiner(CWallet *pwallet, int nMaxBlockHeight)
 {
     LogPrintf("BRAINHasher Miner started\n");
     SetThreadPriority(THREAD_PRIORITY_LOWEST);
@@ -594,8 +645,8 @@ void static BitcoinMiner(CWallet *pwallet)
 
         // Busy-wait for the network to come online so we don't waste time mining
         // on an obsolete chain. In regtest mode we expect to fly solo.
-//        while (vNodes.empty())
-//            MilliSleep(1000);
+        //        while (vNodes.empty())
+        //            MilliSleep(1000);
  
 
         //
@@ -604,36 +655,39 @@ void static BitcoinMiner(CWallet *pwallet)
         unsigned int nTransactionsUpdatedLast = mempool.GetTransactionsUpdated();
         CBlockIndex* pindexPrev = pindexBest;
 
+        if(pindexPrev->nHeight >= nMaxBlockHeight)
+            return;
+        
         int64_t nFees;
-        auto_ptr<CBlock> pblocktemplate(CreateNewBlock(reservekey, false, &nFees));
+        auto_ptr<CBlock> pblocktemplate(CreateNewBlock(pwallet->vchDefaultKey, false, &nFees));
         if (!pblocktemplate.get())
             return;
-	CBlock *pblock = pblocktemplate.get();
+	    CBlock *pblock = pblocktemplate.get();
 
         IncrementExtraNonce(pblock, pindexPrev, nExtraNonce);
 
         /*LogPrintf("Running BRAINHash Miner with %llu transactions in block (%u bytes)\n", pblock->vtx.size(),
                ::GetSerializeSize(*pblock, SER_NETWORK, PROTOCOL_VERSION));
-*/
+        */
         uint256 hashTarget = CBigNum().SetCompact(pblock->nBits).getuint256();
-	int64_t nStart = GetTime();
-	uint256 hash;
-	unsigned int nHashesDone = 0;
+        int64_t nStart = GetTime();
+        uint256 hash;
+        unsigned int nHashesDone = 0;
 
         while (true)
         {            
             hash = pblock->GetPoWHash();
-	    ++nHashesDone;
+	        ++nHashesDone;
             
             if (hash <= hashTarget)
             {
                 // Found a solution
                 SetThreadPriority(THREAD_PRIORITY_NORMAL);
-                CheckWork(pblock, *pwallet, reservekey);
+                CheckWork(pblock, *pwallet);
                 SetThreadPriority(THREAD_PRIORITY_LOWEST);
                 break;
             }       
-	    ++pblock->nNonce;    
+	        ++pblock->nNonce;    
 
             // Meter hashes/sec
             static int64_t nHashCounter;
@@ -693,7 +747,7 @@ void static BitcoinMiner(CWallet *pwallet)
     }
 }
 
-void GenerateBitcoins(bool fGenerate, CWallet* pwallet, int nThreads)
+void GenerateBitcoins(bool fGenerate, CWallet* pwallet, int nThreads, int nMaxBlocksToGenerate)
 {
     static boost::thread_group* minerThreads = NULL;
     if(nThreads == -1)
@@ -701,14 +755,20 @@ void GenerateBitcoins(bool fGenerate, CWallet* pwallet, int nThreads)
     
     if (minerThreads != NULL)
     {
-	minerThreads->interrupt_all();
-	delete minerThreads;
-	minerThreads = NULL;
+        minerThreads->interrupt_all();
+        delete minerThreads;
+        minerThreads = NULL;
     }
     if (nThreads == 0 || !fGenerate)
-	return;
+	    return;
+
+    int nMaxBlockHeight = pindexBest->nHeight + nMaxBlocksToGenerate;
+    if(nMaxBlocksToGenerate == INT_MAX){
+        nMaxBlockHeight = INT_MAX;
+    }
+    
     minerThreads = new boost::thread_group();
     for (int i = 0; i < nThreads; i++)
-	minerThreads->create_thread(boost::bind(&BitcoinMiner, pwallet));
+	    minerThreads->create_thread(boost::bind(&BitcoinMiner, pwallet, nMaxBlockHeight));
 }
 #endif

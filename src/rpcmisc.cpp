@@ -11,6 +11,7 @@
 #include "rpcserver.h"
 #include "timedata.h"
 #include "util.h"
+#include "invoiceutil.h"
 #ifdef ENABLE_WALLET
 #include "wallet.h"
 #include "walletdb.h"
@@ -116,19 +117,26 @@ Value validateaddress(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
         throw runtime_error(
-            "validateaddress <stratisaddress>\n"
-            "Return information about <stratisaddress>.");
+            "validateaddress <dnotesaddress>\n"
+            "Return information about <dnotesaddress>.");
 
-    CBitcoinAddress address(params[0].get_str());
-    bool isValid = address.IsValid();
+    string inputAddress = params[0].get_str();
+    string invoiceNumber;
+    string addressString;
+    InvoiceUtil::parseInvoiceNumberAndAddress(inputAddress, addressString, invoiceNumber);
+
+    CBitcoinAddress address(addressString);
+    bool isAddressValid = address.IsValid();
+    bool isInvoiceNumberValid = InvoiceUtil::validateInvoiceNumber(invoiceNumber);
 
     Object ret;
-    ret.push_back(Pair("isvalid", isValid));
-    if (isValid)
+    ret.push_back(Pair("isvalid", isAddressValid && isInvoiceNumberValid));
+    if (isAddressValid)
     {
         CTxDestination dest = address.Get();
         string currentAddress = address.ToString();
         ret.push_back(Pair("address", currentAddress));
+        ret.push_back(Pair("invoiceNumber", invoiceNumber));
 #ifdef ENABLE_WALLET
         bool fMine = pwalletMain ? IsMine(*pwalletMain, dest) : false;
         ret.push_back(Pair("ismine", fMine));
@@ -147,8 +155,8 @@ Value validatepubkey(const Array& params, bool fHelp)
 {
     if (fHelp || !params.size() || params.size() > 2)
         throw runtime_error(
-            "validatepubkey <stratispubkey>\n"
-            "Return information about <stratispubkey>.");
+            "validatepubkey <dnotespubkey>\n"
+            "Return information about <dnotespubkey>.");
 
     std::vector<unsigned char> vchPubKey = ParseHex(params[0].get_str());
     CPubKey pubKey(vchPubKey);
@@ -186,7 +194,7 @@ Value verifymessage(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 3)
         throw runtime_error(
-            "verifymessage <stratisaddress> <signature> <message>\n"
+            "verifymessage <dnotesaddress> <signature> <message>\n"
             "Verify a signed message");
 
     string strAddress  = params[0].get_str();

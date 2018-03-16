@@ -8,10 +8,16 @@
 #include "wallet.h"
 #include "walletdb.h" // for BackupWallet
 #include "base58.h"
+#include "guiutil.h"
+#include "invoiceutil.h"
 
 #include <QSet>
 #include <QTimer>
 #include <QDebug>
+
+#include "boost/tuple/tuple.hpp"
+using namespace boost::tuples;
+using std::string;
 
 WalletModel::WalletModel(CWallet *wallet, OptionsModel *optionsModel, QObject *parent) :
     QObject(parent), wallet(wallet), optionsModel(optionsModel), addressTableModel(0),
@@ -136,8 +142,22 @@ void WalletModel::updateAddressBook(const QString &address, const QString &label
 
 bool WalletModel::validateAddress(const QString &address)
 {
-    CBitcoinAddress addressParsed(address.toStdString());
+    return validateAddress(address.toStdString());
+}
+
+bool WalletModel::validateAddress(const string &address)
+{
+    CBitcoinAddress addressParsed(address);
     return addressParsed.IsValid();
+}
+
+bool WalletModel::validateCombinedAddress(const QString &combinedAddress)
+{
+    string invoiceNumber;
+    string address;
+    InvoiceUtil::parseInvoiceNumberAndAddress(combinedAddress.toStdString(), address, invoiceNumber);
+
+    return validateAddress(address) && InvoiceUtil::validateInvoiceNumber(invoiceNumber);
 }
 
 WalletModel::SendCoinsReturn WalletModel::sendCoins(const QList<SendCoinsRecipient> &recipients, const CCoinControl *coinControl)
@@ -154,7 +174,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(const QList<SendCoinsRecipie
     // Pre-check input data for validity
     foreach(const SendCoinsRecipient &rcp, recipients)
     {
-        if(!validateAddress(rcp.address))
+        if(!validateAddress(rcp.address) || !InvoiceUtil::validateInvoiceNumber(rcp.invoiceNumber.toStdString()))
         {
             return InvalidAddress;
         }
@@ -188,12 +208,12 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(const QList<SendCoinsRecipie
         LOCK2(cs_main, wallet->cs_wallet);
 
         // Sendmany
-        std::vector<std::pair<CScript, int64_t> > vecSend;
+        std::vector<boost::tuple<CScript, int64_t, std::string> > vecSend;
         foreach(const SendCoinsRecipient &rcp, recipients)
         {
             CScript scriptPubKey;
             scriptPubKey.SetDestination(CBitcoinAddress(rcp.address.toStdString()).Get());
-            vecSend.push_back(make_pair(scriptPubKey, rcp.amount));
+            vecSend.push_back(boost::make_tuple(scriptPubKey, rcp.amount, rcp.invoiceNumber.toStdString()));
         }
 
         CWalletTx wtx;

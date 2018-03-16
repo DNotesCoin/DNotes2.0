@@ -1128,8 +1128,8 @@ Esto significa que se requiere una cuota de al menos %2.</translation>
     </message>
     <message>
         <location line="+6"/>
-        <source>Optional transaction fee per kB that helps make sure your transactions are processed quickly. Most transactions are 1 kB. Fee 0.05 recommended.</source>
-        <translation>Tarifa de transacción opcional por kB que ayuda a asegurarse de que sus transacciones se procesan rápidamente. La mayoría de las transacciones son 1 kB. Cuota de 0.05 recomendada.</translation>
+        <source>Optional transaction fee per kB that helps make sure your transactions are processed quickly. Most transactions are 1 kB. Fee 0.005 recommended.</source>
+        <translation>Tarifa de transacción opcional por kB que ayuda a asegurarse de que sus transacciones se procesan rápidamente. La mayoría de las transacciones son 1 kB. Cuota de 0.005 recomendada.</translation>
     </message>
     <message>
         <location line="+15"/>

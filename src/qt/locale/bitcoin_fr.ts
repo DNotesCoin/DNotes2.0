@@ -1128,8 +1128,8 @@ Cela implique que des frais à hauteur d&apos;au moins %2 seront nécessaires.</
     </message>
     <message>
         <location line="+6"/>
-        <source>Optional transaction fee per kB that helps make sure your transactions are processed quickly. Most transactions are 1 kB. Fee 0.05 recommended.</source>
-        <translation>Frais de transaction optionnels par kB permettant d&apos;assurer la rapidité de traitement de votre transaction. La plupart des transactions sont de 1 kB. Frais de  0.05 recommandés.</translation>
+        <source>Optional transaction fee per kB that helps make sure your transactions are processed quickly. Most transactions are 1 kB. Fee 0.005 recommended.</source>
+        <translation>Frais de transaction optionnels par kB permettant d&apos;assurer la rapidité de traitement de votre transaction. La plupart des transactions sont de 1 kB. Frais de  0.005 recommandés.</translation>
     </message>
     <message>
         <location line="+15"/>

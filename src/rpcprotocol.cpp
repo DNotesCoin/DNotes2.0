@@ -26,6 +26,8 @@ using namespace boost;
 using namespace boost::asio;
 using namespace json_spirit;
 
+
+
 //
 // HTTP protocol
 //
@@ -37,7 +39,7 @@ string HTTPPost(const string& strMsg, const map<string,string>& mapRequestHeader
 {
     ostringstream s;
     s << "POST / HTTP/1.1\r\n"
-      << "User-Agent: stratis-json-rpc/" << FormatFullVersion() << "\r\n"
+      << "User-Agent: dnotes-json-rpc/" << FormatFullVersion() << "\r\n"
       << "Host: 127.0.0.1\r\n"
       << "Content-Type: application/json\r\n"
       << "Content-Length: " << strMsg.size() << "\r\n"
@@ -60,7 +62,7 @@ string HTTPReply(int nStatus, const string& strMsg, bool keepalive)
     if (nStatus == HTTP_UNAUTHORIZED)
         return strprintf("HTTP/1.0 401 Authorization Required\r\n"
             "Date: %s\r\n"
-            "Server: stratis-json-rpc/%s\r\n"
+            "Server: dnotes-json-rpc/%s\r\n"
             "WWW-Authenticate: Basic realm=\"jsonrpc\"\r\n"
             "Content-Type: text/html\r\n"
             "Content-Length: 296\r\n"
@@ -87,7 +89,7 @@ string HTTPReply(int nStatus, const string& strMsg, bool keepalive)
             "Connection: %s\r\n"
             "Content-Length: %u\r\n"
             "Content-Type: application/json\r\n"
-            "Server: stratis-json-rpc/%s\r\n"
+            "Server: dnotes-json-rpc/%s\r\n"
             "\r\n"
             "%s",
         nStatus,
@@ -230,7 +232,7 @@ string JSONRPCRequest(const string& strMethod, const Array& params, const Value&
 Object JSONRPCReplyObj(const Value& result, const Value& error, const Value& id)
 {
     Object reply;
-    if (error.type() != null_type)
+    if (error.type() != json_spirit::null_type)
         reply.push_back(Pair("result", Value::null));
     else
         reply.push_back(Pair("result", result));

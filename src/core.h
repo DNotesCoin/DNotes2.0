@@ -141,6 +141,7 @@ class CTxOut
 {
 public:
     int64_t nValue;
+    std::string invoiceNumber;
     CScript scriptPubKey;
 
     CTxOut()
@@ -151,18 +152,28 @@ public:
     CTxOut(int64_t nValueIn, CScript scriptPubKeyIn)
     {
         nValue = nValueIn;
+        invoiceNumber.clear();
+        scriptPubKey = scriptPubKeyIn;
+    }
+
+    CTxOut(int64_t nValueIn, std::string invoiceNumberIn, CScript scriptPubKeyIn)
+    {
+        nValue = nValueIn;
+        invoiceNumber = invoiceNumberIn;
         scriptPubKey = scriptPubKeyIn;
     }
 
     IMPLEMENT_SERIALIZE
     (
         READWRITE(nValue);
+        READWRITE(invoiceNumber);
         READWRITE(scriptPubKey);
     )
 
     void SetNull()
     {
         nValue = -1;
+        invoiceNumber.clear();
         scriptPubKey.clear();
     }
 
@@ -174,12 +185,13 @@ public:
     void SetEmpty()
     {
         nValue = 0;
+        invoiceNumber.clear();
         scriptPubKey.clear();
     }
 
     bool IsEmpty() const
     {
-        return (nValue == 0 && scriptPubKey.empty());
+        return (nValue == 0 && invoiceNumber == "" && scriptPubKey.empty());
     }
 
     uint256 GetHash() const
@@ -196,6 +208,7 @@ public:
     friend bool operator==(const CTxOut& a, const CTxOut& b)
     {
         return (a.nValue       == b.nValue &&
+                a.invoiceNumber == b.invoiceNumber &&
                 a.scriptPubKey == b.scriptPubKey);
     }
 
@@ -207,7 +220,7 @@ public:
     std::string ToString() const
     {
         if (IsEmpty()) return "CTxOut(empty)";
-        return strprintf("CTxOut(nValue=%s, scriptPubKey=%s)", FormatMoney(nValue), scriptPubKey.ToString());
+        return strprintf("CTxOut(nValue=%s, invoiceNumber=%s, scriptPubKey=%s)", FormatMoney(nValue), invoiceNumber, scriptPubKey.ToString());
     }
 };
 

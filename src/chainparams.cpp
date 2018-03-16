@@ -39,7 +39,7 @@ void MineGenesis(CBlock genesis){
 	    printf("New best: %s\n", newhash.GetHex().c_str());
 	}
     }
-    printf("Found Genesis, Nonce: %ld, Hash: %s\n", genesis.nNonce, genesis.GetHash().GetHex().c_str());
+    printf("Found Genesis, Nonce: %u, Hash: %s\n", genesis.nNonce, genesis.GetHash().GetHex().c_str());
     printf("Gensis Hash Merkle: %s\n", genesis.hashMerkleRoot.ToString().c_str());
 }
 
@@ -71,14 +71,14 @@ public:
         // The message start string is designed to be unlikely to occur in normal data.
         // The characters are rarely used upper ASCII, not valid as UTF-8, and produce
         // a large 4-byte int at any alignment.
-        pchMessageStart[0] = 0x70;
-        pchMessageStart[1] = 0x35;
-        pchMessageStart[2] = 0x22;
-        pchMessageStart[3] = 0x05;
-        vAlertPubKey = ParseHex("0486bce1bac0d543f104cbff2bd23680056a3b9ea05e1137d2ff90eeb5e08472eb500322593a2cb06fbf8297d7beb6cd30cb90f98153b5b7cce1493749e41e0284");
-        nDefaultPort = 16178;
-        nRPCPort = 16174;
-        bnProofOfWorkLimit = CBigNum(~uint256(0) >> 20);
+        pchMessageStart[0] = 0xf5;
+        pchMessageStart[1] = 0xc1;
+        pchMessageStart[2] = 0xaf;
+        pchMessageStart[3] = 0xca;
+        vAlertPubKey = ParseHex("0423f28ebab52a8db8da4e810d963133ce98a246c52f6b8eb37ab6866a47bb8f7267827fb8dfb1cc98fb311862f8d18eda4fc13c726a5f15f21493df4c7c88ec86");
+        nDefaultPort = 11225;
+        nRPCPort = 11226;
+        bnProofOfWorkLimit = CBigNum(~uint256(0) >> 19);
 
         // Build the genesis block. Note that the output of the genesis coinbase cannot
         // be spent as it did not originally exist in the database.
@@ -88,32 +88,34 @@ public:
         //    CTxIn(COutPoint(0000000000, 4294967295), coinbase 00012a24323020466562203230313420426974636f696e2041544d7320636f6d6520746f20555341)
         //    CTxOut(empty)
         //  vMerkleTree: 12630d16a9
-        //const char* pszTimestamp = "https://www.washingtonpost.com/news/the-fix/wp/2018/01/09/oprah-might-run-for-president-we-did-the-opposition-research-for-you/?utm_term=.dad864a382bb";
-        const char* pszTimestamp = "http://www.theonion.com/article/olympics-head-priestess-slits-throat-official-rio--53466";
+        const char* pszTimestamp = "WaPo-Jan/9/2018-Oprah might run for president we did the opposition research for you";
         std::vector<CTxIn> vin;
         vin.resize(1);
         vin[0].scriptSig = CScript() << 0 << CBigNum(42) << vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
         std::vector<CTxOut> vout;
         vout.resize(1);
         vout[0].SetEmpty();
-        CTransaction txNew(1, 1470467000, vin, vout, 0);
+        CTransaction txNew(1, 1516038631, vin, vout, 0);
         genesis.vtx.push_back(txNew);
         genesis.hashPrevBlock = 0;
         genesis.hashMerkleRoot = genesis.BuildMerkleTree();
         genesis.nVersion = 1;
-        genesis.nTime    = 1470467000;
+        genesis.nTime    = 1516038631;
         genesis.nBits    = bnProofOfWorkLimit.GetCompact();
-        genesis.nNonce   = 1831645;
+        genesis.nNonce   = 4330840;
 
         hashGenesisBlock = genesis.GetHash();
+/*
+        //MineGenesis(genesis);
+        assert(hashGenesisBlock         ==    uint256("0x000003c46833812730e49548895a98a9e91b9f2c9005895774468354c4fb87dc"));
+        assert(genesis.hashMerkleRoot   ==    uint256("0x7e97a6680715cd4cac7b1df84e45ecc8a2ce6719b03829ac5062eea7b7a5b301"));
+*/
+        vFixedSeeds.clear();
+        vSeeds.clear();
 
-        assert(hashGenesisBlock == uint256("0x0000066e91e46e5a264d42c89e1204963b2ee6be230b443e9159020539d972af"));
-        assert(genesis.hashMerkleRoot == uint256("0x65a26bc20b0351aebf05829daefa8f7db2f800623439f3c114257c91447f1518"));
-
-        vSeeds.push_back(CDNSSeedData("Seednode1", "seednode1.stratisplatform.com"));
-        vSeeds.push_back(CDNSSeedData("Seednode2", "seednode2.stratis.cloud"));
-        vSeeds.push_back(CDNSSeedData("Seednode3", "seednode3.stratisplatform.com"));
-        vSeeds.push_back(CDNSSeedData("Seednode4", "seednode4.stratis.cloud"));
+        vSeeds.push_back(CDNSSeedData("Seednode1", "d20.dnotescoin.com"));
+        vSeeds.push_back(CDNSSeedData("Seednode1", "d21.dnotescoin.com"));
+        vSeeds.push_back(CDNSSeedData("Seednode1", "d22.dnotescoin.com"));
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 63);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 125);
@@ -123,7 +125,19 @@ public:
 
         convertSeed6(vFixedSeeds, pnSeed6_main, ARRAYLEN(pnSeed6_main));
 
-        nLastPOWBlock = 12500;
+        nLastPOWBlock = 2000;
+
+        nCRISPPayoutInterval = 60 * 24 * 30; //43200 minutes in 30 days
+        nCRISPPayoutLag = 60 * 24 * 7; //10080 minutes in 30 days
+        nMaxCoinBaseOutputsPerBlock = 10000;
+        nMaxTransactionsPerBlock = 100;
+        nMaxInputsAndOutputsPerBlock = 300;
+        nMaxInputsAndOutputsPerTransaction = 50;
+        nCRISPPayoutPercentage = .005; //half a percent, paid out roughly monthly
+
+        //prototype build values
+        nCRISPPayoutInterval = 1440;
+        nCRISPPayoutLag = 60;
     }
 
     virtual const CBlock& GenesisBlock() const { return genesis; }
@@ -149,28 +163,29 @@ public:
         // The message start string is designed to be unlikely to occur in normal data.
         // The characters are rarely used upper ASCII, not valid as UTF-8, and produce
         // a large 4-byte int at any alignment.
-        pchMessageStart[0] = 0x71;
-        pchMessageStart[1] = 0x31;
-        pchMessageStart[2] = 0x21;
-        pchMessageStart[3] = 0x11;
+        pchMessageStart[0] = 0xf6;
+        pchMessageStart[1] = 0xc2;
+        pchMessageStart[2] = 0xb0;
+        pchMessageStart[3] = 0xcb;
         bnProofOfWorkLimit = CBigNum(~uint256(0) >> 16);
-        vAlertPubKey = ParseHex("0471dc165db490094d35cde15b1f5d755fa6ad6f2b5ed0f340e3f17f57389c3c2af113a8cbcc885bde73305a553b5640c83021128008ddf882e856336269080496");
+        vAlertPubKey = ParseHex("04d1c5e86e120a1db34ab9013b77659cca1e0b3f8c435fa5b679b2133d6ab22c1c7da922a026f409862a3cc0dd9f51153c1a0d8e7927dc34b09501bd2d0bbfa217");
         nDefaultPort = 26178;
         nRPCPort = 26174;
 
         strDataDir = "testnet";
         // Modify the testnet genesis block so the timestamp is valid for a later start.
         genesis.nBits  = bnProofOfWorkLimit.GetCompact();
-        genesis.nNonce = 2433759;
+        genesis.nNonce = 4032360;
         genesis.nTime    = 1493909211;
   
         hashGenesisBlock = genesis.GetHash();
-         
-        assert(hashGenesisBlock == uint256("0x00000e246d7b73b88c9ab55f2e5e94d9e22d471def3df5ea448f5576b1d156b9"));
+        
+        //MineGenesis(genesis);
+        assert(hashGenesisBlock == uint256("0x00001459df174dff0ae96c2ead250581a8502a3d84e16e0042a7a4dfd61d69b3"));
 
         vFixedSeeds.clear();
         vSeeds.clear();
-        vSeeds.push_back(CDNSSeedData("stratisplatform.com", "testnode1.stratisplatform.com"));
+        //vSeeds.push_back(CDNSSeedData("stratisplatform.com", "testnode1.stratisplatform.com"));
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 65); // stratis test net start with T
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 196);
@@ -180,7 +195,13 @@ public:
 
         convertSeed6(vFixedSeeds, pnSeed6_test, ARRAYLEN(pnSeed6_test));
 
-        nLastPOWBlock = 0x7fffffff;
+        nLastPOWBlock = 0x7fffffff;// max signed int value
+        //nLastPOWBlock = 300;
+        nCRISPPayoutInterval = 60;
+        nCRISPPayoutLag = 6;
+
+        //for testing
+        nMaxCoinBaseOutputsPerBlock = 10;
     }
     virtual Network NetworkID() const { return CChainParams::TESTNET; }
 };
@@ -193,21 +214,28 @@ static CTestNetParams testNetParams;
 class CRegTestParams : public CTestNetParams {
 public:
     CRegTestParams() {
-        pchMessageStart[0] = 0xfa;
-        pchMessageStart[1] = 0xbf;
-        pchMessageStart[2] = 0xb5;
-        pchMessageStart[3] = 0xda;
+        pchMessageStart[0] = 0xf7;
+        pchMessageStart[1] = 0xc3;
+        pchMessageStart[2] = 0xb2;
+        pchMessageStart[3] = 0xcc;
         bnProofOfWorkLimit = CBigNum(~uint256(0) >> 1);
         genesis.nTime = 1411111111;
         genesis.nBits  = bnProofOfWorkLimit.GetCompact();
-        genesis.nNonce = 1659424;
+        genesis.nNonce = 3084627;
         hashGenesisBlock = genesis.GetHash();
         nDefaultPort = 18444;
         strDataDir = "regtest";
-//        MineGenesis(genesis);
-        assert(hashGenesisBlock == uint256("0x00000d97ffc6d5e27e78954c5bf9022b081177756488f44780b4f3c2210b1645"));
+        //MineGenesis(genesis);
+        assert(hashGenesisBlock == uint256("0x0000074d707edc8763d1f1a295f474e59a8e827d73b150bef1611279c08fc068"));
 
         vSeeds.clear();  // Regtest mode doesn't have any DNS seeds.
+
+        nCRISPPayoutInterval = 100;
+        nCRISPPayoutLag = 25;
+        fPOWNoRetargeting = true;
+
+        //for testing
+        nMaxCoinBaseOutputsPerBlock = 5;
     }
 
     virtual bool RequireRPCPassword() const { return false; }

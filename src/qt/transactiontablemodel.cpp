@@ -24,6 +24,7 @@ static int column_alignments[] = {
         Qt::AlignLeft|Qt::AlignVCenter,
         Qt::AlignLeft|Qt::AlignVCenter,
         Qt::AlignLeft|Qt::AlignVCenter,
+        Qt::AlignLeft|Qt::AlignVCenter,
         Qt::AlignRight|Qt::AlignVCenter
     };
 
@@ -228,7 +229,7 @@ TransactionTableModel::TransactionTableModel(CWallet* wallet, WalletModel *paren
         walletModel(parent),
         priv(new TransactionTablePriv(wallet, this))
 {
-    columns << QString() << tr("Date") << tr("Type") << tr("Address") << tr("Amount");
+    columns << QString() << tr("Date") << tr("Type") << tr("Address") << tr("Invoice") << tr("Amount");
 
     priv->refreshWallet();
 
@@ -356,6 +357,8 @@ QString TransactionTableModel::formatTxType(const TransactionRecord *wtx) const
         return tr("Payment to yourself");
     case TransactionRecord::Generated:
         return tr("Mined");
+    case TransactionRecord::CRISP:
+        return tr("CRISP Payout");
     default:
         return QString();
     }
@@ -365,6 +368,8 @@ QVariant TransactionTableModel::txAddressDecoration(const TransactionRecord *wtx
 {
     switch(wtx->type)
     {
+    case TransactionRecord::CRISP:
+        return QIcon( ":/icons/tx_crisp");
     case TransactionRecord::Generated:
         return QIcon(fUseBlackTheme ? ":/icons/black/tx_mined" : ":/icons/tx_mined");
     case TransactionRecord::RecvWithAddress:
@@ -383,18 +388,25 @@ QString TransactionTableModel::formatTxToAddress(const TransactionRecord *wtx, b
 {
     switch(wtx->type)
     {
-    case TransactionRecord::RecvFromOther:
-        return QString::fromStdString(wtx->address);
-    case TransactionRecord::RecvWithAddress:
-    case TransactionRecord::SendToAddress:
-    case TransactionRecord::Generated:
-        return lookupAddress(wtx->address, tooltip);
-    case TransactionRecord::SendToOther:
-        return QString::fromStdString(wtx->address);
-    case TransactionRecord::SendToSelf:
-    default:
-        return tr("(n/a)");
+        case TransactionRecord::RecvFromOther:
+            return QString::fromStdString(wtx->address);
+        case TransactionRecord::CRISP:
+        case TransactionRecord::RecvWithAddress:
+        case TransactionRecord::SendToAddress:
+        case TransactionRecord::Generated:
+            return lookupAddress(wtx->address, tooltip);
+        case TransactionRecord::SendToOther:
+            return QString::fromStdString(wtx->address);
+        case TransactionRecord::SendToSelf:
+        default:
+            return tr("(n/a)");
     }
+}
+
+
+QString TransactionTableModel::formatInvoiceNumber(const TransactionRecord *wtx, bool tooltip) const
+{
+    return QString::fromStdString(wtx->invoiceNumber);
 }
 
 QVariant TransactionTableModel::addressColor(const TransactionRecord *wtx) const
@@ -402,6 +414,7 @@ QVariant TransactionTableModel::addressColor(const TransactionRecord *wtx) const
     // Show addresses without label in a less visible color
     switch(wtx->type)
     {
+    case TransactionRecord::CRISP:
     case TransactionRecord::RecvWithAddress:
     case TransactionRecord::SendToAddress:
     case TransactionRecord::Generated:
@@ -474,6 +487,11 @@ QString TransactionTableModel::formatTooltip(const TransactionRecord *rec) const
        rec->type==TransactionRecord::SendToAddress || rec->type==TransactionRecord::RecvWithAddress)
     {
         tooltip += QString(" ") + formatTxToAddress(rec, true);
+
+        if(rec->invoiceNumber != "")
+        {
+            tooltip += QString("+") + QString::fromStdString(rec->invoiceNumber);
+        }
     }
     return tooltip;
 }
@@ -504,6 +522,8 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
             return formatTxType(rec);
         case ToAddress:
             return formatTxToAddress(rec, false);
+        case InvoiceNumber:
+            return formatInvoiceNumber(rec, false);
         case Amount:
             return formatTxAmount(rec);
         }
@@ -520,6 +540,8 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
             return formatTxType(rec);
         case ToAddress:
             return formatTxToAddress(rec, true);
+        case InvoiceNumber:
+            return formatInvoiceNumber(rec, false);
         case Amount:
             return rec->credit + rec->debit;
         }
@@ -555,6 +577,8 @@ QVariant TransactionTableModel::data(const QModelIndex &index, int role) const
         return priv->describe(rec, walletModel->getOptionsModel()->getDisplayUnit());
     case AddressRole:
         return QString::fromStdString(rec->address);
+    case InvoiceRole:
+        return QString::fromStdString(rec->invoiceNumber);
     case LabelRole:
         return walletModel->getAddressTableModel()->labelForAddress(QString::fromStdString(rec->address));
     case AmountRole:
@@ -594,6 +618,8 @@ QVariant TransactionTableModel::headerData(int section, Qt::Orientation orientat
                 return tr("Type of transaction.");
             case ToAddress:
                 return tr("Destination address of transaction.");
+            case InvoiceNumber:
+                return tr("Invoice number associated with destination address.");
             case Amount:
                 return tr("Amount removed from or added to balance.");
             }

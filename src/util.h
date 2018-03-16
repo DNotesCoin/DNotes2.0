@@ -26,9 +26,12 @@
 #include <boost/filesystem/path.hpp>
 #include <boost/date_time/gregorian/gregorian_types.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp>
+#include <boost/tuple/tuple.hpp>
 
 #include <stdint.h>
 
+using namespace std;
+using namespace boost::tuples;
 class uint256;
 
 static const int64_t COIN = 100000000;
@@ -47,6 +50,7 @@ static const int64_t CENT = 1000000;
 
 // This is needed because the foreach macro can't get over the comma in pair<t1, t2>
 #define PAIRTYPE(t1, t2)    std::pair<t1, t2>
+#define TRIPLETYPE(t1, t2, t3)   boost::tuples::tuple<t1, t2, t3>
 
 // Align by increasing pointer, must have extra space at end of buffer
 template <size_t nBytes, typename T>
@@ -508,7 +512,7 @@ inline uint32_t ByteReverse(uint32_t value)
 //    threadGroup.create_thread(boost::bind(&LoopForever<boost::function<void()> >, "nothing", f, milliseconds));
 template <typename Callable> void LoopForever(const char* name,  Callable func, int64_t msecs)
 {
-    std::string s = strprintf("stratis-%s", name);
+    std::string s = strprintf("dnotes-%s", name);
     RenameThread(s.c_str());
     LogPrintf("%s thread start\n", name);
     try
@@ -534,7 +538,7 @@ template <typename Callable> void LoopForever(const char* name,  Callable func, 
 // .. and a wrapper that just calls func once
 template <typename Callable> void TraceThread(const char* name,  Callable func)
 {
-    std::string s = strprintf("stratis-%s", name);
+    std::string s = strprintf("dnotes-%s", name);
     RenameThread(s.c_str());
     try
     {

@@ -8,10 +8,13 @@
 #include "transactiontablemodel.h"
 #include "transactionfilterproxy.h"
 #include "guiutil.h"
+#include "webutil.h"
 #include "guiconstants.h"
 
 #include <QAbstractItemDelegate>
 #include <QPainter>
+
+#include "iomanip"
 
 #define DECORATION_SIZE 64
 #define NUM_ITEMS 6
@@ -42,6 +45,7 @@ public:
 
         QDateTime date = index.data(TransactionTableModel::DateRole).toDateTime();
         QString address = index.data(Qt::DisplayRole).toString();
+        QString invoice = index.data(TransactionTableModel::InvoiceRole).toString();
         qint64 amount = index.data(TransactionTableModel::AmountRole).toLongLong();
         bool confirmed = index.data(TransactionTableModel::ConfirmedRole).toBool();
         QVariant value = index.data(Qt::ForegroundRole);
@@ -51,8 +55,13 @@ public:
             foreground = qvariant_cast<QColor>(value);
         }
 
+        QString combinedAddress = address;
+        if(invoice != "")
+        {
+            combinedAddress += "+" + invoice;
+        }
         painter->setPen(fUseBlackTheme ? QColor(255, 255, 255) : foreground);
-        painter->drawText(addressRect, Qt::AlignLeft|Qt::AlignVCenter, address);
+        painter->drawText(addressRect, Qt::AlignLeft|Qt::AlignVCenter, combinedAddress);
 
         if(amount < 0)
         {
@@ -102,6 +111,12 @@ OverviewPage::OverviewPage(QWidget *parent) :
     txdelegate(new TxViewDelegate()),
     filter(0)
 {
+    lastPriceRequested = 0;
+    lastNewsRequested = 0;
+    currentPrice = 0.0;
+    dnotesNews = "";
+    dceBriefNews = "";
+
     ui->setupUi(this);
 
     // Recent transactions
@@ -153,12 +168,179 @@ void OverviewPage::setBalance(qint64 balance, qint64 stake, qint64 unconfirmedBa
     ui->labelUnconfirmed->setText(BitcoinUnits::formatWithUnit(unit, unconfirmedBalance));
     ui->labelImmature->setText(BitcoinUnits::formatWithUnit(unit, immatureBalance));
     ui->labelTotal->setText(BitcoinUnits::formatWithUnit(unit, balance + stake + unconfirmedBalance + immatureBalance));
+    ui->labelFiat->setText(getFiatLabel(balance + stake + unconfirmedBalance + immatureBalance));
+
+    updateNewsFeeds();
 
     // only show immature (newly mined) balance if it's non-zero, so as not to complicate things
     // for the non-mining users
     bool showImmature = immatureBalance != 0;
     ui->labelImmature->setVisible(showImmature);
     ui->labelImmatureText->setVisible(showImmature);
+}
+
+struct XmlParsingInfo
+{
+    std::string xmlString;
+    int startingIndex;
+};
+
+std::string getNextTitle(XmlParsingInfo &xmlInfo)
+{
+    std::string openingElement = "<title>";
+    std::string closingElement = "</title>";
+    std::string::size_type searchStringStartPosition = xmlInfo.xmlString.find(openingElement, xmlInfo.startingIndex);
+    if(searchStringStartPosition != std::string::npos)
+    {
+        int titleStartPosition = searchStringStartPosition + openingElement.length();
+        int closingStartPosition = xmlInfo.xmlString.find(closingElement, titleStartPosition + 1);
+
+        std::string title = xmlInfo.xmlString.substr(titleStartPosition, closingStartPosition - titleStartPosition);
+        xmlInfo.startingIndex = closingStartPosition + closingElement.length() + 1;
+        return title;
+    }
+
+    return "";
+}
+
+std::string getNextLink(XmlParsingInfo &xmlInfo)
+{
+    std::string openingElement = "<link>";
+    std::string closingElement = "</link>";
+    std::string::size_type searchStringStartPosition = xmlInfo.xmlString.find(openingElement, xmlInfo.startingIndex);
+    if(searchStringStartPosition != std::string::npos)
+    {
+        int linkStartPosition = searchStringStartPosition + openingElement.length();
+        int closingStartPosition = xmlInfo.xmlString.find(closingElement, linkStartPosition + 1);
+
+        std::string link = xmlInfo.xmlString.substr(linkStartPosition, closingStartPosition - linkStartPosition);
+        xmlInfo.startingIndex = closingStartPosition + closingElement.length() + 1;
+        return link;
+    }   
+    return "";
+}
+
+QString getFeedListItem(std::string title, std::string link)
+{
+    if(title != "" && link != "")
+    {
+        return "<li><a href=\"" + QString::fromStdString(link) + "\">" + QString::fromStdString(title) + "</a></li>";
+    }
+    return "";
+}
+
+void OverviewPage::updateNewsFeeds()
+{
+    time_t now = time(0);
+    if(lastNewsRequested < now - 600)
+    {
+        lastPriceRequested = now;
+
+        //DNotesCoin.com feed
+        std::string dnotesResponse = WebUtil::getHttpResponseFromUrl("dnotescoin.com", "/feed/");
+
+        if(dnotesResponse == "")
+        {
+            ui->browserDNotesNews->setVisible(false);
+        }
+
+        XmlParsingInfo xmlInfo;
+        xmlInfo.xmlString = dnotesResponse;
+        xmlInfo.startingIndex = 0;
+
+        //first title/link are for the feed.
+        std::string title = getNextTitle(xmlInfo);
+        std::string link = getNextLink(xmlInfo);
+
+        //get top 3 stories from feed
+        dnotesNews = "<ul style='-qt-list-indent:1;'>";
+
+        title = getNextTitle(xmlInfo);
+        link = getNextLink(xmlInfo);
+        dnotesNews += getFeedListItem(title, link);
+    
+        title = getNextTitle(xmlInfo);
+        link = getNextLink(xmlInfo);
+        dnotesNews += getFeedListItem(title, link);
+
+        title = getNextTitle(xmlInfo);
+        link = getNextLink(xmlInfo);
+        dnotesNews += getFeedListItem(title, link);
+        
+        dnotesNews += "</ul>";
+        ui->browserDNotesNews->setHtml(dnotesNews);
+
+        //DCEBrief feed
+        std::string dceBriefResponse = WebUtil::getHttpsResponseFromUrl("dcebrief.com", "/feed/");
+        
+        if(dceBriefResponse == "")
+        {
+            ui->browserDNotesNews->setVisible(false);
+        }
+
+        xmlInfo.xmlString = dceBriefResponse;
+        xmlInfo.startingIndex = 0;
+        dceBriefNews = "<ul style='-qt-list-indent:1;'>";
+        
+        //first title/link are for the feed.
+        title = getNextTitle(xmlInfo);
+        link = getNextLink(xmlInfo);
+
+        //get top 3 stories from feed
+        title = getNextTitle(xmlInfo);
+        link = getNextLink(xmlInfo);
+        dceBriefNews += getFeedListItem(title, link);
+    
+        title = getNextTitle(xmlInfo);
+        link = getNextLink(xmlInfo);
+        dceBriefNews += getFeedListItem(title, link);
+
+        title = getNextTitle(xmlInfo);
+        link = getNextLink(xmlInfo);
+        dceBriefNews += getFeedListItem(title, link);
+        
+        dceBriefNews += "</ul>";
+        ui->browserDCENews->setHtml(dceBriefNews);
+    }
+}
+
+QString OverviewPage::getFiatLabel(qint64 totalCoins)
+{
+    time_t now = time(0);
+    //cache price api request for 10 minutes
+    if(lastPriceRequested < now - 600)
+    {
+        std::string apiResponse = WebUtil::getHttpsResponseFromUrl("api.coinmarketcap.com", "/v1/ticker/DNotes/?convert=USD");
+
+        std::string searchString = "\"price_usd\": \"";
+        std::string::size_type searchStringStartPosition = apiResponse.find(searchString);
+        if(searchStringStartPosition != std::string::npos)
+        {
+            int priceStartPosition = searchStringStartPosition + searchString.length();
+            int priceEndPosition = apiResponse.find("\"", priceStartPosition + 1);
+            std::string priceString = apiResponse.substr(priceStartPosition, priceEndPosition - priceStartPosition);
+            currentPrice = atof (priceString.c_str());
+        }
+        else
+        {
+            //hide fiat label if we can't reach the api or if the response is malformatted.
+            ui->labelFiat->setVisible(false);
+            return "";
+        }
+
+        lastPriceRequested = now;
+    }
+
+    double totalFiatValue = currentPrice * (totalCoins) / 100000000; //total coins is in satoshis
+
+    //round to 2 decimal places
+    std::ostringstream ss;
+    ss << std::fixed << std::setprecision(2) << totalFiatValue;
+    std::string roundedFiatValue = ss.str();
+
+
+    return  "~$" + QString::fromStdString(roundedFiatValue) + " USD\r\n"
+            "(1 NOTE \u2245 " + QString::number(currentPrice) + " USD)" ; //\u2245 is the approximately equal symbol in unicode.
 }
 
 void OverviewPage::setClientModel(ClientModel *model)

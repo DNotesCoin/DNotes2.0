@@ -53,7 +53,7 @@ void RPCTypeCheck(const Array& params,
             break;
 
         const Value& v = params[i];
-        if (!((v.type() == t) || (fAllowNull && (v.type() == null_type))))
+        if (!((v.type() == t) || (fAllowNull && (v.type() == json_spirit::null_type))))
         {
             string err = strprintf("Expected type %s, got %s",
                                    Value_type_name[t], Value_type_name[v.type()]);
@@ -70,10 +70,10 @@ void RPCTypeCheck(const Object& o,
     BOOST_FOREACH(const PAIRTYPE(string, Value_type)& t, typesExpected)
     {
         const Value& v = find_value(o, t.first);
-        if (!fAllowNull && v.type() == null_type)
+        if (!fAllowNull && v.type() == json_spirit::null_type)
             throw JSONRPCError(RPC_TYPE_ERROR, strprintf("Missing %s", t.first));
 
-        if (!((v.type() == t.second) || (fAllowNull && (v.type() == null_type))))
+        if (!((v.type() == t.second) || (fAllowNull && (v.type() == json_spirit::null_type))))
         {
             string err = strprintf("Expected type %s for %s, got %s",
                                    Value_type_name[t.second], t.first, Value_type_name[v.type()]);
@@ -247,7 +247,7 @@ static const CRPCCommand vRPCCommands[] =
     { "verifymessage",          &verifymessage,          false,     false,     false },
 
 #ifdef ENABLE_WALLET
-    { "setgenerate", 		&setgenerate, 		 true, false, true },
+    { "setgenerate", 		    &setgenerate, 		     true, false, true },
     { "getmininginfo",          &getmininginfo,          true,      false,     false },
     { "getstakinginfo",         &getstakinginfo,         true,      false,     false },
     { "getnewaddress",          &getnewaddress,          true,      false,     true },
@@ -492,7 +492,7 @@ void StartRPCThreads()
     {
         unsigned char rand_pwd[32];
         RAND_bytes(rand_pwd, 32);
-        string strWhatAmI = "To use stratisd";
+        string strWhatAmI = "To use dnotesd";
         if (mapArgs.count("-server"))
             strWhatAmI = strprintf(_("To use the %s option"), "\"-server\"");
         else if (mapArgs.count("-daemon"))
@@ -501,13 +501,13 @@ void StartRPCThreads()
             _("%s, you must set a rpcpassword in the configuration file:\n"
               "%s\n"
               "It is recommended you use the following random password:\n"
-              "rpcuser=stratisrpc\n"
+              "rpcuser=dnotesrpc\n"
               "rpcpassword=%s\n"
               "(you do not need to remember this password)\n"
               "The username and password MUST NOT be the same.\n"
               "If the file does not exist, create it with owner-readable-only file permissions.\n"
               "It is also recommended to set alertnotify so you are notified of problems;\n"
-              "for example: alertnotify=echo %%s | mail -s \"Stratis Alert\" admin@foo.com\n"),
+              "for example: alertnotify=echo %%s | mail -s \"DNotes Alert\" admin@foo.com\n"),
                 strWhatAmI,
                 GetConfigFile().string(),
                 EncodeBase58(&rand_pwd[0],&rand_pwd[0]+32)),
@@ -658,7 +658,7 @@ void JSONRequest::parse(const Value& valRequest)
 
     // Parse method
     Value valMethod = find_value(request, "method");
-    if (valMethod.type() == null_type)
+    if (valMethod.type() == json_spirit::null_type)
         throw JSONRPCError(RPC_INVALID_REQUEST, "Missing method");
     if (valMethod.type() != str_type)
         throw JSONRPCError(RPC_INVALID_REQUEST, "Method must be a string");
@@ -670,7 +670,7 @@ void JSONRequest::parse(const Value& valRequest)
     Value valParams = find_value(request, "params");
     if (valParams.type() == array_type)
         params = valParams.get_array();
-    else if (valParams.type() == null_type)
+    else if (valParams.type() == json_spirit::null_type)
         params = Array();
     else
         throw JSONRPCError(RPC_INVALID_REQUEST, "Params must be an array");

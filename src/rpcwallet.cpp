@@ -10,9 +10,13 @@
 #include "netbase.h"
 #include "timedata.h"
 #include "util.h"
+#include "invoiceutil.h"
 #include "wallet.h"
 #include "walletdb.h"
 
+#include "boost/tuple/tuple.hpp"
+
+using namespace boost::tuples;
 using namespace std;
 using namespace json_spirit;
 
@@ -193,7 +197,7 @@ Value setaccount(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() < 1 || params.size() > 2)
         throw runtime_error(
-            "setaccount <stratisaddress> <account>\n"
+            "setaccount <dnotesaddress> <account>\n"
             "Sets the account associated with the given address.");
 
     CBitcoinAddress address(params[0].get_str());
@@ -223,7 +227,7 @@ Value getaccount(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
         throw runtime_error(
-            "getaccount <stratisaddress>\n"
+            "getaccount <dnotesaddress>\n"
             "Returns the account associated with the given address.");
 
     CBitcoinAddress address(params[0].get_str());
@@ -263,28 +267,38 @@ Value sendtoaddress(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() < 2 || params.size() > 4)
         throw runtime_error(
-            "sendtoaddress <stratisaddress> <amount> [comment] [comment-to]\n"
+            "sendtoaddress <dnotesaddress> <amount> [comment] [comment-to]\n"
             "<amount> is a real and is rounded to the nearest 0.000001"
             + HelpRequiringPassphrase());
 
-    CBitcoinAddress address(params[0].get_str());
-    if (!address.IsValid())
+    string invoiceNumber;
+    string addressString;
+    InvoiceUtil::parseInvoiceNumberAndAddress(params[0].get_str(), addressString, invoiceNumber);
+
+    CBitcoinAddress address(addressString);
+    if (!address.IsValid()) 
+    {
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid DNotes address");
+    }
+    if (!InvoiceUtil::validateInvoiceNumber(invoiceNumber))
+    {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid DNotes address");
+    }
 
     // Amount
     int64_t nAmount = AmountFromValue(params[1]);
 
     // Wallet comments
     CWalletTx wtx;
-    if (params.size() > 2 && params[2].type() != null_type && !params[2].get_str().empty())
+    if (params.size() > 2 && params[2].type() != json_spirit::null_type && !params[2].get_str().empty())
         wtx.mapValue["comment"] = params[2].get_str();
-    if (params.size() > 3 && params[3].type() != null_type && !params[3].get_str().empty())
+    if (params.size() > 3 && params[3].type() != json_spirit::null_type && !params[3].get_str().empty())
         wtx.mapValue["to"]      = params[3].get_str();
 
     if (pwalletMain->IsLocked())
         throw JSONRPCError(RPC_WALLET_UNLOCK_NEEDED, "Error: Please enter the wallet passphrase with walletpassphrase first.");
 
-    string strError = pwalletMain->SendMoneyToDestination(address.Get(), nAmount, wtx);
+    string strError = pwalletMain->SendMoneyToDestination(address.Get(), invoiceNumber, nAmount, wtx);
     if (strError != "")
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
 
@@ -326,7 +340,7 @@ Value signmessage(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 2)
         throw runtime_error(
-            "signmessage <stratisaddress> <message>\n"
+            "signmessage <dnotesaddress> <message>\n"
             "Sign a message with the private key of an address");
 
     EnsureWalletIsUnlocked();
@@ -361,8 +375,8 @@ Value getreceivedbyaddress(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() < 1 || params.size() > 2)
         throw runtime_error(
-            "getreceivedbyaddress <stratisaddress> [minconf=1]\n"
-            "Returns the total amount received by <stratisaddress> in transactions with at least [minconf] confirmations.");
+            "getreceivedbyaddress <dnotesaddress> [minconf=1]\n"
+            "Returns the total amount received by <dnotesaddress> in transactions with at least [minconf] confirmations.");
 
     // Bitcoin address
     CBitcoinAddress address = CBitcoinAddress(params[0].get_str());
@@ -589,14 +603,22 @@ Value sendfrom(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() < 3 || params.size() > 6)
         throw runtime_error(
-            "sendfrom <fromaccount> <tostratisaddress> <amount> [minconf=1] [comment] [comment-to]\n"
+            "sendfrom <fromaccount> <todnotesaddress> <amount> [minconf=1] [comment] [comment-to]\n"
             "<amount> is a real and is rounded to the nearest 0.000001"
             + HelpRequiringPassphrase());
 
     string strAccount = AccountFromValue(params[0]);
-    CBitcoinAddress address(params[1].get_str());
+
+    string invoiceNumber;
+    string addressString;
+    InvoiceUtil::parseInvoiceNumberAndAddress(params[1].get_str(), addressString, invoiceNumber);
+
+    CBitcoinAddress address(addressString);
     if (!address.IsValid())
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid DNotes address");
+    if (!InvoiceUtil::validateInvoiceNumber(invoiceNumber))
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid DNotes address");
+
     int64_t nAmount = AmountFromValue(params[2]);
 
     int nMinDepth = 1;
@@ -605,9 +627,9 @@ Value sendfrom(const Array& params, bool fHelp)
 
     CWalletTx wtx;
     wtx.strFromAccount = strAccount;
-    if (params.size() > 4 && params[4].type() != null_type && !params[4].get_str().empty())
+    if (params.size() > 4 && params[4].type() != json_spirit::null_type && !params[4].get_str().empty())
         wtx.mapValue["comment"] = params[4].get_str();
-    if (params.size() > 5 && params[5].type() != null_type && !params[5].get_str().empty())
+    if (params.size() > 5 && params[5].type() != json_spirit::null_type && !params[5].get_str().empty())
         wtx.mapValue["to"]      = params[5].get_str();
 
     EnsureWalletIsUnlocked();
@@ -618,7 +640,7 @@ Value sendfrom(const Array& params, bool fHelp)
         throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS, "Account has insufficient funds");
 
     // Send
-    string strError = pwalletMain->SendMoneyToDestination(address.Get(), nAmount, wtx);
+    string strError = pwalletMain->SendMoneyToDestination(address.Get(), invoiceNumber, nAmount, wtx);
     if (strError != "")
         throw JSONRPCError(RPC_WALLET_ERROR, strError);
 
@@ -642,17 +664,24 @@ Value sendmany(const Array& params, bool fHelp)
 
     CWalletTx wtx;
     wtx.strFromAccount = strAccount;
-    if (params.size() > 3 && params[3].type() != null_type && !params[3].get_str().empty())
+    if (params.size() > 3 && params[3].type() != json_spirit::null_type && !params[3].get_str().empty())
         wtx.mapValue["comment"] = params[3].get_str();
 
     set<CBitcoinAddress> setAddress;
-    vector<pair<CScript, int64_t> > vecSend;
+    vector<boost::tuples::tuple<CScript, int64_t, string> > vecSend;
 
     int64_t totalAmount = 0;
+    string invoiceNumber;
+    string addressString;
     BOOST_FOREACH(const Pair& s, sendTo)
     {
-        CBitcoinAddress address(s.name_);
+        InvoiceUtil::parseInvoiceNumberAndAddress(s.name_, addressString, invoiceNumber);
+
+        CBitcoinAddress address(addressString);
         if (!address.IsValid())
+            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid DNotes address: ")+s.name_);
+
+        if (!InvoiceUtil::validateInvoiceNumber(invoiceNumber))
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid DNotes address: ")+s.name_);
 
         if (setAddress.count(address))
@@ -665,7 +694,7 @@ Value sendmany(const Array& params, bool fHelp)
 
         totalAmount += nAmount;
 
-        vecSend.push_back(make_pair(scriptPubKey, nAmount));
+        vecSend.push_back(boost::make_tuple(scriptPubKey, nAmount, invoiceNumber));
     }
 
     EnsureWalletIsUnlocked();
@@ -697,7 +726,7 @@ Value addmultisigaddress(const Array& params, bool fHelp)
     {
         string msg = "addmultisigaddress <nrequired> <'[\"key\",\"key\"]'> [account]\n"
             "Add a nrequired-to-sign multisignature address to the wallet\"\n"
-            "each key is a Stratis address or hex-encoded public key\n"
+            "each key is a DNotes address or hex-encoded public key\n"
             "If [account] is specified, assign address to [account].";
         throw runtime_error(msg);
     }
@@ -1439,7 +1468,7 @@ Value encryptwallet(const Array& params, bool fHelp)
     // slack space in .dat files; that is bad if the old data is
     // unencrypted private keys. So:
     StartShutdown();
-    return "wallet encrypted; Stratis server stopping, restart to run with encrypted wallet. The keypool has been flushed, you need to make a new backup.";
+    return "wallet encrypted; DNotes server stopping, restart to run with encrypted wallet. The keypool has been flushed, you need to make a new backup.";
 }
 
 

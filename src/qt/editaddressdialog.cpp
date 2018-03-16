@@ -118,10 +118,17 @@ void EditAddressDialog::accept()
                 tr("New key generation failed."),
                 QMessageBox::Ok, QMessageBox::Ok);
             break;
-
         }
         return;
     }
+
+    if(model->getContainsInvoiceNumber())
+    {
+          QMessageBox::information(this, windowTitle(),
+                tr("The invoice number has been removed from the DNotes address saved into your address book."),
+                QMessageBox::Ok, QMessageBox::Ok);
+    }
+
     QDialog::accept();
 }
 

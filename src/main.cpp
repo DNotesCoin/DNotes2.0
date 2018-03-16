@@ -6,6 +6,7 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/fstream.hpp>
+#include <boost/math/special_functions/round.hpp>
 
 #include "alert.h"
 #include "chainparams.h"
@@ -17,7 +18,10 @@
 #include "txdb.h"
 #include "txmempool.h"
 #include "ui_interface.h"
-
+#include "invoiceutil.h"
+#include "crisp.h"
+#include "consensus.h"
+  
 using namespace std;
 using namespace boost;
 
@@ -42,8 +46,8 @@ set<pair<COutPoint, unsigned int> > setStakeSeen;
 CBigNum bnProofOfStakeLimit(~uint256(0) >> 20);
 CBigNum bnProofOfStakeLimitV2(~uint256(0) >> 48);
 
-int nStakeMinConfirmations = 50;
-unsigned int nStakeMinAge = 60; // 8 hours
+int nStakeMinConfirmations = 10;
+unsigned int nStakeMinAge = 60; // 8 hours. DNote -> Obsolete in V3, now use nStakeMinconfirmations. Used to be involved in coin age calculations for coin age staking.
 unsigned int nModifierInterval = 10 * 60; // time to elapse before new modifier is computed
 
 int nCoinbaseMaturity = 50;
@@ -77,7 +81,7 @@ map<uint256, set<uint256> > mapOrphanTransactionsByPrev;
 // Constant stuff for coinbase transactions we create:
 CScript COINBASE_FLAGS;
 
-const string strMessageMagic = "Stratis Signed Message:\n"; //Can/should this be changed?
+const string strMessageMagic = "DNotes Signed Message:\n";
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -545,7 +549,22 @@ bool CTransaction::CheckTransaction() const
     // Size limits
     if (::GetSerializeSize(*this, SER_NETWORK, PROTOCOL_VERSION) > MAX_BLOCK_SIZE)
         return DoS(100, error("CTransaction::CheckTransaction() : size limits failed"));
-
+    
+    if (IsCoinBase())
+    {
+        if(vout.size() > Params().MaxCoinBaseOutputsPerBlock() + 1) //1 for the pow/pos coinbase reward
+            return DoS(100, error("CTransaction::CheckTransaction() : input/output limits failed"));
+    }
+    else if(IsCoinStake())
+    {  
+            //coinstake validation done elseware
+    }
+    else
+    {
+        if(vin.size() + vout.size() > Params().MaxInputsAndOutputsPerTransaction())
+            return DoS(100, error("CTransaction::CheckTransaction() : input/output limits failed"));
+    }
+    
     // Check for negative or overflow output values
     int64_t nValueOut = 0;
     for (unsigned int i = 0; i < vout.size(); i++)
@@ -560,6 +579,8 @@ bool CTransaction::CheckTransaction() const
         nValueOut += txout.nValue;
         if (!MoneyRange(nValueOut))
             return DoS(100, error("CTransaction::CheckTransaction() : txout total out of range"));
+        if(!InvoiceUtil::validateInvoiceNumber(txout.invoiceNumber))
+            return DoS(100, error("CTransaction::CheckTransaction() : txout invoice number invalid"));
     }
 
     // Check for duplicate inputs
@@ -996,22 +1017,28 @@ static CBigNum GetProofOfStakeLimit(int nHeight)
 // miner's coin base reward
 int64_t GetProofOfWorkReward(int64_t nFees)
 {
-	int64_t PreMine = 130000000 * COIN; //Approx outstanding DNotes as of 1/1/2018
-    if(pindexBest->nHeight == 1){return PreMine;} else {return 1*COIN;}
+    //destroy transaction fees
+	int64_t PreMine = 131000000 * COIN; //Approx outstanding DNotes as of 1/19/2018
+    if(pindexBest->nHeight == 1){
+        return PreMine;
+    } else{
+        return 1*COIN;
+    }
 }
 
 // miner's coin stake reward
 int64_t GetProofOfStakeReward(const CBlockIndex* pindexPrev, int64_t nCoinAge, int64_t nFees)
 {
-    //(outstanding coin / blocks in a year) * two percent
+    //(outstanding coin / approx blocks in a year at one per minute) * two percent
     //(130 000 000 / 525600) * .02
-    int64_t testVar = (pindexPrev->nMoneySupply / 525600) * .02;
-    //think about rounding
+    int64_t stakeReward = boost::math::round((pindexPrev->nMoneySupply / (60 * 24 * 365)) * .02);
     
-    return (1 * COIN) + nFees;
+    //consider looking at actual blocks created in the last X time and use that to determine the # blocks in a year
+
+    return (stakeReward); //destroy the transaction fees
 }
 
-static const int64_t nTargetTimespan = 16 * 60;  // 16 mins
+static const int64_t nTargetTimespan = 16 * 60;  // 16 mins, this is not the time between blocks.
 
 // ppcoin: find last block index up to pindex
 const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfStake)
@@ -1027,13 +1054,14 @@ unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfS
 
     if (pindexLast == NULL)
         return bnTargetLimit.GetCompact(); // genesis block
-
     const CBlockIndex* pindexPrev = GetLastBlockIndex(pindexLast, fProofOfStake);
     if (pindexPrev->pprev == NULL)
         return bnTargetLimit.GetCompact(); // first block
     const CBlockIndex* pindexPrevPrev = GetLastBlockIndex(pindexPrev->pprev, fProofOfStake);
     if (pindexPrevPrev->pprev == NULL)
         return bnTargetLimit.GetCompact(); // second block
+
+
 
     int64_t nTargetSpacing = GetTargetSpacing(pindexLast->nHeight);
     int64_t nActualSpacing = pindexPrev->GetBlockTime() - pindexPrevPrev->GetBlockTime();
@@ -1050,9 +1078,13 @@ unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfS
     // ppcoin: retarget with exponential moving toward target spacing
     CBigNum bnNew;
     bnNew.SetCompact(pindexPrev->nBits);
-    int64_t nInterval = nTargetTimespan / nTargetSpacing;
-    bnNew *= ((nInterval - 1) * nTargetSpacing + nActualSpacing + nActualSpacing);
-    bnNew /= ((nInterval + 1) * nTargetSpacing);
+
+    //turn off retargetting if doing pow on regtest
+    if(!Params().POWNoRetargeting() || fProofOfStake){
+        int64_t nInterval = nTargetTimespan / nTargetSpacing;
+        bnNew *= ((nInterval - 1) * nTargetSpacing + nActualSpacing + nActualSpacing);
+        bnNew /= ((nInterval + 1) * nTargetSpacing);
+    }
 
     if (bnNew <= 0 || bnNew > bnTargetLimit)
         bnNew = bnTargetLimit;
@@ -1449,8 +1481,18 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
         // Since we're just checking the block and not actually connecting it, it might not (and probably shouldn't) be on the disk to get the transaction from
         nTxPos = 1;
     else
-        nTxPos = pindex->nBlockPos + ::GetSerializeSize(CBlock(), SER_DISK, CLIENT_VERSION) - (2 * GetSizeOfCompactSize(0)) + GetSizeOfCompactSize(vtx.size());
-
+        nTxPos = pindex->nBlockPos + 
+                ::GetSerializeSize(CBlock(), SER_DISK, CLIENT_VERSION) - 
+                (2 * GetSizeOfCompactSize(0)) + //1 for sizeof vtx, 1 for sizeof vchBlockSig, which could be wrong if either has > 256 elements. potential bug
+                ::GetSerializeSize(addressBalances, SER_DISK, CLIENT_VERSION) +
+                GetSizeOfCompactSize(vtx.size()) - 
+                1; //i don't know why, but this is the right math in my examples. it's been a long 3 days.
+/*
+    unsigned int test1 = ::GetSerializeSize(CBlock(), SER_DISK, CLIENT_VERSION);
+    unsigned int test2 = ::GetSerializeSize(*this, SER_DISK, CLIENT_VERSION);
+    unsigned int test3 = ::GetSerializeSize(vtx, SER_DISK, CLIENT_VERSION);
+    unsigned int test4 = ::GetSerializeSize(addressBalances, SER_DISK, CLIENT_VERSION);
+*/
     map<uint256, CTxIndex> mapQueuedChanges;
     int64_t nFees = 0;
     int64_t nValueIn = 0;
@@ -1520,26 +1562,10 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
         mapQueuedChanges[hashTx] = CTxIndex(posThisTx, tx.vout.size());
     }
 
-    if (IsProofOfWork())
+    bool rewardValid = Consensus::ValidateReward(pindex, *this, nFees, nStakeReward);
+    if(!rewardValid)
     {
-        int64_t nReward = GetProofOfWorkReward(nFees);
-        // Check coinbase reward
-        if (vtx[0].GetValueOut() > nReward)
-            return DoS(50, error("ConnectBlock() : coinbase reward exceeded (actual=%d vs calculated=%d)",
-                   vtx[0].GetValueOut(),
-                   nReward));
-    }
-    if (IsProofOfStake())
-    {
-        // ppcoin: coin stake tx earns reward instead of paying fee
-        uint64_t nCoinAge;
-        if (!vtx[1].GetCoinAge(txdb, pindex->pprev, nCoinAge))
-            return error("ConnectBlock() : %s unable to get coin age for coinstake", vtx[1].GetHash().ToString());
-
-        int64_t nCalculatedStakeReward = GetProofOfStakeReward(pindex->pprev, nCoinAge, nFees);
-
-        if (nStakeReward > nCalculatedStakeReward)
-            return DoS(100, error("ConnectBlock() : coinstake pays too much(actual=%d vs calculated=%d)", nStakeReward, nCalculatedStakeReward));
+        return rewardValid;
     }
 
     // ppcoin: track money supply and mint amount info
@@ -1972,12 +1998,23 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
         if (vtx[i].IsCoinBase())
             return DoS(100, error("CheckBlock() : more than one coinbase"));
 
+    //Only 10k CRISP payouts allowed per block
+    if(vtx[0].vout.size() > (Params().MaxCoinBaseOutputsPerBlock() + 1))
+        return DoS(100, error("CheckBlock() : too many CRISP outputs"));
+    
+    //only 101 or 102 transactions allowed per block
+    unsigned int reservedTransactionCount = 1; //coinbase tx
     if (IsProofOfStake())
     {
-        // Coinbase output should be empty if proof-of-stake block
-        if (vtx[0].vout.size() != 1 || !vtx[0].vout[0].IsEmpty())
-            return DoS(100, error("CheckBlock() : coinbase output not empty for proof-of-stake block"));
+        reservedTransactionCount++; //coinstake tx
+    }
+    if(vtx.size() > Params().MaxTransactionsPerBlock() + reservedTransactionCount)
+        return DoS(100, error("CheckBlock() : too many transactions"));
+    
+    //check tx count in block
 
+    if (IsProofOfStake())
+    {
         // Second transaction must be coinstake, the rest must not be
         if (vtx.empty() || !vtx[1].IsCoinStake())
             return DoS(100, error("CheckBlock() : second tx is not coinstake"));
@@ -1990,6 +2027,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
     if (fCheckSig && !CheckBlockSignature())
         return DoS(100, error("CheckBlock() : bad proof-of-stake block signature"));
 
+    unsigned int totalInputsAndOutputs = 0;
     // Check transactions
     BOOST_FOREACH(const CTransaction& tx, vtx)
     {
@@ -1999,7 +2037,13 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
         // ppcoin: check transaction timestamp
         if (GetBlockTime() < (int64_t)tx.nTime)
             return DoS(50, error("CheckBlock() : block timestamp earlier than transaction timestamp"));
+
+        if(!tx.IsCoinBase() && !tx.IsCoinStake())
+            totalInputsAndOutputs += tx.vin.size() + tx.vout.size();
     }
+
+    if(totalInputsAndOutputs > Params().MaxInputsAndOutputsPerBlock())
+        return DoS(50, error("CheckBlock() : block has too many total inputs and outputs"));
 
     // Check for duplicate txids. This is caught by ConnectInputs(),
     // but catching it earlier avoids a potential DoS attack:
@@ -2654,7 +2698,7 @@ struct CImportingNow
 
 void ThreadImport(std::vector<boost::filesystem::path> vImportFiles)
 {
-    RenameThread("stratis-loadblk");
+    RenameThread("dnotes-loadblk");
 
     CImportingNow imp;
 

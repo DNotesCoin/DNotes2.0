@@ -71,7 +71,8 @@ public:
         SendToOther,
         RecvWithAddress,
         RecvFromOther,
-        SendToSelf
+        SendToSelf,
+        CRISP,
     };
 
     /** Number of confirmation recommended for accepting a transaction */
@@ -107,6 +108,7 @@ public:
     qint64 time;
     Type type;
     std::string address;
+    std::string invoiceNumber;
     qint64 debit;
     qint64 credit;
     /**@}*/

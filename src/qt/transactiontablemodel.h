@@ -24,7 +24,8 @@ public:
         Date = 1,
         Type = 2,
         ToAddress = 3,
-        Amount = 4
+        InvoiceNumber = 4,
+        Amount = 5
     };
 
     /** Roles to get specific information from a transaction row.
@@ -39,6 +40,8 @@ public:
         LongDescriptionRole,
         /** Address of transaction */
         AddressRole,
+        /** Invoice number of transaction */
+        InvoiceRole,
         /** Label of address related to transaction */
         LabelRole,
         /** Net amount of transaction */
@@ -71,6 +74,7 @@ private:
     QString formatTxDate(const TransactionRecord *wtx) const;
     QString formatTxType(const TransactionRecord *wtx) const;
     QString formatTxToAddress(const TransactionRecord *wtx, bool tooltip) const;
+    QString formatInvoiceNumber(const TransactionRecord *wtx, bool tooltip) const;
     QString formatTxAmount(const TransactionRecord *wtx, bool showUnconfirmed=true) const;
     QString formatTooltip(const TransactionRecord *rec) const;
     QVariant txStatusDecoration(const TransactionRecord *wtx) const;

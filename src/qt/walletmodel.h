@@ -7,6 +7,8 @@
 
 #include "allocators.h" /* for SecureString */
 
+using std::string;
+
 class OptionsModel;
 class AddressTableModel;
 class TransactionTableModel;
@@ -24,8 +26,9 @@ QT_END_NAMESPACE
 
 class SendCoinsRecipient
 {
-public:
+public:;
     QString address;
+    QString invoiceNumber;
     QString label;
     qint64 amount;
 };
@@ -70,7 +73,10 @@ public:
     EncryptionStatus getEncryptionStatus() const;
 
     // Check address for validity
+    bool validateAddress(const string &address);
     bool validateAddress(const QString &address);
+    bool validateCombinedAddress(const QString &combinedAddress);
+
 
     // Return status record for SendCoins, contains error id + information
     struct SendCoinsReturn

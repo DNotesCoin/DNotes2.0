@@ -2,6 +2,7 @@
 #include "ui_sendcoinsentry.h"
 
 #include "guiutil.h"
+#include "invoiceutil.h"
 #include "bitcoinunits.h"
 #include "addressbookpage.h"
 #include "walletmodel.h"
@@ -60,8 +61,13 @@ void SendCoinsEntry::on_payTo_textChanged(const QString &address)
 {
     if(!model)
         return;
+
     // Fill in label from address book, if address has an associated label
-    QString associatedLabel = model->getAddressTableModel()->labelForAddress(address);
+    string addressString = "";
+    string invoiceNumber = "";
+
+    InvoiceUtil::parseInvoiceNumberAndAddress(ui->payTo->text().toStdString(), addressString, invoiceNumber);
+    QString associatedLabel = model->getAddressTableModel()->labelForAddress(QString::fromStdString(addressString));
     if(!associatedLabel.isEmpty())
         ui->addAsLabel->setText(associatedLabel);
 }
@@ -118,7 +124,7 @@ bool SendCoinsEntry::validate()
     }
 
     if(!ui->payTo->hasAcceptableInput() ||
-       (model && !model->validateAddress(ui->payTo->text())))
+       (model && !model->validateCombinedAddress(ui->payTo->text())))
     {
         ui->payTo->setValid(false);
         retval = false;
@@ -131,7 +137,12 @@ SendCoinsRecipient SendCoinsEntry::getValue()
 {
     SendCoinsRecipient rv;
 
-    rv.address = ui->payTo->text();
+    string address = "";
+    string invoiceNumber = "";
+
+    InvoiceUtil::parseInvoiceNumberAndAddress(ui->payTo->text().toStdString(), address, invoiceNumber);
+    rv.address = QString::fromStdString(address);
+    rv.invoiceNumber = QString::fromStdString(invoiceNumber);
     rv.label = ui->addAsLabel->text();
     rv.amount = ui->payAmount->value();
 

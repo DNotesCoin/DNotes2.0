@@ -16,6 +16,7 @@ public:
     State validate(QString &input, int &pos) const;
 
     static const int MaxAddressLength = 35;
+    //static int MaxAddressLengthWithInvoiceNumber = MaxAddressLength + 1 + 32;
 };
 
 #endif // BITCOINADDRESSVALIDATOR_H

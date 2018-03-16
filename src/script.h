@@ -13,6 +13,7 @@
 
 #include <boost/foreach.hpp>
 #include <boost/variant.hpp>
+#include <boost/serialization/variant.hpp>
 
 #include "keystore.h"
 #include "bignum.h"
@@ -95,6 +96,12 @@ class CNoDestination {
 public:
     friend bool operator==(const CNoDestination &a, const CNoDestination &b) { return true; }
     friend bool operator<(const CNoDestination &a, const CNoDestination &b) { return true; }
+    
+    unsigned int GetSerializeSize(int nType, int nVersion) const
+    {
+        return 0;
+    }
+
 };
 
 /** A txout script template with a specific destination. It is either:

@@ -510,7 +510,7 @@ Value getblocktemplate(const Array& params, bool fHelp)
         const Value& modeval = find_value(oparam, "mode");
         if (modeval.type() == str_type)
             strMode = modeval.get_str();
-        else if (modeval.type() == null_type)
+        else if (modeval.type() == json_spirit::null_type)
         {
             /* Do nothing */
         }
@@ -701,11 +701,12 @@ Value submitblock(const Array& params, bool fHelp)
 
 Value setgenerate(const Array& params, bool fHelp)
 {
-    if (fHelp || params.size() < 1 || params.size() > 2)
+    if (fHelp || params.size() < 1 || params.size() > 3)
         throw runtime_error(
-            "setgenerate <generate> [genproclimit]\n"
+            "setgenerate <generate> [genproclimit] [blocksToGenerate]\n"
             "<generate> is true or false to turn generation on or off.\n"
-            "Generation is limited to [genproclimit] processors, -1 is unlimited.");
+            "Generation is limited to [genproclimit] processors, -1 is unlimited.\n"
+            "Generation is limited to [blocksToGenerate] blocks, -1 is unlimited.");
 
     bool fGenerate = true;
     if (params.size() > 0)
@@ -719,8 +720,20 @@ Value setgenerate(const Array& params, bool fHelp)
         if (nGenProcLimit == 0)
             fGenerate = false;
     }
+
+    int nMaxBlocksToGenerate = -1;
+    if (params.size() > 2)
+    {
+        nMaxBlocksToGenerate = params[2].get_int();
+        mapArgs["-blocksToGenerate"] = itostr(nMaxBlocksToGenerate);
+        if (nMaxBlocksToGenerate == 0)
+            fGenerate = false;
+    }
+    if(nMaxBlocksToGenerate == -1)
+        nMaxBlocksToGenerate = INT_MAX;
     mapArgs["-gen"] = (fGenerate ? "1" : "0");
 
-    GenerateBitcoins(fGenerate, pwalletMain, nGenProcLimit);
+
+    GenerateBitcoins(fGenerate, pwalletMain, nGenProcLimit, nMaxBlocksToGenerate);
     return Value::null;
 }

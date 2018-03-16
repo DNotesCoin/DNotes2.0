@@ -1128,8 +1128,8 @@ Acest lucru înseamnă că o taxă de cel puțin %2 este necesară</translation>
     </message>
     <message>
         <location line="+6"/>
-        <source>Optional transaction fee per kB that helps make sure your transactions are processed quickly. Most transactions are 1 kB. Fee 0.05 recommended.</source>
-        <translation>Comision de tranzacție opțional pe kB, care vă ajută ca tranzacțiile sa fie procesate rapid. Majoritatea tranzactiilor sunt de 1 kB. Comision de 0.05 recomandat</translation>
+        <source>Optional transaction fee per kB that helps make sure your transactions are processed quickly. Most transactions are 1 kB. Fee 0.005 recommended.</source>
+        <translation>Comision de tranzacție opțional pe kB, care vă ajută ca tranzacțiile sa fie procesate rapid. Majoritatea tranzactiilor sunt de 1 kB. Comision de 0.005 recomandat</translation>
     </message>
     <message>
         <location line="+15"/>

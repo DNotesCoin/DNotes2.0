@@ -1,4 +1,7 @@
 #include "bitcoinaddressvalidator.h"
+#include "guiutil.h"
+#include "invoiceutil.h"
+
 
 /* Base58 characters are:
      "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
@@ -48,11 +51,16 @@ QValidator::State BitcoinAddressValidator::validate(QString &input, int &pos) co
             ++idx;
     }
 
-    // Validation
+    //split input into address and invoice number
+    string invoiceNumber;
+    string address;
+    InvoiceUtil::parseInvoiceNumberAndAddress(input.toStdString(), address, invoiceNumber);
+
+    // address Validation
     QValidator::State state = QValidator::Acceptable;
-    for(int idx=0; idx<input.size(); ++idx)
+    for(unsigned int idx=0; idx < address.size(); ++idx)
     {
-        int ch = input.at(idx).unicode();
+        int ch = address.at(idx);
 
         if(((ch >= '0' && ch<='9') ||
            (ch >= 'a' && ch<='z') ||
@@ -66,6 +74,14 @@ QValidator::State BitcoinAddressValidator::validate(QString &input, int &pos) co
             state = QValidator::Invalid;
         }
     }
+
+    // invoice # validation
+    if(!InvoiceUtil::validateInvoiceNumber(invoiceNumber))
+    {
+        state = QValidator::Invalid;
+    }
+  
+
 
     // Empty address is "intermediate" input
     if(input.isEmpty())

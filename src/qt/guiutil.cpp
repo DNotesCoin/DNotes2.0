@@ -67,7 +67,8 @@ QFont bitcoinAddressFont()
 
 void setupAddressWidget(QLineEdit *widget, QWidget *parent)
 {
-    widget->setMaxLength(BitcoinAddressValidator::MaxAddressLength);
+    int maxLength = BitcoinAddressValidator::MaxAddressLength + 1 + 32; //DNotes address + '+' + 32 character invoice number
+    widget->setMaxLength(maxLength);
     widget->setValidator(new BitcoinAddressValidator(parent));
     widget->setFont(bitcoinAddressFont());
 }
@@ -84,7 +85,7 @@ void setupAmountWidget(QLineEdit *widget, QWidget *parent)
 bool parseBitcoinURI(const QUrl &uri, SendCoinsRecipient *out)
 {
     // NovaCoin: check prefix
-    if(uri.scheme() != QString("stratis"))
+    if(uri.scheme() != QString("dnotes"))
         return false;
 
     SendCoinsRecipient rv;
@@ -129,13 +130,13 @@ bool parseBitcoinURI(const QUrl &uri, SendCoinsRecipient *out)
 
 bool parseBitcoinURI(QString uri, SendCoinsRecipient *out)
 {
-    // Convert stratis:// to stratis:
+    // Convert dnote:// to dnote:
     //
     //    Cannot handle this later, because bitcoin:// will cause Qt to see the part after // as host,
     //    which will lower-case it (and thus invalidate the address).
-    if(uri.startsWith("stratis://"))
+    if(uri.startsWith("dnote://"))
     {
-        uri.replace(0, 12, "stratis:");
+        uri.replace(0, 12, "dnote:");
     }
     QUrl uriInstance(uri);
     return parseBitcoinURI(uriInstance, out);
@@ -279,7 +280,7 @@ bool ToolTipToRichTextFilter::eventFilter(QObject *obj, QEvent *evt)
 #ifdef WIN32
 boost::filesystem::path static StartupShortcutPath()
 {
-    return GetSpecialFolderPath(CSIDL_STARTUP) / "Stratis.lnk";
+    return GetSpecialFolderPath(CSIDL_STARTUP) / "DNotes.lnk";
 }
 
 bool GetStartOnSystemStartup()
@@ -361,7 +362,7 @@ boost::filesystem::path static GetAutostartDir()
 
 boost::filesystem::path static GetAutostartFilePath()
 {
-    return GetAutostartDir() / "stratis.desktop";
+    return GetAutostartDir() / "dnotes.desktop";
 }
 
 bool GetStartOnSystemStartup()
@@ -402,7 +403,7 @@ bool SetStartOnSystemStartup(bool fAutoStart)
         // Write a bitcoin.desktop file to the autostart directory:
         optionFile << "[Desktop Entry]\n";
         optionFile << "Type=Application\n";
-        optionFile << "Name=Stratis\n";
+        optionFile << "Name=DNotes\n";
         optionFile << "Exec=" << pszExePath << " -min\n";
         optionFile << "Terminal=false\n";
         optionFile << "Hidden=false\n";
@@ -423,10 +424,10 @@ bool SetStartOnSystemStartup(bool fAutoStart) { return false; }
 HelpMessageBox::HelpMessageBox(QWidget *parent) :
     QMessageBox(parent)
 {
-    header = tr("Stratis-Qt") + " " + tr("version") + " " +
+    header = tr("DNotes-Qt") + " " + tr("version") + " " +
         QString::fromStdString(FormatFullVersion()) + "\n\n" +
         tr("Usage:") + "\n" +
-        "  stratis-qt [" + tr("command-line options") + "]                     " + "\n";
+        "  dnotes-qt [" + tr("command-line options") + "]                     " + "\n";
 
     coreOptions = QString::fromStdString(HelpMessage());
 
@@ -435,7 +436,7 @@ HelpMessageBox::HelpMessageBox(QWidget *parent) :
         "  -min                   " + tr("Start minimized") + "\n" +
         "  -splash                " + tr("Show splash screen on startup (default: 1)") + "\n";
 
-    setWindowTitle(tr("Stratis-Qt"));
+    setWindowTitle(tr("DNotes-Qt"));
     setTextFormat(Qt::PlainText);
     // setMinimumWidth is ignored for QMessageBox so put in non-breaking spaces to make it wider.
     setText(header + QString(QChar(0x2003)).repeated(50));

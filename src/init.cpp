@@ -89,7 +89,7 @@ void Shutdown()
     TRY_LOCK(cs_Shutdown, lockShutdown);
     if (!lockShutdown) return;
 
-    RenameThread("stratis-shutoff");
+    RenameThread("dnotes-shutoff");
     mempool.AddTransactionsUpdated(1);
     StopRPCThreads();
 #ifdef ENABLE_WALLET
@@ -160,8 +160,8 @@ std::string HelpMessage()
 {
     string strUsage = _("Options:") + "\n";
     strUsage += "  -?                     " + _("This help message") + "\n";
-    strUsage += "  -conf=<file>           " + _("Specify configuration file (default: stratis.conf)") + "\n";
-    strUsage += "  -pid=<file>            " + _("Specify pid file (default: stratisd.pid)") + "\n";
+    strUsage += "  -conf=<file>           " + _("Specify configuration file (default: dnotes.conf)") + "\n";
+    strUsage += "  -pid=<file>            " + _("Specify pid file (default: dnotesd.pid)") + "\n";
     strUsage += "  -datadir=<dir>         " + _("Specify data directory") + "\n";
     strUsage += "  -wallet=<dir>          " + _("Specify wallet file (within data directory)") + "\n";
     strUsage += "  -dbcache=<n>           " + _("Set database cache size in megabytes (default: 25)") + "\n";
@@ -170,7 +170,7 @@ std::string HelpMessage()
     strUsage += "  -proxy=<ip:port>       " + _("Connect through SOCKS5 proxy") + "\n";
     strUsage += "  -tor=<ip:port>         " + _("Use proxy to reach tor hidden services (default: same as -proxy)") + "\n";
     strUsage += "  -dns                   " + _("Allow DNS lookups for -addnode, -seednode and -connect") + "\n";
-    strUsage += "  -port=<port>           " + _("Listen for connections on <port> (default: 16178 or testnet: 25714)") + "\n";
+    strUsage += "  -port=<port>           " + _("Listen for connections on <port> (default: 11225 or testnet: 25714)") + "\n";
     strUsage += "  -maxconnections=<n>    " + _("Maintain at most <n> connections to peers (default: 125)") + "\n";
     strUsage += "  -addnode=<ip>          " + _("Add a node to connect to and attempt to keep the connection open") + "\n";
     strUsage += "  -connect=<ip>          " + _("Connect only to the specified node(s)") + "\n";
@@ -223,7 +223,7 @@ std::string HelpMessage()
                                                 "solved instantly. This is intended for regression testing tools and app development.") + "\n";
     strUsage += "  -rpcuser=<user>        " + _("Username for JSON-RPC connections") + "\n";
     strUsage += "  -rpcpassword=<pw>      " + _("Password for JSON-RPC connections") + "\n";
-    strUsage += "  -rpcport=<port>        " + _("Listen for JSON-RPC connections on <port> (default: 16174 or testnet: 25715)") + "\n";
+    strUsage += "  -rpcport=<port>        " + _("Listen for JSON-RPC connections on <port> (default: 11226 or testnet: 25715)") + "\n";
     strUsage += "  -rpcallowip=<ip>       " + _("Allow JSON-RPC connections from specified IP address") + "\n";
     if (!fHaveGUI)
     {

@@ -1126,8 +1126,8 @@ This label turns red, if the priority is smaller than &quot;medium&quot;.
     </message>
     <message>
         <location line="+6"/>
-        <source>Optional transaction fee per kB that helps make sure your transactions are processed quickly. Most transactions are 1 kB. Fee 0.05 recommended.</source>
-        <translation>支付可选的交易手续费以加速交易(每kB)。大多数交易的数据量为1kB。推荐额0.05。</translation>
+        <source>Optional transaction fee per kB that helps make sure your transactions are processed quickly. Most transactions are 1 kB. Fee 0.005 recommended.</source>
+        <translation>支付可选的交易手续费以加速交易(每kB)。大多数交易的数据量为1kB。推荐额0.005。</translation>
     </message>
     <message>
         <location line="+15"/>

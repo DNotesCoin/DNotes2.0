@@ -43,13 +43,21 @@ private:
     qint64 currentUnconfirmedBalance;
     qint64 currentImmatureBalance;
 
+    double currentPrice;
+    time_t lastPriceRequested;
+    QString dnotesNews;
+    QString dceBriefNews;
+    time_t lastNewsRequested;
+
     TxViewDelegate *txdelegate;
     TransactionFilterProxy *filter;
 
 private slots:
+    void updateNewsFeeds();
     void updateDisplayUnit();
     void handleTransactionClicked(const QModelIndex &index);
     void updateAlerts(const QString &warnings);
+    QString getFiatLabel(qint64 totalCoins);
 };
 
 #endif // OVERVIEWPAGE_H

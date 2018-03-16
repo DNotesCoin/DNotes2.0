@@ -7,6 +7,7 @@ DEFINES += ENABLE_WALLET
 DEFINES += BOOST_THREAD_USE_LIB BOOST_SPIRIT_THREADSAFE
 CONFIG += no_include_pwd
 CONFIG += thread
+CONFIG += gnu++11
 
 greaterThan(QT_MAJOR_VERSION, 4) {
     QT += widgets
@@ -173,6 +174,9 @@ HEADERS += src/qt/bitcoingui.h \
     src/core.h \
     src/main.h \
     src/miner.h \
+    src/consensus.h \
+    src/crisp.h \
+    src/fs.h \
     src/net.h \
     src/key.h \
     src/db.h \
@@ -193,6 +197,8 @@ HEADERS += src/qt/bitcoingui.h \
     src/json/json_spirit.h \
     src/qt/clientmodel.h \
     src/qt/guiutil.h \
+    src/invoiceutil.h \
+    src/qt/webutil.h \
     src/qt/transactionrecord.h \
     src/qt/guiconstants.h \
     src/qt/optionsmodel.h \
@@ -282,6 +288,9 @@ SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/core.cpp \
     src/main.cpp \
     src/miner.cpp \
+    src/consensus.cpp \
+    src/crisp.cpp \
+    src/fs.cpp \
     src/init.cpp \
     src/net.cpp \
     src/checkpoints.cpp \
@@ -290,6 +299,8 @@ SOURCES += src/qt/bitcoin.cpp src/qt/bitcoingui.cpp \
     src/walletdb.cpp \
     src/qt/clientmodel.cpp \
     src/qt/guiutil.cpp \
+    src/invoiceutil.cpp \
+    src/qt/webutil.cpp \
     src/qt/transactionrecord.cpp \
     src/qt/optionsmodel.cpp \
     src/qt/monitoreddatamapper.cpp \
@@ -441,7 +452,7 @@ INCLUDEPATH += $$BOOST_INCLUDE_PATH $$BDB_INCLUDE_PATH $$OPENSSL_INCLUDE_PATH $$
 LIBS += $$join(BOOST_LIB_PATH,,-L,) $$join(BDB_LIB_PATH,,-L,) $$join(OPENSSL_LIB_PATH,,-L,) $$join(QRENCODE_LIB_PATH,,-L,)
 LIBS += -lssl -lcrypto -ldb_cxx$$BDB_LIB_SUFFIX
 # -lgdi32 has to happen after -lcrypto (see  #681)
-windows:LIBS += -lws2_32 -lshlwapi -lmswsock -lole32 -loleaut32 -luuid -lgdi32
+windows:LIBS += -lws2_32 -lshlwapi -lmswsock -lole32 -loleaut32 -luuid -lgdi32 -pthread
 LIBS += -lboost_system$$BOOST_LIB_SUFFIX -lboost_filesystem$$BOOST_LIB_SUFFIX -lboost_program_options$$BOOST_LIB_SUFFIX -lboost_thread$$BOOST_THREAD_LIB_SUFFIX
 windows:LIBS += -lboost_chrono$$BOOST_LIB_SUFFIX
 

@@ -52,10 +52,10 @@ bool AppInit(int argc, char* argv[])
             // First part of help message is specific to bitcoind / RPC client
             std::string strUsage = _("DNotes version") + " " + FormatFullVersion() + "\n\n" +
                 _("Usage:") + "\n" +
-                  "  stratisd [options]                     " + "\n" +
-                  "  stratisd [options] <command> [params]  " + _("Send command to -server or stratisd") + "\n" +
-                  "  stratisd [options] help                " + _("List commands") + "\n" +
-                  "  stratisd [options] help <command>      " + _("Get help for a command") + "\n";
+                  "  dnotesd [options]                     " + "\n" +
+                  "  dnotesd [options] <command> [params]  " + _("Send command to -server or dnotesd") + "\n" +
+                  "  dnotesd [options] help                " + _("List commands") + "\n" +
+                  "  dnotesd [options] help <command>      " + _("Get help for a command") + "\n";
 
             strUsage += "\n" + HelpMessage();
 
@@ -65,7 +65,7 @@ bool AppInit(int argc, char* argv[])
 
         // Command-line RPC
         for (int i = 1; i < argc; i++)
-            if (!IsSwitchChar(argv[i][0]) && !boost::algorithm::istarts_with(argv[i], "stratis:"))
+            if (!IsSwitchChar(argv[i][0]) && !boost::algorithm::istarts_with(argv[i], "dnotes:"))
                 fCommandLine = true;
 
         if (fCommandLine)

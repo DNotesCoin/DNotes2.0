@@ -44,7 +44,7 @@ static const unsigned int DEFAULT_MAX_ORPHAN_BLOCKS = 40;
 /** The maximum number of entries in an 'inv' protocol message */
 static const unsigned int MAX_INV_SZ = 50000;
 /** Fees smaller than this (in satoshi) are considered zero fee (for transaction creation) */
-static const int64_t MIN_TX_FEE = 50000;
+static const int64_t MIN_TX_FEE = 500000;
 /** Fees smaller than this (in satoshi) are considered zero fee (for relaying) */
 static const int64_t MIN_RELAY_TX_FEE = MIN_TX_FEE;
 /** No amount larger than this (in satoshi) is valid */
@@ -57,7 +57,7 @@ static const int64_t COIN_YEAR_REWARD = 1 * CENT; // 1% per year - does this nee
 
 inline bool IsProtocolV1RetargetingFixed(int nHeight) { return TestNet() || nHeight > 0; }
 inline bool IsProtocolV2(int nHeight) { return TestNet() || nHeight > 0; }
-inline bool IsProtocolV3(int64_t nTime) { return TestNet() || nTime > 1470467000; }
+inline bool IsProtocolV3(int64_t nTime) { return TestNet() || nTime > 0; }
 
 inline bool IsDriftReduced(int64_t nTime) { return TestNet() || nTime > 1479513600; } // Drifting Bug Fix, hardfork on Sat, 19 Nov 2016 00:00:00 GMT
 
@@ -329,7 +329,8 @@ public:
             filein >> *this;
         }
         catch (std::exception &e) {
-            return error("%s() : deserialize or I/O error", __PRETTY_FUNCTION__);
+            return error("%s() : deserialize or I/O error.", __PRETTY_FUNCTION__);
+            //return error("%s() : deserialize or I/O error. Exception: %s. Current transaction: %s", __PRETTY_FUNCTION__, e.what(), this->ToString());
         }
 
         // Return file pointer
@@ -596,9 +597,15 @@ public:
     unsigned int nBits;
     unsigned int nNonce;
 
+    //Running tally of addresses and their balance on the blockchain for use in CRISP calculations.
+    //Only hydrated in every nCRISPPayoutInterval blocks.
+    //is valid thru the end of block height: block's height - nCRISPPayoutLag - 1
+    //needs to be serialized for network and disk.
+    std::map<CTxDestination, int64_t> addressBalances; 
+
     // network and disk
     std::vector<CTransaction> vtx;
-
+    
     // ppcoin: block signature - signed by one of the coin base txout[N]'s owner
     std::vector<unsigned char> vchBlockSig;
 
@@ -623,6 +630,7 @@ public:
         READWRITE(nTime);
         READWRITE(nBits);
         READWRITE(nNonce);
+        READWRITE(addressBalances);
 
         // ConnectBlock depends on vtx following header to generate CDiskTxPos
         if (!(nType & (SER_GETHASH|SER_BLOCKHEADERONLY)))
@@ -646,6 +654,7 @@ public:
         nBits = 0;
         nNonce = 0;
         vtx.clear();
+        addressBalances.clear();
         vchBlockSig.clear();
         vMerkleTree.clear();
         nDoS = 0;
@@ -818,13 +827,14 @@ public:
     std::string ToString() const
     {
         std::stringstream s;
-        s << strprintf("CBlock(hash=%s, ver=%d, hashPrevBlock=%s, hashMerkleRoot=%s, nTime=%u, nBits=%08x, nNonce=%u, vtx=%u, vchBlockSig=%s)\n",
+        s << strprintf("CBlock(hash=%s, ver=%d, hashPrevBlock=%s, hashMerkleRoot=%s, nTime=%u, nBits=%08x, nNonce=%u, vtx=%u, addressBalances=%u, vchBlockSig=%s)\n",
             GetHash().ToString(),
             nVersion,
             hashPrevBlock.ToString(),
             hashMerkleRoot.ToString(),
             nTime, nBits, nNonce,
             vtx.size(),
+            addressBalances.size(),
             HexStr(vchBlockSig.begin(), vchBlockSig.end()));
         for (unsigned int i = 0; i < vtx.size(); i++)
         {
