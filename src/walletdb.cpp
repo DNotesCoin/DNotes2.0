@@ -11,6 +11,7 @@
 #include "sync.h"
 #include "wallet.h"
 
+
 #include <boost/filesystem.hpp>
 
 #include <boost/foreach.hpp>
@@ -745,6 +746,7 @@ bool BackupWallet(const CWallet& wallet, const string& strDest)
                     pathDest /= wallet.strWalletFile;
 
                 try {
+                    filesystem::copy_file(pathSrc, pathDest);
                     /*
 #if BOOST_VERSION >= 104000
                     filesystem::copy_file(pathSrc, pathDest, filesystem::copy_option::overwrite_if_exists);
