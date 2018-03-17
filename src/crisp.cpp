@@ -135,18 +135,18 @@ std::map<CTxDestination, int64_t> AddCRISPPayouts(int currentBlockHeight, CTrans
             }
 
             //trim 0 balances from list
-            std::map<CTxDestination, int64_t>::iterator it3 = currentBalances.begin();
-            while (it3 != currentBalances.end())
+            //std::map<CTxDestination, int64_t>::iterator it3 = currentBalances.begin();
+            for (std::map<CTxDestination, int64_t>::iterator it3 = currentBalances.begin(); it3 != currentBalances.end() /* not hoisted */; /* no increment */)
             {
                 int64_t value = it3->second;
                 if(value == 0)
                 {
-                    currentBalances.erase(it3);
-                }
-                else
-                {
-                    it3++;
-                }
+                currentBalances.erase(it3++);    // or "it = m.erase(it)" since C++11
+              }
+              else
+              {
+                ++it3;
+              }
             }
 
             return currentBalances; //am i using the right parameter and return types? * vs & vs normal?
