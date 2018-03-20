@@ -46,8 +46,7 @@ set<pair<COutPoint, unsigned int> > setStakeSeen;
 CBigNum bnProofOfStakeLimit(~uint256(0) >> 20);
 CBigNum bnProofOfStakeLimitV2(~uint256(0) >> 48);
 
-int nStakeMinConfirmations = 10;
-unsigned int nStakeMinAge = 60; // 8 hours. DNote -> Obsolete in V3, now use nStakeMinconfirmations. Used to be involved in coin age calculations for coin age staking.
+unsigned int nStakeMinAge = 60; // 8 hours. DNote -> Obsolete in V3, now use nCoinbaseMaturity. Used to be involved in coin age calculations for coin age staking.
 unsigned int nModifierInterval = 10 * 60; // time to elapse before new modifier is computed
 
 int nCoinbaseMaturity = 50;
@@ -1874,7 +1873,7 @@ bool CTransaction::GetCoinAge(CTxDB& txdb, const CBlockIndex* pindexPrev, uint64
         if (IsProtocolV3(nTime))
         {
             int nSpendDepth;
-            if (IsConfirmedInNPrevBlocks(txindex, pindexPrev, nStakeMinConfirmations - 1, nSpendDepth))
+            if (IsConfirmedInNPrevBlocks(txindex, pindexPrev, nCoinbaseMaturity - 1, nSpendDepth))
             {
                 LogPrint("coinage", "coin age skip nSpendDepth=%d\n", nSpendDepth + 1);
                 continue; // only count coins meeting min confirmations requirement
@@ -2511,12 +2510,6 @@ FILE* AppendBlockFile(unsigned int& nFileRet)
 bool LoadBlockIndex(bool fAllowNew)
 {
     LOCK(cs_main);
-
-    if (TestNet())
-    {
-        nStakeMinConfirmations = 10;
-        nCoinbaseMaturity = 10; // test maturity is 10 blocks
-    }
 
     //
     // Load block index
