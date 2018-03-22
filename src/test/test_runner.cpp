@@ -34,6 +34,10 @@ void SetupDatabase()
     LoadBlockIndex();
 }
 
+void CleanupDatabase()
+{
+}
+
 void SetupWallet()
 {
     std::string strWalletFileName = "wallet.dat";
@@ -43,6 +47,8 @@ void SetupWallet()
 
 void CleanupWallet()
 {
+    UnregisterWallet(ptestWallet);
+    bitdb.Flush(true);
     delete ptestWallet;
     ptestWallet = NULL;
 }
@@ -50,16 +56,17 @@ void CleanupWallet()
 struct TestingSetup {
     TestingSetup() {
         SelectParams(CChainParams::REGTEST);
-        //CreateTestFolders();
-        //SetupDatabase();
-        //SetupWallet();
+        CreateTestFolders();
+        SetupDatabase();
+        SetupWallet();
 
-        fPrintToConsole = true;
+        //fPrintToConsole = true;
     }
     ~TestingSetup()
     {
-        //CleanupWallet();
-        //DeleteTestFolders();
+        CleanupDatabase();
+        CleanupWallet();
+        DeleteTestFolders();
     }
 };
 
@@ -68,6 +75,22 @@ BOOST_GLOBAL_FIXTURE(TestingSetup);
 void Shutdown(void* parg)
 {
   exit(0);
+}
+
+std::string string_to_hex(const std::string& input)
+{
+    static const char* const lut = "0123456789ABCDEF";
+    size_t len = input.length();
+
+    std::string output;
+    output.reserve(2 * len);
+    for (size_t i = 0; i < len; ++i)
+    {
+        const unsigned char c = input[i];
+        output.push_back(lut[c >> 4]);
+        output.push_back(lut[c & 15]);
+    }
+    return "0x" + output;
 }
 
 //void StartShutdown()
