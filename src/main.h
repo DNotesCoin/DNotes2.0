@@ -61,14 +61,10 @@ inline bool IsProtocolV3(int64_t nTime) { return TestNet() || nTime > 0; }
 
 inline bool IsDriftReduced(int64_t nTime) { return TestNet() || nTime > 1479513600; } // Drifting Bug Fix, hardfork on Sat, 19 Nov 2016 00:00:00 GMT
 
-inline int64_t TestingDrift(int64_t nTime) { return nTime + 128 * 60 * 60; }
-inline int64_t MainNetDrift(int64_t nTime) { return nTime + 15; }
-
-inline int64_t FutureDriftV1(int64_t nTime) { return nTime + 10 * 60; }
-inline int64_t FutureDriftV2(int64_t nTime) {
-	return IsDriftReduced(nTime) ? MainNetDrift(nTime) : TestingDrift(nTime);
-}
-inline int64_t FutureDrift(int64_t nTime, int nHeight) { return IsProtocolV2(nHeight) ? FutureDriftV2(nTime) : FutureDriftV1(nTime); }
+//DNotes 2.0 - increasing future drift from 15 seconds to 600 seconds. 
+//Exposes the proof of stake system to more proof-of-work, but is needed for blocks that take a long time to build (CRISP blocks)
+//see https://talk.peercoin.net/t/pillows-peercoin-myths/2518/48#msg27924 for more details
+inline int64_t FutureDrift(int64_t nTime) { return  nTime + 10 * 60; }
 
 inline unsigned int GetTargetSpacing(int nHeight) { return IsProtocolV2(nHeight) ? 64 : 60; }
 
