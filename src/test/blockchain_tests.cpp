@@ -40,7 +40,7 @@ void addBlocksToChain(int toBlockHeight)
                         }
 
                         ++pblock->nNonce;
-                        if (pblock->nTime > FutureDrift((int64_t)pblock->vtx[0].nTime, currentHeight))
+                        if (pblock->nTime > FutureDrift((int64_t)pblock->vtx[0].nTime))
                         {
                                 break; //coinbase timestamp vs block timestamp will be out of sync and cause the block to be rejected, so we must regenerate it occasionally.
                         }

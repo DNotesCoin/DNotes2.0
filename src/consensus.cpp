@@ -10,13 +10,23 @@ namespace Consensus
 
 bool ValidateReward(CBlockIndex *proposedBlockIndex, CBlock &proposedBlock, int64_t fees, int64_t stakeReward)
 {
+    bool makeCRISPPayouts;
     bool makeCRISPCatchupPayouts;
+    bool addAddressBalances;
+    bool addCatchupAddressBalances;
 
-    if (CRISP::BlockShouldHaveCRISPPayouts(proposedBlockIndex->nHeight, makeCRISPCatchupPayouts))
+    makeCRISPPayouts = CRISP::BlockShouldHaveCRISPPayouts(proposedBlockIndex->nHeight, makeCRISPCatchupPayouts);
+    addAddressBalances = CRISP::BlockShouldHaveAddressBalances(proposedBlockIndex->nHeight, addCatchupAddressBalances);
+    
+    CTransaction calculatedCRISPCoinbase = CTransaction();
+    std::map<CTxDestination, int64_t> calculatedAddressBalances;
+    if(makeCRISPPayouts || addAddressBalances )
     {
-        CTransaction calculatedCRISPCoinbase = CTransaction();
-        std::map<CTxDestination, int64_t> calculatedAddressBalances;
         calculatedAddressBalances = CRISP::AddCRISPPayouts(proposedBlockIndex->nHeight, calculatedCRISPCoinbase);
+    }
+
+    if (makeCRISPPayouts)
+    {
         CTransaction proposedCRISPCoinbase = proposedBlock.vtx[0];
 
         //add extra output for coinbase reward
@@ -57,35 +67,28 @@ bool ValidateReward(CBlockIndex *proposedBlockIndex, CBlock &proposedBlock, int6
                 }
             }
         }
+    }
 
-        if (makeCRISPCatchupPayouts)
+    if(addAddressBalances)
+    {
+        //validate our calculated addressBalances match the proposed block's
+        if (calculatedAddressBalances.size() != proposedBlock.addressBalances.size())
         {
-            if (proposedBlock.addressBalances.size() != 0)
-            {
-                return proposedBlock.DoS(50, error("ConnectBlock() : addressBalance should be empty for non CRISP Blocks."));
-            }
+            return proposedBlock.DoS(50, error("ConnectBlock() : addressBalance invalid."));
         }
-        else
+
+        std::map<CTxDestination, int64_t>::iterator it = calculatedAddressBalances.begin();
+        while (it != calculatedAddressBalances.end())
         {
-            //validate our calculated addressBalances match the proposed block's
-            if (calculatedAddressBalances.size() != proposedBlock.addressBalances.size())
+            CTxDestination address = it->first;
+            int64_t payoutAmount = it->second;
+
+            if (proposedBlock.addressBalances[address] != payoutAmount) //more robust?
             {
-                return proposedBlock.DoS(50, error("ConnectBlock() : addressBalance invalid."));
+                return proposedBlock.DoS(50, error("ConnectBlock() : coinbase CRISP Payout invalid."));
             }
 
-            std::map<CTxDestination, int64_t>::iterator it = calculatedAddressBalances.begin();
-            while (it != calculatedAddressBalances.end())
-            {
-                CTxDestination address = it->first;
-                int64_t payoutAmount = it->second;
-
-                if (proposedBlock.addressBalances[address] != payoutAmount) //more robust?
-                {
-                    return proposedBlock.DoS(50, error("ConnectBlock() : coinbase CRISP Payout invalid."));
-                }
-
-                it++;
-            }
+            it++;
         }
     }
     else

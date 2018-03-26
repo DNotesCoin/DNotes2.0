@@ -130,15 +130,12 @@ public:
         nCRISPPayoutInterval = 60 * 24 * 30; //43200 minutes in 30 days
         nCRISPPayoutLag = 60 * 24 * 7; //10080 minutes in 30 days
         nMaxCoinBaseOutputsPerBlock = 10000;
+        nMaxAddressBalancesPerBlock = 10000;
         nMaxTransactionsPerBlock = 100;
         nMaxInputsAndOutputsPerBlock = 300;
         nMaxInputsAndOutputsPerTransaction = 50;
         nCRISPPayoutPercentage = .005; //half a percent, paid out roughly monthly
-
-        //prototype build values
-        nCRISPPayoutInterval = 1440;
-        nCRISPPayoutLag = 60;
-    }
+     }
 
     virtual const CBlock& GenesisBlock() const { return genesis; }
     virtual Network NetworkID() const { return CChainParams::MAIN; }
@@ -185,6 +182,10 @@ public:
 
         vFixedSeeds.clear();
         vSeeds.clear();
+
+        vSeeds.push_back(CDNSSeedData("Seednode1", "dnotesdevlinux1.southcentralus.cloudapp.azure.com"));
+        vSeeds.push_back(CDNSSeedData("Seednode1", "dnotesdevlinux4.southcentralus.cloudapp.azure.com"));
+        
         //vSeeds.push_back(CDNSSeedData("stratisplatform.com", "testnode1.stratisplatform.com"));
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 65); // stratis test net start with T
@@ -201,6 +202,7 @@ public:
         nCRISPPayoutLag = 6;
 
         //for testing
+        nMaxAddressBalancesPerBlock = 10;
         nMaxCoinBaseOutputsPerBlock = 10;
     }
     virtual Network NetworkID() const { return CChainParams::TESTNET; }
@@ -235,6 +237,7 @@ public:
         fPOWNoRetargeting = true;
 
         //for testing
+        nMaxAddressBalancesPerBlock = 5;
         nMaxCoinBaseOutputsPerBlock = 5;
     }
 

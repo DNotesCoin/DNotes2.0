@@ -133,6 +133,46 @@ BOOST_AUTO_TEST_CASE(serialize_block)
         BOOST_CHECK(block.addressBalances[addr1] == newBlock.addressBalances[addr1]);
 }
 
+BOOST_AUTO_TEST_CASE(serialize_block_max_size)
+{
+        CBlock block = CBlock();
+        block.nTime = 123;
+        block.nNonce = 567;
+        block.nBits = 345345345;
+
+        for(int i = 1; i <= 10000; i++)
+        {
+            CTxDestination addr1 = CKeyID(uint160(i));
+            block.addressBalances[addr1] = 1234567890123;
+        }
+
+        //needs proper transaction inputs and ouputs
+
+        for(int i = 1; i <= 100; i++)
+        {
+            CTransaction tx = CTransaction();
+            tx.nTime = 123;
+
+            CTxIn input = CTxIn();
+            input.nSequence = 678;
+
+            CTxOut output = CTxOut();
+            output.nValue = 1234;
+
+            tx.vin.push_back(input);
+            tx.vout.push_back(output);
+
+            block.vtx.push_back(tx);
+        }
+
+        BOOST_TEST_MESSAGE(::GetSerializeSize(block, SER_DISK, CLIENT_VERSION));
+
+        std::stringstream ss;
+        block.Serialize(ss, 1, 1);
+        
+        BOOST_TEST_MESSAGE(ss.str().length());
+}
+
 BOOST_AUTO_TEST_CASE(serialize_block_test_byte_offsets)
 {
         CBlock block = CBlock();
