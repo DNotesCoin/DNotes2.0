@@ -1016,8 +1016,11 @@ static CBigNum GetProofOfStakeLimit(int nHeight)
 // miner's coin base reward
 int64_t GetProofOfWorkReward(int64_t nFees)
 {
-    //destroy transaction fees
-	int64_t PreMine = 131000000 * COIN; //Approx outstanding DNotes as of 1/19/2018
+    //transaction fees are destroyed
+    
+    //outstanding dnotes 1.2 as of 4/16/2018 (projected) 
+    //  + 20M for Dnotes Global, Inc for Development & Growth Fund
+	int64_t PreMine = 153574552 * COIN; 
     if(pindexBest->nHeight == 1){
         return PreMine;
     } else{
