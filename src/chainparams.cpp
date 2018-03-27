@@ -88,28 +88,28 @@ public:
         //    CTxIn(COutPoint(0000000000, 4294967295), coinbase 00012a24323020466562203230313420426974636f696e2041544d7320636f6d6520746f20555341)
         //    CTxOut(empty)
         //  vMerkleTree: 12630d16a9
-        const char* pszTimestamp = "WaPo-Jan/9/2018-Oprah might run for president we did the opposition research for you";
+        const char* pszTimestamp = "Reuters-Mar/26/2018-U.S.,EU to expel more than 100 Russian diplomats over UK nerve attack";
         std::vector<CTxIn> vin;
         vin.resize(1);
         vin[0].scriptSig = CScript() << 0 << CBigNum(42) << vector<unsigned char>((const unsigned char*)pszTimestamp, (const unsigned char*)pszTimestamp + strlen(pszTimestamp));
         std::vector<CTxOut> vout;
         vout.resize(1);
         vout[0].SetEmpty();
-        CTransaction txNew(1, 1516038631, vin, vout, 0);
+        CTransaction txNew(1, 1522091847, vin, vout, 0);
         genesis.vtx.push_back(txNew);
         genesis.hashPrevBlock = 0;
         genesis.hashMerkleRoot = genesis.BuildMerkleTree();
         genesis.nVersion = 1;
-        genesis.nTime    = 1516038631;
+        genesis.nTime    = 1522091847;
         genesis.nBits    = bnProofOfWorkLimit.GetCompact();
-        genesis.nNonce   = 4330840;
+        genesis.nNonce   = 7407050;
 
         hashGenesisBlock = genesis.GetHash();
-/*
+
         //MineGenesis(genesis);
-        assert(hashGenesisBlock         ==    uint256("0x000003c46833812730e49548895a98a9e91b9f2c9005895774468354c4fb87dc"));
-        assert(genesis.hashMerkleRoot   ==    uint256("0x7e97a6680715cd4cac7b1df84e45ecc8a2ce6719b03829ac5062eea7b7a5b301"));
-*/
+        assert(hashGenesisBlock         ==    uint256("0x00001123368370feb0997f471423e4445be205b9947e7053c762886317274d2a"));
+        assert(genesis.hashMerkleRoot   ==    uint256("0xb73886f7ac4c55766d661049b166475eb1946f5b9c0ed7a566e0c13d9221d471"));
+
         vFixedSeeds.clear();
         vSeeds.clear();
 
@@ -130,15 +130,12 @@ public:
         nCRISPPayoutInterval = 60 * 24 * 30; //43200 minutes in 30 days
         nCRISPPayoutLag = 60 * 24 * 7; //10080 minutes in 30 days
         nMaxCoinBaseOutputsPerBlock = 10000;
+        nMaxAddressBalancesPerBlock = 10000;
         nMaxTransactionsPerBlock = 100;
         nMaxInputsAndOutputsPerBlock = 300;
         nMaxInputsAndOutputsPerTransaction = 50;
         nCRISPPayoutPercentage = .005; //half a percent, paid out roughly monthly
-
-        //prototype build values
-        nCRISPPayoutInterval = 1440;
-        nCRISPPayoutLag = 60;
-    }
+     }
 
     virtual const CBlock& GenesisBlock() const { return genesis; }
     virtual Network NetworkID() const { return CChainParams::MAIN; }
@@ -175,16 +172,20 @@ public:
         strDataDir = "testnet";
         // Modify the testnet genesis block so the timestamp is valid for a later start.
         genesis.nBits  = bnProofOfWorkLimit.GetCompact();
-        genesis.nNonce = 4032360;
+        genesis.nNonce = 4509945;
         genesis.nTime    = 1493909211;
   
         hashGenesisBlock = genesis.GetHash();
         
         //MineGenesis(genesis);
-        assert(hashGenesisBlock == uint256("0x00001459df174dff0ae96c2ead250581a8502a3d84e16e0042a7a4dfd61d69b3"));
+        assert(hashGenesisBlock == uint256("0x00000089c09ef97712b7bde5994e6eb1c6f237cc119a86b77b92c28ef411e2f2"));
 
         vFixedSeeds.clear();
         vSeeds.clear();
+
+        vSeeds.push_back(CDNSSeedData("Seednode1", "dnotesdevlinux1.southcentralus.cloudapp.azure.com"));
+        vSeeds.push_back(CDNSSeedData("Seednode1", "dnotesdevlinux4.southcentralus.cloudapp.azure.com"));
+        
         //vSeeds.push_back(CDNSSeedData("stratisplatform.com", "testnode1.stratisplatform.com"));
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 65); // stratis test net start with T
@@ -201,6 +202,7 @@ public:
         nCRISPPayoutLag = 6;
 
         //for testing
+        nMaxAddressBalancesPerBlock = 10;
         nMaxCoinBaseOutputsPerBlock = 10;
     }
     virtual Network NetworkID() const { return CChainParams::TESTNET; }
@@ -221,12 +223,13 @@ public:
         bnProofOfWorkLimit = CBigNum(~uint256(0) >> 1);
         genesis.nTime = 1411111111;
         genesis.nBits  = bnProofOfWorkLimit.GetCompact();
-        genesis.nNonce = 3084627;
+        genesis.nNonce = 3349636;
         hashGenesisBlock = genesis.GetHash();
         nDefaultPort = 18444;
         strDataDir = "regtest";
+        
         //MineGenesis(genesis);
-        assert(hashGenesisBlock == uint256("0x0000074d707edc8763d1f1a295f474e59a8e827d73b150bef1611279c08fc068"));
+        assert(hashGenesisBlock == uint256("0x00000ee61e8f9ce29956ecc49e8e9543c0c02262f5ae631e5d86603b9f3277f1"));
 
         vSeeds.clear();  // Regtest mode doesn't have any DNS seeds.
 
@@ -235,6 +238,7 @@ public:
         fPOWNoRetargeting = true;
 
         //for testing
+        nMaxAddressBalancesPerBlock = 5;
         nMaxCoinBaseOutputsPerBlock = 5;
     }
 

@@ -35,6 +35,29 @@ bool PreviousBlockHadMaximumCRISPPayouts()
     return false;
 }
 
+bool PreviousBlockHadMaximumAddressBalances()
+{
+    CBlock block;
+    if (hashBestChain != 0)
+    {
+        CBlockIndex *pblockindex = mapBlockIndex[hashBestChain];
+        if (pblockindex != NULL)
+        {
+            uint256 hash = *pblockindex->phashBlock;
+
+            pblockindex = mapBlockIndex[hash];
+            block.ReadFromDisk(pblockindex, true);
+
+            if (block.addressBalances.size() == Params().MaxAddressBalancesPerBlock())
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 bool BlockShouldHaveCRISPPayouts(int currentBlockHeight, bool &makeCRISPCatchupPayouts)
 {
     makeCRISPCatchupPayouts = false;
@@ -55,28 +78,52 @@ bool BlockShouldHaveCRISPPayouts(int currentBlockHeight, bool &makeCRISPCatchupP
     return makeCRISPPayouts;
 }
 
+bool BlockShouldHaveAddressBalances(int currentBlockHeight, bool &addCatchupAddressBalances)
+{
+    addCatchupAddressBalances = false;
+    bool addAddressBalances = false;
+    bool previousBlockHadMaximumAddressBalances = PreviousBlockHadMaximumAddressBalances();
+
+    //add address balances every CRISPPayoutInterval blocks
+    if (currentBlockHeight > Params().CRISPPayoutInterval() && currentBlockHeight % Params().CRISPPayoutInterval() == Params().CRISPPayoutLag())
+    {
+        addAddressBalances = true;
+    }
+    else if (previousBlockHadMaximumAddressBalances)
+    {
+        addAddressBalances = true;
+        addCatchupAddressBalances = true;
+    }
+
+    return addAddressBalances;
+}
+
 std::map<CTxDestination, int64_t> AddCRISPPayouts(int currentBlockHeight, CTransaction &coinbaseTransaction)
 {
     bool makeCRISPCatchupPayouts = false;
+    bool addCatchupAddressBalances = false;
     bool makeCRISPPayouts = BlockShouldHaveCRISPPayouts(currentBlockHeight, makeCRISPCatchupPayouts);
+    bool addAddressBalances = BlockShouldHaveAddressBalances(currentBlockHeight, addCatchupAddressBalances);
+   
+    int crispPayoutBlockHeight = currentBlockHeight;
+    int deltaStartingHeight, deltaEndingHeight;
+    std::map<CTxDestination, int64_t> matureBalanceDeltas;
+    std::map<CTxDestination, int64_t> fullBalanceDeltas;
+    std::map<CTxDestination, int64_t> startingBalances;
+    if(makeCRISPPayouts || addAddressBalances)
+    {
+        //if we're catching up, determine the original block that the payouts should have been for
+        crispPayoutBlockHeight = currentBlockHeight - (currentBlockHeight % Params().CRISPPayoutInterval() - Params().CRISPPayoutLag());
+
+        deltaStartingHeight = crispPayoutBlockHeight - Params().CRISPPayoutInterval() - Params().CRISPPayoutLag();
+        deltaEndingHeight = crispPayoutBlockHeight - Params().CRISPPayoutLag() - 1;
+        startingBalances = GetStartingAddressBalances(crispPayoutBlockHeight);
+        CalculateAddressBalanceDeltas(deltaStartingHeight, deltaEndingHeight, fullBalanceDeltas, matureBalanceDeltas);
+    }
 
     if (makeCRISPPayouts)
     {
-        int crispPayoutBlockHeight = currentBlockHeight;
-        if (makeCRISPCatchupPayouts)
-        {
-            //if we're catching up, determine the original block that the payouts should have been for
-            crispPayoutBlockHeight = currentBlockHeight - (currentBlockHeight % Params().CRISPPayoutInterval() - Params().CRISPPayoutLag());
-        }
-
-        std::map<CTxDestination, int64_t> startingBalances = GetStartingAddressBalances(crispPayoutBlockHeight);
-
-        int deltaStartingHeight, deltaEndingHeight;
-        deltaStartingHeight = crispPayoutBlockHeight - Params().CRISPPayoutInterval() - Params().CRISPPayoutLag();
-        deltaEndingHeight = crispPayoutBlockHeight - Params().CRISPPayoutLag() - 1;
-        std::map<CTxDestination, int64_t> matureBalanceDeltas;
-        std::map<CTxDestination, int64_t> fullBalanceDeltas;
-        CalculateAddressBalanceDeltas(deltaStartingHeight, deltaEndingHeight, fullBalanceDeltas, matureBalanceDeltas);
+      
         std::map<CTxDestination, int64_t> payouts = CalculateAddressPayouts(startingBalances, matureBalanceDeltas);
 
         //iterate through payouts to build vouts for each (up to maximum)
@@ -106,60 +153,84 @@ std::map<CTxDestination, int64_t> AddCRISPPayouts(int currentBlockHeight, CTrans
         //Note on order:
         //  maps are sorted by the key using the < operator by default, and the variant CTxDestination has an implemented < operator
         //  so the payouts are sorted by address
-
-        //return address balances to store in the block
-        if (!makeCRISPCatchupPayouts)
-        {
-            std::map<CTxDestination, int64_t> currentBalances;
-            //combine initial balance and delta and store that value into the block (if we're not playing catchup)
-            //TODO: is the balance delta the right number to add to address balances?
-
-            std::map<CTxDestination, int64_t>::iterator it1 = startingBalances.begin();
-            while (it1 != startingBalances.end())
-            {
-                CTxDestination address = it1->first;
-                int64_t value = it1->second;
-
-                currentBalances[address] += value;
-                it1++;
-            }
-
-            std::map<CTxDestination, int64_t>::iterator it2 = fullBalanceDeltas.begin();
-            while (it2 != fullBalanceDeltas.end())
-            {
-                CTxDestination address = it2->first;
-                int64_t value = it2->second;
-
-                currentBalances[address] += value;
-                it2++;
-            }
-
-            //trim 0 balances from list
-            //std::map<CTxDestination, int64_t>::iterator it3 = currentBalances.begin();
-            for (std::map<CTxDestination, int64_t>::iterator it3 = currentBalances.begin(); it3 != currentBalances.end() /* not hoisted */; /* no increment */)
-            {
-                int64_t value = it3->second;
-                if(value == 0)
-                {
-                currentBalances.erase(it3++);    // or "it = m.erase(it)" since C++11
-              }
-              else
-              {
-                ++it3;
-              }
-            }
-
-            return currentBalances; //am i using the right parameter and return types? * vs & vs normal?
-        }
     }
 
-    std::map<CTxDestination, int64_t> currentBalances;
-    return currentBalances;
+    //return address balances to store in the block
+    if (addAddressBalances)
+    {
+        std::map<CTxDestination, int64_t> currentBalances;
+        //combine initial balance and delta and store that value into the block
+
+        std::map<CTxDestination, int64_t>::iterator it1 = startingBalances.begin();
+        while (it1 != startingBalances.end())
+        {
+            CTxDestination address = it1->first;
+            int64_t value = it1->second;
+
+            currentBalances[address] += value;
+            it1++;
+        }
+
+        std::map<CTxDestination, int64_t>::iterator it2 = fullBalanceDeltas.begin();
+        while (it2 != fullBalanceDeltas.end())
+        {
+            CTxDestination address = it2->first;
+            int64_t value = it2->second;
+
+            currentBalances[address] += value;
+            it2++;
+        }
+
+        //trim 0 balances from list
+        //std::map<CTxDestination, int64_t>::iterator it3 = currentBalances.begin();
+        for (std::map<CTxDestination, int64_t>::iterator it3 = currentBalances.begin(); it3 != currentBalances.end() /* not hoisted */; /* no increment */)
+        {
+            int64_t value = it3->second;
+            if(value == 0)
+            {
+                currentBalances.erase(it3++);    // or "it = m.erase(it)" since C++11
+            }
+            else
+            {
+                ++it3;
+            }
+        }
+
+        //iterate through address balances and add the correct ones for this block to build vouts for each (up to maximum)
+        int addressBalanceIndex = 0;
+        int blocksBetweenCurrentAndCRISPPayout = currentBlockHeight - crispPayoutBlockHeight;
+        int firstAddressBalanceIndex = (blocksBetweenCurrentAndCRISPPayout * Params().MaxAddressBalancesPerBlock()); //0 for no catchup
+        int lastAddressBalanceIndex = firstAddressBalanceIndex + Params().MaxAddressBalancesPerBlock() - 1;          //+ 9999, 1 is because the index is inclusive
+        std::map<CTxDestination, int64_t> returnedBalances;
+        
+        std::map<CTxDestination, int64_t>::iterator addressBalanceIterator = currentBalances.begin();
+        while (addressBalanceIterator != currentBalances.end())
+        {
+            if (addressBalanceIndex >= firstAddressBalanceIndex && addressBalanceIndex <= lastAddressBalanceIndex)
+            {
+                CTxDestination address = addressBalanceIterator->first;
+                int64_t balance = addressBalanceIterator->second;
+
+                returnedBalances[address] = balance;
+            }
+
+            addressBalanceIterator++;
+            addressBalanceIndex++;
+        }
+
+        return returnedBalances;
+    }
+
+    std::map<CTxDestination, int64_t> returnedBalances;
+    return returnedBalances;
 }
 
 std::map<CTxDestination, int64_t> GetStartingAddressBalances(int blockHeight)
 {
     int blockHeightForAddressBalances = blockHeight - Params().CRISPPayoutInterval();
+    std::map<CTxDestination, int64_t> addressBalances;
+
+    //collect address balances going back through time.
 
     //get address balances as of blockheight - Params().CRISPPayoutInterval - Params().CRISPPayoutLag - 1
     //which should be stored in block: blockheight - Params().CRISPPayoutInterval
@@ -169,17 +240,19 @@ std::map<CTxDestination, int64_t> GetStartingAddressBalances(int blockHeight)
         CBlock block;
         CBlockIndex *pblockindex = mapBlockIndex[hashBestChain];
         while (pblockindex->nHeight > blockHeightForAddressBalances)
+        {
             pblockindex = pblockindex->pprev;
+            uint256 hash = *pblockindex->phashBlock;
 
-        uint256 hash = *pblockindex->phashBlock;
+            pblockindex = mapBlockIndex[hash];
+            block.ReadFromDisk(pblockindex, true);
 
-        pblockindex = mapBlockIndex[hash];
-        block.ReadFromDisk(pblockindex, true);
-
-        return block.addressBalances;
+            if(block.addressBalances.size() > 0)
+            {
+                addressBalances.insert(block.addressBalances.begin(), block.addressBalances.end());
+            }
+        }
     }
-
-    std::map<CTxDestination, int64_t> addressBalances;
     return addressBalances;
 }
 
