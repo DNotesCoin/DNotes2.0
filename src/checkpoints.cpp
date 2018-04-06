@@ -35,10 +35,12 @@ namespace Checkpoints
 
     // TestNet has no checkpoints
     static MapCheckpoints mapCheckpointsTestnet;
+    // RegTest has no checkpoints
+    static MapCheckpoints mapCheckpointsRegTest;
 
     bool CheckHardened(int nHeight, const uint256& hash)
     {
-        MapCheckpoints& checkpoints = (TestNet() ? mapCheckpointsTestnet : mapCheckpoints);
+        MapCheckpoints& checkpoints = (TestNet() ? mapCheckpointsTestnet :IsRegTest() ? mapCheckpointsRegTest : mapCheckpoints);
 
         MapCheckpoints::const_iterator i = checkpoints.find(nHeight);
         if (i == checkpoints.end()) return true;

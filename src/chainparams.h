@@ -125,4 +125,9 @@ inline bool TestNet() {
     return Params().NetworkID() == CChainParams::TESTNET;
 }
 
+inline bool IsRegTest() {
+    // Note: it's deliberate that this returns "false" for regression test mode.
+    return Params().NetworkID() == CChainParams::REGTEST;
+}
+
 #endif
