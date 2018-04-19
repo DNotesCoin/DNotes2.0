@@ -27,6 +27,10 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 OBJECTS_DIR = build
 MOC_DIR = build
 UI_DIR = build
+macx:OPENSSL_INCLUDE_PATH=/usr/local/opt/openssl/include
+macx:OPENSSL_LIB_PATH=/usr/local/opt/openssl/lib
+macx:MINIUPNPC_LIB_PATH=/usr/local/opt/miniupnpc/lib
+macx:MINIUPNPC_INCLUDE_PATH=/usr/local/opt/miniupnpc/include
 
 # use: qmake "RELEASE=1"
 contains(RELEASE, 1) {
@@ -415,11 +419,11 @@ isEmpty(BDB_INCLUDE_PATH) {
 }
 
 isEmpty(BOOST_LIB_PATH) {
-    macx:BOOST_LIB_PATH = /opt/local/lib
+    macx:BOOST_LIB_PATH = /usr/local/opt/boost@1.57/lib
 }
 
 isEmpty(BOOST_INCLUDE_PATH) {
-    macx:BOOST_INCLUDE_PATH = /opt/local/include
+    macx:BOOST_INCLUDE_PATH = /usr/local/opt/boost@1.57/include
 }
 
 windows:DEFINES += WIN32
