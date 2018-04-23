@@ -8,16 +8,20 @@
 
 CXX=llvm-g++
 DEPSDIR=/opt/local
+RETRODEPSDIR=/usr/local/opt
 
 INCLUDEPATHS= \
  -I"$(CURDIR)" \
  -I"$(CURDIR)"/obj \
- -I"$(DEPSDIR)/include" \
+ -I"$(RETRODEPSDIR)/boost@1.57/include" \
+ -I"$(RETRODEPSDIR)/openssl/include" \
  -I"$(DEPSDIR)/include/db48"
 
 LIBPATHS= \
- -L"$(DEPSDIR)/lib" \
- -L"$(DEPSDIR)/lib/db48"
+ -L"$(RETRODEPSDIR)/openssl/lib" \
+ -L"$(RETRODEPSDIR)/boost@1.57/lib" \
+ -L"$(DEPSDIR)/lib/db48" \
+
 
 USE_UPNP:=1
 USE_WALLET:=1
@@ -26,14 +30,17 @@ LIBS= -dead_strip
 
 ifdef STATIC
 # Build STATIC if you are redistributing the dnotesd binary
+
+
 LIBS += \
  $(DEPSDIR)/lib/db48/libdb_cxx-4.8.a \
- $(DEPSDIR)/lib/libboost_system-mt.a \
- $(DEPSDIR)/lib/libboost_filesystem-mt.a \
- $(DEPSDIR)/lib/libboost_program_options-mt.a \
- $(DEPSDIR)/lib/libboost_thread-mt.a \
- $(DEPSDIR)/lib/libssl.a \
- $(DEPSDIR)/lib/libcrypto.a \
+ $(RETRODEPSDIR)/boost@1.57/lib/libboost_system-mt.a \
+ $(RETRODEPSDIR)/boost@1.57/lib/libboost_filesystem-mt.a \
+ $(RETRODEPSDIR)/boost@1.57/lib/libboost_program_options-mt.a \
+ $(RETRODEPSDIR)/boost@1.57/lib/libboost_thread-mt.a \
+ $(RETRODEPSDIR)/boost@1.57/lib/libboost_chrono-mt.a \
+ $(RETRODEPSDIR)/openssl/lib/libssl.a \
+ $(RETRODEPSDIR)/openssl/lib/libcrypto.a \
  -lz
 else
 LIBS += \
@@ -63,12 +70,15 @@ CFLAGS += -Wall -Wextra -Wformat -Wno-ignored-qualifiers -Wformat-security -Wno-
     $(DEBUGFLAGS) $(DEFS) $(INCLUDEPATHS)
 
 OBJS= \
+    obj/fs.o \
     obj/alert.o \
     obj/version.o \
     obj/checkpoints.o \
     obj/netbase.o \
     obj/addrman.o \
     obj/crypter.o \
+    obj/consensus.o \
+    obj/crisp.o \
     obj/key.o \
     obj/init.o \
     obj/bitcoind.o \
@@ -89,14 +99,30 @@ OBJS= \
     obj/sync.o \
     obj/txmempool.o \
     obj/util.o \
+    obj/invoiceutil.o \
     obj/hash.o \
     obj/noui.o \
-    obj/pbkdf2.o \
     obj/kernel.o \
+    obj/pbkdf2.o \
     obj/scrypt.o \
+    obj/scrypt-arm.o \
     obj/scrypt-x86.o \
     obj/scrypt-x86_64.o \
-    obj/chainparams.o
+    obj/chainparams.o \
+    obj/x13hash/cubehash.o \
+    obj/x13hash/luffa.o \
+    obj/x13hash/aes_helper.o \
+    obj/x13hash/echo.o \
+    obj/x13hash/shavite.o \
+    obj/x13hash/simd.o \
+    obj/x13hash/blake.o\
+    obj/x13hash/bmw.o\
+    obj/x13hash/groestl.o\
+    obj/x13hash/jh.o\
+    obj/x13hash/keccak.o\
+    obj/x13hash/skein.o\
+    obj/x13hash/hamsi.o\
+    obj/x13hash/fugue.o
 
 ifeq (${USE_WALLET}, 1)
     DEFS += -DENABLE_WALLET
@@ -151,6 +177,9 @@ obj/scrypt-x86.o: scrypt-x86.S
 	$(CXX) -c $(xCXXFLAGS) -MMD -o $@ $<
 
 obj/scrypt-x86_64.o: scrypt-x86_64.S
+	$(CXX) -c $(xCXXFLAGS) -MMD -o $@ $<
+
+obj/scrypt-arm.o: scrypt-arm.S
 	$(CXX) -c $(xCXXFLAGS) -MMD -o $@ $<
 
 dnotesd: $(OBJS:obj/%=obj/%)

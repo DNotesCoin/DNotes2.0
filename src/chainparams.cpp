@@ -113,9 +113,22 @@ public:
         vFixedSeeds.clear();
         vSeeds.clear();
 
-        vSeeds.push_back(CDNSSeedData("Seednode1", "d20.dnotescoin.com"));
-        vSeeds.push_back(CDNSSeedData("Seednode1", "d21.dnotescoin.com"));
-        vSeeds.push_back(CDNSSeedData("Seednode1", "d22.dnotescoin.com"));
+        vSeeds.push_back(CDNSSeedData("d20.dnotescoin.com", "d20.dnotescoin.com"));
+        vSeeds.push_back(CDNSSeedData("d21.dnotescoin.com", "d21.dnotescoin.com"));
+        vSeeds.push_back(CDNSSeedData("d22.dnotescoin.com", "d22.dnotescoin.com"));
+	vSeeds.push_back(CDNSSeedData("d23.dnotescoin.com", "d23.dnotescoin.com"));
+	vSeeds.push_back(CDNSSeedData("d24.dnotescoin.com", "d24.dnotescoin.com"));
+	vSeeds.push_back(CDNSSeedData("d25.dnotescoin.com", "d25.dnotescoin.com"));
+	vSeeds.push_back(CDNSSeedData("d26.dnotescoin.com", "d26.dnotescoin.com"));
+	vSeeds.push_back(CDNSSeedData("d27.dnotescoin.com", "d27.dnotescoin.com"));
+	vSeeds.push_back(CDNSSeedData("d28.dnotescoin.com", "d28.dnotescoin.com"));
+	vSeeds.push_back(CDNSSeedData("d29.dnotescoin.com", "d29.dnotescoin.com"));
+	vSeeds.push_back(CDNSSeedData("d30.dnotescoin.com", "d30.dnotescoin.com"));
+	vSeeds.push_back(CDNSSeedData("d31.dnotescoin.com", "d31.dnotescoin.com"));
+	vSeeds.push_back(CDNSSeedData("d32.dnotescoin.com", "d32.dnotescoin.com"));
+	vSeeds.push_back(CDNSSeedData("d33.dnotescoin.com", "d33.dnotescoin.com"));
+	vSeeds.push_back(CDNSSeedData("d34.dnotescoin.com", "d34.dnotescoin.com"));
+	vSeeds.push_back(CDNSSeedData("d35.dnotescoin.com", "d35.dnotescoin.com"));
 
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 63);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 125);
