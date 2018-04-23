@@ -218,6 +218,49 @@ BOOST_AUTO_TEST_CASE(serialize_block_test_byte_offsets)
 }
 
 
+BOOST_AUTO_TEST_CASE(serialize_block_test_byte_offsets_invoice1)
+{
+        CBlock block = CBlock();
+        std::stringstream ss;
+
+        CTransaction tx = CTransaction();
+        CTxIn input = CTxIn();
+        input.nSequence = 678;
+        CTxOut output = CTxOut();
+        output.nValue = 1234;
+        output.invoiceNumber = "";
+
+        tx.vin.push_back(input);
+        tx.vout.push_back(output);
+
+        block.vtx.push_back(tx);
+
+        ss.str("");
+        block.Serialize(ss, 1, 1);
+        BOOST_TEST_MESSAGE(string_to_hex(ss.str()));
+}
+
+BOOST_AUTO_TEST_CASE(serialize_block_test_byte_offsets_invoice2)
+{
+        CBlock block = CBlock();
+        std::stringstream ss;
+
+        CTransaction tx = CTransaction();
+        CTxIn input = CTxIn();
+        input.nSequence = 678;
+        CTxOut output = CTxOut();
+        output.nValue = 1234;
+
+        tx.vin.push_back(input);
+        tx.vout.push_back(output);
+
+        block.vtx.push_back(tx);
+
+        ss.str("");
+        block.Serialize(ss, 1, 1);
+        BOOST_TEST_MESSAGE(string_to_hex(ss.str()));
+}
+
 BOOST_AUTO_TEST_CASE(varints)
 {
     // encode
@@ -250,5 +293,15 @@ BOOST_AUTO_TEST_CASE(varints)
     }
 
 }
+
+BOOST_AUTO_TEST_CASE(genesis_block)
+{
+        CBlock block = Params().GenesisBlock();
+        std::stringstream ss;
+        ss.str("");
+        block.Serialize(ss, 1, 1);
+        BOOST_TEST_MESSAGE(string_to_hex(ss.str()));
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
