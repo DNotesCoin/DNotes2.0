@@ -1,0 +1,2 @@
+debian/bin/dnotesd usr/bin
+src/dnotesd usr/lib/dnotes

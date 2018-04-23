@@ -1,6 +1,6 @@
 [Protocol]
-exec=stratis-qt '%u'
-protocol=stratis
+exec=dnotes-qt '%u'
+protocol=dnotes
 input=none
 output=none
 helper=true
