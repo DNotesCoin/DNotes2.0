@@ -142,12 +142,13 @@ public:
 
         nCRISPPayoutInterval = 60 * 24 * 30; //43200 minutes in 30 days
         nCRISPPayoutLag = 60 * 24 * 7; //10080 minutes in 30 days
-        nMaxCoinBaseOutputsPerBlock = 10000;
-        nMaxAddressBalancesPerBlock = 10000;
+        nMaxAddressBalancesPerBlock = 5000;
+        
         nMaxTransactionsPerBlock = 100;
         nMaxInputsAndOutputsPerBlock = 300;
         nMaxInputsAndOutputsPerTransaction = 50;
         nCRISPPayoutPercentage = .005; //half a percent, paid out roughly monthly
+        nV201Update = DNV201_UPDATE;
      }
 
     virtual const CBlock& GenesisBlock() const { return genesis; }
@@ -216,7 +217,7 @@ public:
 
         //for testing
         nMaxAddressBalancesPerBlock = 10;
-        nMaxCoinBaseOutputsPerBlock = 10;
+        nV201Update = 60;
     }
     virtual Network NetworkID() const { return CChainParams::TESTNET; }
 };
@@ -251,8 +252,8 @@ public:
         fPOWNoRetargeting = true;
 
         //for testing
-        nMaxAddressBalancesPerBlock = 5;
-        nMaxCoinBaseOutputsPerBlock = 5;
+        nMaxAddressBalancesPerBlock = 10;
+        nV201Update = 0;
     }
 
     virtual bool RequireRPCPassword() const { return false; }

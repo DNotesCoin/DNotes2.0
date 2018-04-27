@@ -1564,7 +1564,7 @@ bool CWallet::CreateTransaction(const vector<boost::tuple<CScript, int64_t, stri
         }
     }
 
-    if(wtxNew.vin.size() + wtxNew.vout.size() > Params().MaxInputsAndOutputsPerTransaction())
+    if(wtxNew.vin.size() + wtxNew.vout.size() > Params().MaxInputsAndOutputsPerTransaction(nBestHeight))
     {
         return false;
     }

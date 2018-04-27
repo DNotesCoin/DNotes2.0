@@ -549,21 +549,6 @@ bool CTransaction::CheckTransaction() const
     if (::GetSerializeSize(*this, SER_NETWORK, PROTOCOL_VERSION) > MAX_BLOCK_SIZE)
         return DoS(100, error("CTransaction::CheckTransaction() : size limits failed"));
     
-    if (IsCoinBase())
-    {
-        if(vout.size() > Params().MaxCoinBaseOutputsPerBlock() + 1) //1 for the pow/pos coinbase reward
-            return DoS(100, error("CTransaction::CheckTransaction() : input/output limits failed"));
-    }
-    else if(IsCoinStake())
-    {  
-            //coinstake validation done elseware
-    }
-    else
-    {
-        if(vin.size() + vout.size() > Params().MaxInputsAndOutputsPerTransaction())
-            return DoS(100, error("CTransaction::CheckTransaction() : input/output limits failed"));
-    }
-    
     // Check for negative or overflow output values
     int64_t nValueOut = 0;
     for (unsigned int i = 0; i < vout.size(); i++)
@@ -651,6 +636,9 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CTransaction &tx, bool fLimitFree,
     if (!TestNet() && !IsStandardTx(tx, reason))
         return error("AcceptToMemoryPool : nonstandard transaction: %s",
                      reason);
+
+    if(tx.vin.size() + tx.vout.size() > Params().MaxInputsAndOutputsPerTransaction(pindexBest->nHeight+1))
+        return tx.DoS(100, error("AcceptToMemoryPool::CheckTransaction() : input/output limits failed"));
 
     // is it already in the memory pool?
     uint256 hash = tx.GetHash();
@@ -1999,22 +1987,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
     for (unsigned int i = 1; i < vtx.size(); i++)
         if (vtx[i].IsCoinBase())
             return DoS(100, error("CheckBlock() : more than one coinbase"));
-
-    //Only 10k CRISP payouts allowed per block
-    if(vtx[0].vout.size() > (Params().MaxCoinBaseOutputsPerBlock() + 1))
-        return DoS(100, error("CheckBlock() : too many CRISP outputs"));
-    
-    //only 101 or 102 transactions allowed per block
-    unsigned int reservedTransactionCount = 1; //coinbase tx
-    if (IsProofOfStake())
-    {
-        reservedTransactionCount++; //coinstake tx
-    }
-    if(vtx.size() > Params().MaxTransactionsPerBlock() + reservedTransactionCount)
-        return DoS(100, error("CheckBlock() : too many transactions"));
-    
-    //check tx count in block
-
+   
     if (IsProofOfStake())
     {
         // Second transaction must be coinstake, the rest must not be
@@ -2029,7 +2002,6 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
     if (fCheckSig && !CheckBlockSignature())
         return DoS(100, error("CheckBlock() : bad proof-of-stake block signature"));
 
-    unsigned int totalInputsAndOutputs = 0;
     // Check transactions
     BOOST_FOREACH(const CTransaction& tx, vtx)
     {
@@ -2039,13 +2011,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
         // ppcoin: check transaction timestamp
         if (GetBlockTime() < (int64_t)tx.nTime)
             return DoS(50, error("CheckBlock() : block timestamp earlier than transaction timestamp"));
-
-        if(!tx.IsCoinBase() && !tx.IsCoinStake())
-            totalInputsAndOutputs += tx.vin.size() + tx.vout.size();
     }
-
-    if(totalInputsAndOutputs > Params().MaxInputsAndOutputsPerBlock())
-        return DoS(50, error("CheckBlock() : block has too many total inputs and outputs"));
 
     // Check for duplicate txids. This is caught by ConnectInputs(),
     // but catching it earlier avoids a potential DoS attack:
@@ -2118,10 +2084,37 @@ bool CBlock::AcceptBlock()
     if (GetBlockTime() <= pindexPrev->GetPastTimeLimit() || FutureDrift(GetBlockTime()) < pindexPrev->GetBlockTime())
         return error("AcceptBlock() : block's timestamp is too early");
 
-    // Check that all transactions are finalized
-    BOOST_FOREACH(const CTransaction& tx, vtx)
+    if(vtx[0].vout.size() > (Params().MaxCoinBaseOutputsPerBlock()))
+        return DoS(100, error("AcceptBlock() : too many CRISP outputs"));
+
+
+    //only 101 or 102 transactions allowed per block
+    unsigned int reservedTransactionCount = 1; //coinbase tx
+    if (IsProofOfStake())
+    {
+        reservedTransactionCount++; //coinstake tx
+    }
+    if(vtx.size() > Params().MaxTransactionsPerBlock(nHeight) + reservedTransactionCount)
+        return DoS(100, error("AcceptBlock() : too many transactions"));
+     
+
+    unsigned int txIOCount = 0;
+    BOOST_FOREACH(const CTransaction& tx, vtx) {
+        // Check that all transactions are finalized
         if (!IsFinalTx(tx, nHeight, GetBlockTime()))
             return DoS(10, error("AcceptBlock() : contains a non-final transaction"));
+
+        if (!tx.IsCoinBase() && !tx.IsCoinStake() && (tx.vin.size() + tx.vout.size() > Params().MaxInputsAndOutputsPerTransaction(nHeight)))
+            return DoS(100, error("AcceptBlock() : input/output limits failed"));
+
+        if(!tx.IsCoinBase() && !tx.IsCoinStake()) 
+            txIOCount += tx.vin.size() + tx.vout.size();
+        
+    }
+
+    if(txIOCount > Params().MaxInputsAndOutputsPerBlock(nHeight))
+        return DoS(50, error("AcceptBlock() : block has too many total inputs and outputs"));
+
 
     // Check that the block chain matches the known block chain up to a checkpoint
     if (!Checkpoints::CheckHardened(nHeight, hash))

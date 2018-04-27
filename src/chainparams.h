@@ -9,12 +9,17 @@
 #include "bignum.h"
 #include "uint256.h"
 #include "util.h"
+#include <limits>
 
 #include <vector>
 
 using namespace std;
 
 #define MESSAGE_START_SIZE 4
+
+//DNotes 2.0.1 - remove transaction limits per block - this is the production number
+#define DNV201_UPDATE 44870
+
 typedef unsigned char MessageStartChars[MESSAGE_START_SIZE];
 
 class CAddress;
@@ -73,11 +78,12 @@ public:
     int CRISPPayoutInterval() const {return nCRISPPayoutInterval;}
     int CRISPPayoutLag() const {return nCRISPPayoutLag;}
     double CRISPPayoutPercentage() const {return nCRISPPayoutPercentage;}
-    unsigned int MaxCoinBaseOutputsPerBlock() const {return nMaxCoinBaseOutputsPerBlock;}
-    unsigned int MaxAddressBalancesPerBlock() const {return nMaxAddressBalancesPerBlock;}
-    unsigned int MaxTransactionsPerBlock() const {return nMaxTransactionsPerBlock;}
-    unsigned int MaxInputsAndOutputsPerBlock() const {return nMaxInputsAndOutputsPerBlock;}
-    unsigned int MaxInputsAndOutputsPerTransaction() const {return nMaxInputsAndOutputsPerTransaction;}
+    unsigned int MaxCoinBaseOutputsPerBlock() const {return nMaxAddressBalancesPerBlock + 1; }
+    unsigned int MaxAddressBalancesPerBlock() const {return nMaxAddressBalancesPerBlock; }
+    unsigned int MaxTransactionsPerBlock(int nHeight) const { return AtV201(nHeight) ? std::numeric_limits<int>::max() : nMaxTransactionsPerBlock; }
+    unsigned int MaxInputsAndOutputsPerBlock(int nHeight) const {return AtV201(nHeight) ? std::numeric_limits<int>::max() : nMaxInputsAndOutputsPerBlock;}
+    unsigned int MaxInputsAndOutputsPerTransaction(int nHeight) const {return AtV201(nHeight) ? std::numeric_limits<int>::max() : nMaxInputsAndOutputsPerTransaction; }
+    
 protected:
     CChainParams() {};
 
@@ -98,11 +104,13 @@ protected:
     int nCRISPPayoutInterval;
     int nCRISPPayoutLag;
     double nCRISPPayoutPercentage;
-    unsigned int nMaxCoinBaseOutputsPerBlock;
     unsigned int nMaxAddressBalancesPerBlock;
     unsigned int nMaxTransactionsPerBlock;
     unsigned int nMaxInputsAndOutputsPerBlock;
     unsigned int nMaxInputsAndOutputsPerTransaction;
+    int nV201Update;
+
+    bool AtV201 (int nHeight) const {return nHeight >= nV201Update; }
 };
 
 /**

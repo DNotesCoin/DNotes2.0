@@ -276,9 +276,9 @@ CBlock* CreateNewBlock(CPubKey pubKey, bool fProofOfStake, int64_t* pFees)
             unsigned int nTxSize = ::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION);
             if (nBlockSize + nTxSize >= nBlockMaxSize)
                 continue;
-            if(nBlockTx + 1 > Params().MaxTransactionsPerBlock())
+            if(nBlockTx + 1 > Params().MaxTransactionsPerBlock(nHeight))
                 continue;
-            if(nBlockInputsAndOutputs + tx.vin.size() + tx.vout.size() > Params().MaxInputsAndOutputsPerBlock())
+            if(nBlockInputsAndOutputs + tx.vin.size() + tx.vout.size() > Params().MaxInputsAndOutputsPerBlock(nHeight))
                 continue;
 
             // Legacy limits on sigOps:
