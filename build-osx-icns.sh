@@ -8,6 +8,16 @@ cd src/qt/res/icons
 mkdir DNotes.iconset
 pwd
 
+sips -s format png DNotes.ico --out DNotes.png
+sips -z 16 16     DNotes.png --out DNotes.iconset/DNotes_16x16.png
+sips -z 32 32     DNotes.png --out DNotes.iconset/DNotes_16x16@2x.png
+sips -z 32 32     DNotes.png --out DNotes.iconset/DNotes_32x32.png
+sips -z 64 64     DNotes.png --out DNotes.iconset/DNotes_32x32@2x.png
+sips -z 128 128   DNotes.png --out DNotes.iconset/DNotes_128x128.png
+sips -z 256 256   DNotes.png --out DNotes.iconset/DNotes_128x128@2x.png
+sips -z 256 256   DNotes.png --out DNotes.iconset/DNotes_256x256.png
+sips -z 512 512   DNotes.png --out DNotes.iconset/DNotes_256x256@2x.png
+sips -z 512 512   DNotes.png --out DNotes.iconset/DNotes_512x512.png
 sips -z 16 16     add.png --out DNotes.iconset/add_16x16.png
 sips -z 32 32     add.png --out DNotes.iconset/add_16x16@2x.png
 sips -z 32 32     add.png --out DNotes.iconset/add_32x32.png
