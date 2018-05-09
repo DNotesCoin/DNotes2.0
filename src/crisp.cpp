@@ -4,6 +4,7 @@ using namespace std;
 
 #include "main.h"
 #include "script.h"
+#include "txdb.h"
 
 namespace CRISP
 {
@@ -262,6 +263,9 @@ void CalculateAddressBalanceDeltas(int startingHeight, int endingHeight, std::ma
     LogPrint("crisp", "starting balance delta loop");
     CBlock block;
     CBlockIndex *pblockindex = mapBlockIndex[hashBestChain];
+
+    CTxDB txdb("r");        
+    
     while (pblockindex && pblockindex->nHeight >= startingHeight)
     {
         LogPrint("crisp", "balance delta loop %d", pblockindex->nHeight);
@@ -272,7 +276,7 @@ void CalculateAddressBalanceDeltas(int startingHeight, int endingHeight, std::ma
 
             pblockindex = mapBlockIndex[hash];
             block.ReadFromDisk(pblockindex, true);
-
+            
             //transactions
             BOOST_FOREACH (CTransaction &transaction, block.vtx)
             {
@@ -285,8 +289,8 @@ void CalculateAddressBalanceDeltas(int startingHeight, int endingHeight, std::ma
                 BOOST_FOREACH (CTxIn &input, transaction.vin)
                 {
                     CTransaction inputTransaction;
-                    uint256 hashBlock = 0;
-                    if (GetTransaction(input.prevout.hash, inputTransaction, hashBlock))
+                    CTxIndex txindex;
+                    if (inputTransaction.ReadFromDisk(txdb, input.prevout.hash, txindex))
                     {
                         CTxOut originatingOutput = inputTransaction.vout[input.prevout.n];
 
