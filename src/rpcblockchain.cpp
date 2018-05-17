@@ -267,6 +267,30 @@ Value getblock(const Array& params, bool fHelp)
     return blockToJSON(block, pblockindex, params.size() > 1 ? params[1].get_bool() : false);
 }
 
+Value getrawblock(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() < 1)
+        throw runtime_error(
+            "getrawblock <hash>\n"
+            "Returns raw block data.");
+
+    std::string strHash = params[0].get_str();
+    uint256 hash(strHash);
+
+    if (mapBlockIndex.count(hash) == 0)
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Block not found");
+
+    CBlock block;
+    CBlockIndex* pblockindex = mapBlockIndex[hash];
+    block.ReadFromDisk(pblockindex, true);
+
+    CDataStream ss(SER_DISK, CLIENT_VERSION);
+    ss << block;
+    string strHex = HexStr(ss.begin(), ss.end());
+
+    return strHex;
+}
+
 Value getblockbynumber(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() < 1 || params.size() > 2)
